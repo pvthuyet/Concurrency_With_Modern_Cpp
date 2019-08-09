@@ -25,10 +25,11 @@
 - `std::unordered_multiset`
 - `std::unordered_multimap`
 ##### 7. [Utilities library](https://en.cppreference.com/w/cpp/utility)
-- `std::move_if_noexcept`
-- `std:: initializer_list`
+- [`std::move_if_noexcept`](https://en.cppreference.com/w/cpp/utility/move_if_noexcept)
+- [`std:: initializer_list`](https://en.cppreference.com/w/cpp/utility/initializer_list)
 - [`std::hash`](https://en.cppreference.com/w/cpp/utility/hash)
 - [`std::regex`](https://en.cppreference.com/w/cpp/regex)
+- [`std::declval`](https://en.cppreference.com/w/cpp/utility/declval)
   
 ##### New Keywords
 | New Keyword     | Explain                     | Example                          |
