@@ -27,9 +27,15 @@
     <ClInclude Include="tet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="thread_guard.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="thread_guard.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

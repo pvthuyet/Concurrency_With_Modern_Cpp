@@ -5,7 +5,7 @@
 #include <vld.h>
 namespace tet
 {
-	namespace threadsafe {
+	namespace concurrency {
 		template<typename T>
 		class queue
 		{
@@ -71,7 +71,7 @@ namespace tet
 			queue();
 			queue(const queue&) = delete;
 			queue& operator=(const queue&) = delete;
-			virtual ~queue() = default;
+			virtual ~queue() noexcept {}
 
 			bool empty();
 			void push(T Val);

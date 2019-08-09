@@ -4,10 +4,11 @@
 #include "pch.h"
 #include <iostream>
 #include "tet.h"
+#include <string>
 
 void test_queue()
 {
-	tet::threadsafe::queue<int> q;
+	tet::concurrency::queue<int> q;
 	q.push(1);
 	q.push(2);
 	q.push(3);
@@ -28,10 +29,18 @@ void test_queue()
 	std::cout << pop4 << std::endl;
 
 }
-
+void test_thread()
+{
+	auto f = [](std::string name)
+	{
+		std::cout << "hello thread " << name << std::endl;
+	};
+	tet::thread_guard t(std::thread(f, "ABC"));
+}
 int main()
 {
 	test_queue();
+	test_thread();
     std::cout << "End!\n"; 
 }
 
