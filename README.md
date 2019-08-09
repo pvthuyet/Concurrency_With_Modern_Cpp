@@ -13,6 +13,8 @@
 - `std::future`
 - `std::promise`
 - `std::atomic`
+- `std::mutex`
+- `std::condition_variable`
 ##### 5. Variadic templates
   
 | New Keyword     | Explain                     | Example                          |
