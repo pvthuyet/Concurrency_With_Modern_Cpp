@@ -1,11 +1,19 @@
 ## C++11 Features
 ##### 1. Smart Pointers
-- `std::unique_ptr`, `std::shared_ptr`, `std::weak_ptr`
-- `std::make_unique`, s`td::make_shared`
-2. Rvalue references, Move Semantics, and Perfect Forwarding
-3. Lambda Expressions
-4. Concurrency API
-5. Variadic templates
+- `std::unique_ptr`, `std::make_unique`
+- `std::shared_ptr`, `std::make_shared`
+- `std::weak_ptr`
+##### 2. Rvalue references, Move Semantics, and Perfect Forwarding
+- `std::move`
+- `std::forward`
+##### 3. Lambda Expressions
+##### 4. Concurrency API
+- `std::thread`
+- `std::async`
+- `std::future`
+- `std::promise`
+- `std::atomic`
+##### 5. Variadic templates
   
 | New Keyword     | Explain                     | Example                          |
 | :-------------- | --------------------------- | -------------------------------- |
