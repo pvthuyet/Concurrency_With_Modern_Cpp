@@ -34,7 +34,7 @@
 ##### New Keywords
 | New Keyword     | Explain                     | Example                          |
 | :-------------- | --------------------------- | -------------------------------- |
-| `delete`        |    a  b  c                         |                                  |
+| `delete`        | to prevent users call a particular function | class foo { public: foo() = delete; void print(int v) = delete; } |
 | `default`       |                             |                                  |
 | `override`      |                             |                                  |
 | `noexcept`      |                             |                                  |
