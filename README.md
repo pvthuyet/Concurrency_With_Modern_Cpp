@@ -4,10 +4,12 @@
 3. Lambda function
 4. Variadic templates
   
-| New Keyword     | Expalin                     | Example                          |
+| New Keyword     | Explain                     | Example                          |
 | :-------------- | --------------------------- | -------------------------------- |
 | `delete`        |                             |                                  |
 | `default`       |                             |                                  |
+| `override`      |                             |                                  |
+| `noexcept`      |                             |                                  |
 | `auto`          |                             |                                  |
 | `constexpr`     |                             |                                  |
 | `nullptr`       |                             |                                  |
