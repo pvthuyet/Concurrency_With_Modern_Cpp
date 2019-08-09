@@ -31,7 +31,7 @@
 - [`std::regex`](https://en.cppreference.com/w/cpp/regex)
 - [`std::declval`](https://en.cppreference.com/w/cpp/utility/declval)
   
-##### New Keywords
+##### 8. New Keywords
 | New Keyword     | Explain                     | 
 | :-------------- | --------------------------- |
 | `delete`        | to prevent users call a particular function |
