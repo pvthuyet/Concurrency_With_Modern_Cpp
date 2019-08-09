@@ -18,7 +18,7 @@
 ##### 5. Variadic templates
 ##### 6. New containers
 - [`std::tuple`](https://en.cppreference.com/w/cpp/utility/tuple)
-- `std::array`](https://en.cppreference.com/w/cpp/container/array)
+- [`std::array`](https://en.cppreference.com/w/cpp/container/array)
 - [`std::forward_list`](https://en.cppreference.com/w/cpp/container/forward_list)
 - [`std::unordered_set`](https://en.cppreference.com/w/cpp/container/unordered_set)
 - [`std::unordered_map`](https://en.cppreference.com/w/cpp/container/unordered_map)
