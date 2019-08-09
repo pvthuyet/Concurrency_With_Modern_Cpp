@@ -12,8 +12,8 @@
 | `constexpr`     |                             |                                  |
 | `nullptr`       |                             |                                  |
 | `thread_local`  |                             |                                  |
-| `delete`        |                             |                                  |
-| `delete`        |                             |                                  |
+| `using` alias   |                             |                                  |
+| `decltype`      |                             |                                  |
 
   
 ![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/timeline.png)
