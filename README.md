@@ -17,12 +17,18 @@
 - `std::condition_variable`
 ##### 5. Variadic templates
 ##### 6. New containers
+- `std::tuple`
 - `std::array`
 - `std::forward_list`
 - `std::unordered_set`
 - `std::unordered_map`
 - `std::unordered_multiset`
 - `std::unordered_multimap`
+##### 7. [Utilities library](https://en.cppreference.com/w/cpp/utility)
+- `std::move_if_noexcept`
+- `std:: initializer_list`
+- [`std::hash`](https://en.cppreference.com/w/cpp/utility/hash)
+- [`std::regex`](https://en.cppreference.com/w/cpp/regex)
   
 ##### New Keywords
 | New Keyword     | Explain                     | Example                          |
