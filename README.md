@@ -17,13 +17,13 @@
 - `std::condition_variable`
 ##### 5. Variadic templates
 ##### 6. New containers
-- `std::tuple`
-- `std::array`
-- `std::forward_list`
-- `std::unordered_set`
-- `std::unordered_map`
-- `std::unordered_multiset`
-- `std::unordered_multimap`
+- [`std::tuple`](https://en.cppreference.com/w/cpp/utility/tuple)
+- `std::array`](https://en.cppreference.com/w/cpp/container/array)
+- [`std::forward_list`](https://en.cppreference.com/w/cpp/container/forward_list)
+- [`std::unordered_set`](https://en.cppreference.com/w/cpp/container/unordered_set)
+- [`std::unordered_map`](https://en.cppreference.com/w/cpp/container/unordered_map)
+- [`std::unordered_multiset`](https://en.cppreference.com/w/cpp/container/unordered_multiset)
+- [`std::unordered_multimap`](https://en.cppreference.com/w/cpp/container/unordered_multimap)
 ##### 7. [Utilities library](https://en.cppreference.com/w/cpp/utility)
 - [`std::move_if_noexcept`](https://en.cppreference.com/w/cpp/utility/move_if_noexcept)
 - [`std:: initializer_list`](https://en.cppreference.com/w/cpp/utility/initializer_list)
