@@ -34,7 +34,7 @@
 ##### New Keywords
 | New Keyword     | Explain                     | Example                          |
 | :-------------- | --------------------------- | -------------------------------- |
-| `delete`        |                             |                                  |
+| `delete`        |    a  b  c                         |                                  |
 | `default`       |                             |                                  |
 | `override`      |                             |                                  |
 | `noexcept`      |                             |                                  |
