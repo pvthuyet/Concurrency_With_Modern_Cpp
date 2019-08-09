@@ -29,6 +29,7 @@
 | `thread_local`  |                             |                                  |
 | `using` alias   |                             |                                  |
 | `decltype`      |                             |                                  |
+| `enum class`    |                             |                                  |
 
   
 ![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/timeline.png)
