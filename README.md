@@ -32,19 +32,19 @@
 - [`std::declval`](https://en.cppreference.com/w/cpp/utility/declval)
   
 ##### New Keywords
-| New Keyword     | Explain                     | Example                          |
-| :-------------- | --------------------------- | -------------------------------- |
-| `delete`        | to prevent users call a particular function | class foo { public: foo() = delete; void print(int v) = delete; } |
-| `default`       |                             |                                  |
-| `override`      |                             |                                  |
-| `noexcept`      |                             |                                  |
-| `auto`          |                             |                                  |
-| `constexpr`     |                             |                                  |
-| `nullptr`       |                             |                                  |
-| `thread_local`  |                             |                                  |
-| `using` alias   |                             |                                  |
-| `decltype`      |                             |                                  |
-| `enum class`    |                             |                                  |
+| New Keyword     | Explain                     | 
+| :-------------- | --------------------------- |
+| `delete`        | to prevent users call a particular function |
+| `default`       |                             |
+| `override`      |                             |
+| `noexcept`      |                             | 
+| `auto`          |                             |  
+| `constexpr`     |                             |  
+| `nullptr`       |                             |
+| `thread_local`  |                             |
+| `using` alias   |                             |
+| `decltype`      |                             |
+| `enum class`    |                             |
 
   
 ![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/timeline.png)
