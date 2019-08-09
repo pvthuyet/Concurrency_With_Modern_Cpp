@@ -16,7 +16,15 @@
 - `std::mutex`
 - `std::condition_variable`
 ##### 5. Variadic templates
+##### 6. New containers
+- `std::array`
+- `std::forward_list`
+- `std::unordered_set`
+- `std::unordered_map`
+- `std::unordered_multiset`
+- `std::unordered_multimap`
   
+##### New Keywords
 | New Keyword     | Explain                     | Example                          |
 | :-------------- | --------------------------- | -------------------------------- |
 | `delete`        |                             |                                  |
