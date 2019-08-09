@@ -1,0 +1,10 @@
+
+tet/.vs/tet/v15/.suo
+*.db
+*.opendb
+*.ipch
+*.exe
+*.ilk
+*.pdb
+tet/Debug/tet.lib
+*.user
