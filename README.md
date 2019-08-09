@@ -9,3 +9,5 @@
 8. Move semantics
 9. Lambda function
 10. Variadic templates
+  
+![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/timeline.png)
