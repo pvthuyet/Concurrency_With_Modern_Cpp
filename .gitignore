@@ -8,3 +8,9 @@ tet/.vs/tet/v15/.suo
 *.pdb
 tet/Debug/tet.lib
 *.user
+*.obj
+*.lastbuildstate
+*.tlog
+*.pch
+*.log
+*.idb
