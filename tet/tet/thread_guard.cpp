@@ -7,8 +7,6 @@ namespace tet {
 		m_type(typ)
 	{
 	}
-
-
 	thread_guard::~thread_guard() noexcept
 	{
 		if (m_t.joinable())

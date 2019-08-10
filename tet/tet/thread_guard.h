@@ -15,6 +15,14 @@ namespace tet {
 
 	public:
 		thread_guard(std::thread&& t, thread_type typ = thread_type::join);
+		template<class Fn,
+			class... Args>
+			explicit thread_guard(thread_type typ, Fn&& fx, Args&&... ax) :
+				m_t(std::forward<Fn>(fx), std::forward<Args>(ax)...),
+				m_type(typ)
+				
+		{
+		}
 		virtual ~thread_guard() noexcept;
 		// Disable copy
 		thread_guard(const thread_guard&) = delete;

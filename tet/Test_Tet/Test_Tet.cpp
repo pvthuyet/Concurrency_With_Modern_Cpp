@@ -31,11 +31,11 @@ void test_queue()
 }
 void test_thread()
 {
-	auto f = [](std::string name)
+	auto f = [](std::string const& name)
 	{
 		std::cout << "hello thread " << name << std::endl;
 	};
-	tet::thread_guard t(std::thread(f, "ABC"));
+	tet::thread_guard t1(tet::thread_guard::thread_type::join, f, "abc");
 }
 int main()
 {
