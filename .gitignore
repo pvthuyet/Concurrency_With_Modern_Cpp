@@ -14,3 +14,5 @@ tet/Debug/tet.lib
 *.pch
 *.log
 *.idb
+*.db-shm
+*.db-wal
