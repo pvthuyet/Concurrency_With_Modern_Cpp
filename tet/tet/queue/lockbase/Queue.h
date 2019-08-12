@@ -5,56 +5,56 @@
 #include <vld.h>
 namespace tet
 {
-	namespace concurrency {
+	namespace lockbase {
 		template<typename T>
-		class queue
+		class Queue
 		{
 		private:
-			// Data structure of queue
+			// Data structure of Queue
 			struct node
 			{
-				std::shared_ptr<T> m_data;
-				std::unique_ptr<node> m_next;
+				std::shared_ptr<T> mData;
+				std::unique_ptr<node> mNext;
 			};
 
-			// data queue
-			std::unique_ptr<node> m_head;
-			node* m_tail;
+			// data Queue
+			std::unique_ptr<node> mHead;
+			node* mTail;
 
 			// Thread safe data
-			std::condition_variable m_cv;
-			std::mutex m_headMutex;
-			std::mutex m_tailMutex;
+			std::condition_variable mCV;
+			std::mutex mHeadMutex;
+			std::mutex mTailMutex;
 
 			// Private methods
 			node* getTail()
 			{
-				std::lock_guard<std::mutex> lock(m_tailMutex);
-				return m_tail;
+				std::lock_guard<std::mutex> lock(mTailMutex);
+				return mTail;
 			}
 			std::unique_ptr<node> popHead() {
-				std::unique_ptr<node> oldHead = std::move(m_head);
-				m_head = std::move(oldHead->m_next);
+				std::unique_ptr<node> oldHead = std::move(mHead);
+				mHead = std::move(oldHead->mNext);
 				return oldHead;
 			}
 			std::unique_lock<std::mutex> waitForData() {
-				std::unique_lock<std::mutex> lock(m_headMutex);
-				m_cv.wait(lock, [&] { return m_head.get() != getTail(); });
+				std::unique_lock<std::mutex> lock(mHeadMutex);
+				mCV.wait(lock, [&] { return mHead.get() != getTail(); });
 				return std::move(lock);
 			}
 			std::unique_ptr<node> tryPopHead() {
-				std::lock_guard<std::mutex> lock(m_headMutex);
-				if (m_head.get() == getTail()) {
+				std::lock_guard<std::mutex> lock(mHeadMutex);
+				if (mHead.get() == getTail()) {
 					return nullptr;
 				}
 				return popHead();
 			}
 			std::unique_ptr<node> tryPopHead(T& val) {
-				std::lock_guard<std::mutex> lock(m_headMutex);
-				if (m_head.get() == getTail()) {
+				std::lock_guard<std::mutex> lock(mHeadMutex);
+				if (mHead.get() == getTail()) {
 					return nullptr;
 				}
-				val = std::move(*m_head->m_data);
+				val = std::move(*mHead->mData);
 				return popHead();
 			}
 			std::unique_ptr<node> waitPopHead() {
@@ -63,15 +63,15 @@ namespace tet
 			}
 			std::unique_ptr<node> waitPopHead(T& val) {
 				std::unique_lock<std::mutex> lock(waitForData());
-				val = std::move(*m_head->m_data);
+				val = std::move(*mHead->mData);
 				return popHead();
 			}
 
 		public:
-			queue();
-			queue(const queue&) = delete;
-			queue& operator=(const queue&) = delete;
-			virtual ~queue() noexcept {}
+			Queue();
+			Queue(const Queue&) = delete;
+			Queue& operator=(const Queue&) = delete;
+			virtual ~Queue() noexcept {}
 
 			bool empty();
 			void push(T Val);
@@ -83,52 +83,52 @@ namespace tet
 
 		// Implementing for public methods
 		template<typename T>
-		queue<T>::queue() :
-			m_head(std::make_unique<node>()),
-			m_tail(m_head.get())
+		Queue<T>::Queue() :
+			mHead(std::make_unique<node>()),
+			mTail(mHead.get())
 		{}
 
 		template<typename T>
-		bool queue<T>::empty()
+		bool Queue<T>::empty()
 		{
-			std::lock_guard<std::mutex> lock(m_headMutex);
-			return (m_head.get() == getTail());
+			std::lock_guard<std::mutex> lock(mHeadMutex);
+			return (mHead.get() == getTail());
 		}
 
 		template<typename T>
-		void queue<T>::push(T val) {
+		void Queue<T>::push(T val) {
 			std::shared_ptr<T> newData(std::make_shared<T>(std::move(val)));
 			std::unique_ptr<node> newNode(std::make_unique<node>());
 			node* const newTail = newNode.get();
 			{
-				std::lock_guard<std::mutex> lock(m_tailMutex);
-				m_tail->m_data = newData;
-				m_tail->m_next = std::move(newNode);
-				m_tail = newTail;
+				std::lock_guard<std::mutex> lock(mTailMutex);
+				mTail->mData = newData;
+				mTail->mNext = std::move(newNode);
+				mTail = newTail;
 			}
-			m_cv.notify_one();
+			mCV.notify_one();
 		}
 		
 		template<typename T>
-		std::shared_ptr<T> queue<T>::tryPop() {
+		std::shared_ptr<T> Queue<T>::tryPop() {
 			auto oldHead = tryPopHead();
-			return oldHead ? oldHead->m_data : nullptr;
+			return oldHead ? oldHead->mData : nullptr;
 		}
 
 		template<typename T>
-		bool queue<T>::tryPop(T& val) {
+		bool Queue<T>::tryPop(T& val) {
 			auto oldHead = tryPopHead(val);
 			return oldHead ? true : false;
 		}
 
 		template<typename T>
-		std::shared_ptr<T> queue<T>::waitAndPop() {
+		std::shared_ptr<T> Queue<T>::waitAndPop() {
 			std::unique_ptr<node> const oldHead = waitPopHead();
-			return oldHead->m_data;
+			return oldHead->mData;
 		}
 
 		template<typename T>
-		void queue<T>::waitAndPop(T& val) {
+		void Queue<T>::waitAndPop(T& val) {
 			waitPopHead(val);
 		}
 	}

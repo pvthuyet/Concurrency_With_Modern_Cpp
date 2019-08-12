@@ -1,3 +1,3 @@
 #pragma once
-#include "queue.h"
-#include "thread_guard.h"
+#include "queue/lockbase/queue.h"
+#include "thread/ThreadGuard.h"

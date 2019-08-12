@@ -97,7 +97,6 @@
     </Link>
     <PostBuildEvent>
       <Command>MD $(ProjectDir)..\lib\$(Configuration)\$(Platform)
-Copy $(ProjectDir)*.h $(ProjectDir)..\include\
 Copy $(ProjectDir)..\$(Configuration)\$(TargetFileName) $(ProjectDir)..\lib\$(Configuration)\$(Platform)\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -152,11 +151,11 @@ Copy $(ProjectDir)..\$(Configuration)\$(TargetFileName) $(ProjectDir)..\lib\$(Co
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="queue.h" />
+    <ClInclude Include="queue\lockbase\Queue.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="tet.h" />
-    <ClInclude Include="thread_guard.h" />
+    <ClInclude Include="thread\ThreadGuard.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -165,7 +164,7 @@ Copy $(ProjectDir)..\$(Configuration)\$(TargetFileName) $(ProjectDir)..\lib\$(Co
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thread_guard.cpp" />
+    <ClCompile Include="thread\ThreadGuard.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

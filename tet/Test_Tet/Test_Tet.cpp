@@ -8,7 +8,7 @@
 
 void test_queue()
 {
-	tet::concurrency::queue<int> q;
+	tet::lockbase::Queue<int> q;
 	q.push(1);
 	q.push(2);
 	q.push(3);
@@ -35,7 +35,7 @@ void test_thread()
 	{
 		std::cout << "hello thread " << name << std::endl;
 	};
-	tet::thread_guard t1(tet::thread_guard::thread_type::join, f, "abc");
+	tet::ThreadGuard t1(tet::ThreadGuard::ThreadType::join, f, "abc");
 }
 int main()
 {
