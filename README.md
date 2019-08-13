@@ -37,6 +37,7 @@
 | `delete`        | to prevent users call a particular function |
 | `default`       |                             |
 | `override`      |                             |
+| `final`         |                             |
 | `noexcept`      |                             | 
 | `auto`          |                             |  
 | `constexpr`     |                             |  
