@@ -10,6 +10,15 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test_Tet", "Test_Tet\Test_T
 		{024979A2-73E4-4F4A-8C2E-9D12E3930EE8} = {024979A2-73E4-4F4A-8C2E-9D12E3930EE8}
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "thread", "thread", "{66400AE6-A652-4B8C-AFF9-CFF7C4C99DAB}"
+	ProjectSection(SolutionItems) = preProject
+		..\thread\README.md = ..\thread\README.md
+		..\thread\ThreadGuard.cpp = ..\thread\ThreadGuard.cpp
+		..\thread\ThreadGuard.h = ..\thread\ThreadGuard.h
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test", "..\thread\test\test.vcxproj", "{4418AA1B-2B09-4151-9040-31DC4C11DD45}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -34,9 +43,20 @@ Global
 		{3800D964-2078-44E5-9B65-337C53CF8DCE}.Release|x64.Build.0 = Release|x64
 		{3800D964-2078-44E5-9B65-337C53CF8DCE}.Release|x86.ActiveCfg = Release|Win32
 		{3800D964-2078-44E5-9B65-337C53CF8DCE}.Release|x86.Build.0 = Release|Win32
+		{4418AA1B-2B09-4151-9040-31DC4C11DD45}.Debug|x64.ActiveCfg = Debug|x64
+		{4418AA1B-2B09-4151-9040-31DC4C11DD45}.Debug|x64.Build.0 = Debug|x64
+		{4418AA1B-2B09-4151-9040-31DC4C11DD45}.Debug|x86.ActiveCfg = Debug|Win32
+		{4418AA1B-2B09-4151-9040-31DC4C11DD45}.Debug|x86.Build.0 = Debug|Win32
+		{4418AA1B-2B09-4151-9040-31DC4C11DD45}.Release|x64.ActiveCfg = Release|x64
+		{4418AA1B-2B09-4151-9040-31DC4C11DD45}.Release|x64.Build.0 = Release|x64
+		{4418AA1B-2B09-4151-9040-31DC4C11DD45}.Release|x86.ActiveCfg = Release|Win32
+		{4418AA1B-2B09-4151-9040-31DC4C11DD45}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4418AA1B-2B09-4151-9040-31DC4C11DD45} = {66400AE6-A652-4B8C-AFF9-CFF7C4C99DAB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9B81BCCD-A6CA-4966-AF66-29B28E6B4593}
