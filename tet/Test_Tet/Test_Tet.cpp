@@ -35,7 +35,7 @@ void test_thread()
 	{
 		std::cout << "hello thread " << name << std::endl;
 	};
-	tet::ThreadGuard t1(tet::ThreadGuard::ThreadType::join, f, "abc");
+	tet::JoiningThread t1(tet::JoiningThread::ThreadType::join, f, "abc");
 }
 int main()
 {

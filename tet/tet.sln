@@ -12,9 +12,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test_Tet", "Test_Tet\Test_T
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "thread", "thread", "{66400AE6-A652-4B8C-AFF9-CFF7C4C99DAB}"
 	ProjectSection(SolutionItems) = preProject
+		..\thread\JoiningThread.h = ..\thread\JoiningThread.h
 		..\thread\README.md = ..\thread\README.md
-		..\thread\ThreadGuard.cpp = ..\thread\ThreadGuard.cpp
-		..\thread\ThreadGuard.h = ..\thread\ThreadGuard.h
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test", "..\thread\test\test.vcxproj", "{4418AA1B-2B09-4151-9040-31DC4C11DD45}"

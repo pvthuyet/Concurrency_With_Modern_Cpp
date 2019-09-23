@@ -4,16 +4,34 @@
 #include "pch.h"
 #include <iostream>
 #include <string>
-#include "../ThreadGuard.h"
+#include "../JoiningThread.h"
 
-void print(std::string const& msg, std::string const& auth)
+void print(std::string const& msg, std::string const& auth, int& num)
 {
 	std::cout << msg << " " << auth;
+	num = 1;
 }
+
+class X
+{
+public:
+	void print(std::string const& msg)
+	{
+		std::cout << msg;
+	}
+};
 
 int main()
 {
-	tvp::ThreadGuard t(print, "Hello World", "from tvp!\n");	
+	// Thread function
+	int num = 0;
+	tvp::JoiningThread t1(print, "Hello World", "from tvp!\n", std::ref(num));
+	t1.join();
+	std::cout << "num = " << num << std::endl;
+
+	// Thread class function
+	X x;
+	tvp::JoiningThread t2(&X::print, &x, "Hello Wold from class X!");
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
