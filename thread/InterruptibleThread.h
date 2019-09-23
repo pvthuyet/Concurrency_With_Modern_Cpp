@@ -20,24 +20,66 @@ namespace tvp
 	public:
 		virtual char const* what() const
 		{
-			return "Thread Interrupted Exception";
+			return "Thread Interrupted Exception!\n";
 		}
 	};
+
+	void interruptionPoint()
+	{
+		if (tlFlag.isSet())
+		{
+			throw ThreadInterrupted();
+		}
+	}
+
+	void interruptibleWait(std::condition_variable& cv, std::unique_lock<std::mutex>& lk)
+	{
+		interruptionPoint();
+		tlFlag.setCV(cv);
+		ClearCVOnDestruct guard;
+		interruptionPoint();
+		cv.wait_for(lk, std::chrono::milliseconds(1));
+		interruptionPoint();
+	}
+
+	template<typename Predicate>
+	void interruptibleWait(std::condition_variable& cv, std::unique_lock<std::mutex>& lk, Predicate pred)
+	{
+		interruptionPoint();
+		tlFlag.setCV(cv);
+		ClearCVOnDestruct guard;
+		while (!tlFlag.isSet() && !pred())
+		{
+			cv.wait_for(lk, std::chrono::milliseconds(1));
+		}
+		interruptionPoint();
+	}
+
+	template<typename Lockable>
+	void interruptibleWait(std::condition_variable_any& cv, Lockable& lk)
+	{
+		tlFlag.wait(cv, lk);
+	}
+
+	template<typename T>
+	void interruptibleWait(std::future<T>& uf)
+	{
+		while (!tlFlag.isSet())
+		{
+			if (uf.wait_for(std::chrono::milliseconds(1)) == std::future_status::ready)
+			{
+				break;
+			}
+		}
+		interruptionPoint();
+	}
+
 
 	class InterruptibleThread
 	{
 	private:
 		std::thread mT;
 		InterruptFlag* mFlag;
-
-	private:
-		static void interruptionPoint()
-		{
-			if (tlFlag.isSet())
-			{
-				throw ThreadInterrupted();
-			}
-		}
 
 	public:
 		// Constructors
@@ -81,6 +123,7 @@ namespace tvp
 			{
 				join();
 			}
+			mFlag = nullptr;
 		}
 
 		// Operators
@@ -150,16 +193,6 @@ namespace tvp
 			{
 				mFlag->set();
 			}
-		}
-
-		static void interruptibleWait(std::condition_variable& cv, std::unique_lock<std::mutex>& lk)
-		{
-			InterruptibleThread::interruptionPoint();
-			tlFlag.setCV(cv);
-			ClearCVOnDestruct guard;
-			InterruptibleThread::interruptionPoint();
-			cv.wait_for(lk, std::chrono::milliseconds(1));
-			InterruptibleThread::interruptionPoint();
 		}
 	};
 }

@@ -3,39 +3,26 @@
 
 #include "pch.h"
 #include <iostream>
+#include <sstream>
 #include <string>
 #include "../JoiningThread.h"
 #include "../InterruptibleThread.h"
 
-void print(std::string const& msg, std::string const& auth, int& num)
+std::mutex gMutex;
+
+void print(std::string const& msg)
 {
-	std::cout << msg << " " << auth;
-	num = 1;
+	std::lock_guard<std::mutex> lk(gMutex);
+	std::cout << msg << std::flush;
+}
+void doSomeThing()
+{
+	std::ostringstream os;
+	os << "\t" << std::this_thread::get_id() << " running ...\n";
+	print(os.str());
 }
 
-class X
-{
-public:
-	void print(std::string const& msg)
-	{
-		std::cout << msg;
-	}
-};
-
-void test_joining_thread()
-{
-	// Thread function
-	int num = 0;
-	tvp::JoiningThread t1(print, "Hello World", "from tvp!\n", std::ref(num));
-	t1.join();
-	std::cout << "num = " << num << std::endl;
-
-	// Thread class function
-	X x;
-	tvp::JoiningThread t2(&X::print, &x, "Hello Wold from class X!");
-}
-
-void loop()
+void worker_wait_cv()
 {
 	std::mutex mut;
 	std::condition_variable cv;
@@ -43,40 +30,75 @@ void loop()
 
 	while (true)
 	{
-		tvp::InterruptibleThread::interruptibleWait(cv, lk);
-		std::cout << std::this_thread::get_id() << " running ...\n" << std::flush;
+		tvp::interruptibleWait(cv, lk);
+		doSomeThing();
+		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+	}
+}
+
+void worker_wait_cv_any()
+{
+	std::mutex mut;
+	std::condition_variable_any cv;
+	std::unique_lock<std::mutex> lk(mut);
+
+	while (true)
+	{
+		tvp::interruptibleWait(cv, lk);
+		doSomeThing();
+		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+	}
+}
+
+
+void worker_wait_future()
+{
+	std::future<int> future = std::async(std::launch::async, []() {
+		std::this_thread::sleep_for(std::chrono::seconds(3));
+		return 8;
+	});
+
+	while (true)
+	{
+		tvp::interruptibleWait(future);
+		doSomeThing();
 		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 	}
 }
 
 void test_interrupted_thread()
 {
-	tvp::InterruptibleThread t1(loop);
-	tvp::InterruptibleThread t2(loop);
-	// Stop
-	while (true)
-	{
-		std::string stop;
-		getline(std::cin, stop);
-		if (stop == "e" || stop == "E")
-		{
-			return;
-		}
+	constexpr unsigned int N = 10;
+	std::vector<tvp::InterruptibleThread*> threads;
 
-		if (stop == "1")
+	for (unsigned int i = 0; i < N; ++i)
+	{
+		if (i % 3 == 0)
 		{
-			t1.interrupt();
+			threads.emplace_back(new tvp::InterruptibleThread(worker_wait_cv));
 		}
-		else if (stop == "2")
+		else if (i % 3 == 1)
 		{
-			t2.interrupt();
+			threads.emplace_back(new tvp::InterruptibleThread(worker_wait_cv_any));
 		}
+		else
+		{
+			threads.emplace_back(new tvp::InterruptibleThread(worker_wait_future));
+		}
+	}
+
+	std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+	for (int i = 0; i < threads.size(); ++i)
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		print("STOP THREAD " + std::to_string(i) + "\n");
+		threads[i]->interrupt();
+		delete threads[i];
 	}
 }
 
 int main()
 {
-	//test_joining_thread();
 	test_interrupted_thread();
 	return 0;
 }
