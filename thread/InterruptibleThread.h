@@ -5,13 +5,13 @@
 
 namespace tvp
 {
-	thread_local InterruptFlag tlFlag;
+	thread_local InterruptFlag gInterruptedFlag;
 
 	struct ClearCVOnDestruct
 	{
 		~ClearCVOnDestruct()
 		{
-			tlFlag.clearCV();
+			gInterruptedFlag.clearCV();
 		}
 	};
 
@@ -26,7 +26,7 @@ namespace tvp
 
 	void interruptionPoint()
 	{
-		if (tlFlag.isSet())
+		if (gInterruptedFlag.isSet())
 		{
 			throw ThreadInterrupted();
 		}
@@ -35,7 +35,7 @@ namespace tvp
 	void interruptibleWait(std::condition_variable& cv, std::unique_lock<std::mutex>& lk)
 	{
 		interruptionPoint();
-		tlFlag.setCV(cv);
+		gInterruptedFlag.setCV(cv);
 		ClearCVOnDestruct guard;
 		interruptionPoint();
 		cv.wait_for(lk, std::chrono::milliseconds(1));
@@ -46,9 +46,9 @@ namespace tvp
 	void interruptibleWait(std::condition_variable& cv, std::unique_lock<std::mutex>& lk, Predicate pred)
 	{
 		interruptionPoint();
-		tlFlag.setCV(cv);
+		gInterruptedFlag.setCV(cv);
 		ClearCVOnDestruct guard;
-		while (!tlFlag.isSet() && !pred())
+		while (!gInterruptedFlag.isSet() && !pred())
 		{
 			cv.wait_for(lk, std::chrono::milliseconds(1));
 		}
@@ -58,13 +58,13 @@ namespace tvp
 	template<typename Lockable>
 	void interruptibleWait(std::condition_variable_any& cv, Lockable& lk)
 	{
-		tlFlag.wait(cv, lk);
+		gInterruptedFlag.wait(cv, lk);
 	}
 
 	template<typename T>
 	void interruptibleWait(std::future<T>& uf)
 	{
-		while (!tlFlag.isSet())
+		while (!gInterruptedFlag.isSet())
 		{
 			if (uf.wait_for(std::chrono::milliseconds(1)) == std::future_status::ready)
 			{
@@ -86,27 +86,17 @@ namespace tvp
 		InterruptibleThread() noexcept = default;
 		
 		template<typename Callable, typename... Args>
-		explicit InterruptibleThread(Callable&& func, Args&&... args) :
-			mT(std::forward<Callable>(func), std::forward<Args>(args)...)
-		{}
-		
-		explicit InterruptibleThread(std::thread other) noexcept :
-			mT(std::move(other))
-		{}
-		
-		InterruptibleThread(InterruptibleThread&& other) noexcept :
-			mT(std::move(other.mT))
-		{}
-
-		template<typename Callable>
-		InterruptibleThread(Callable func)
+		explicit InterruptibleThread(Callable&& func, Args&&... args)
 		{
+			using return_type = std::result_of_t<Callable(Args...)>;
+			auto task = std::make_shared<std::packaged_task<return_type()> >(std::bind(std::forward<Callable>(func), std::forward<Args>(args)...));
+
 			std::promise<InterruptFlag*> p;
-			mT = std::thread([func, &p] {
-				p.set_value(&tlFlag);
+			mT = std::thread([task, &p] {
+				p.set_value(&gInterruptedFlag);
 				try
 				{
-					func();
+					(*task)();
 				}
 				catch (ThreadInterrupted const& e)
 				{
@@ -115,6 +105,14 @@ namespace tvp
 			});
 			mFlag = p.get_future().get();
 		}
+		
+		explicit InterruptibleThread(std::thread other) noexcept :
+			mT(std::move(other))
+		{}
+		
+		InterruptibleThread(InterruptibleThread&& other) noexcept :
+			mT(std::move(other.mT))
+		{}
 
 		// Destructor
 		~InterruptibleThread() noexcept

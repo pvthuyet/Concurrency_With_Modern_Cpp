@@ -5,6 +5,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <memory>
 #include "../JoiningThread.h"
 #include "../InterruptibleThread.h"
 
@@ -22,8 +23,10 @@ void doSomeThing()
 	print(os.str());
 }
 
-void worker_wait_cv()
+int worker_wait_cv(std::string const& msg, int val)
 {
+	print(msg);
+	print(std::to_string(val) + "\n");
 	std::mutex mut;
 	std::condition_variable cv;
 	std::unique_lock<std::mutex> lk(mut);
@@ -34,6 +37,8 @@ void worker_wait_cv()
 		doSomeThing();
 		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 	}
+
+	return val;
 }
 
 void worker_wait_cv_any()
@@ -69,32 +74,35 @@ void worker_wait_future()
 void test_interrupted_thread()
 {
 	constexpr unsigned int N = 10;
-	std::vector<tvp::InterruptibleThread*> threads;
+	std::vector<std::unique_ptr<tvp::InterruptibleThread> > threads;
 
 	for (unsigned int i = 0; i < N; ++i)
 	{
 		if (i % 3 == 0)
 		{
-			threads.emplace_back(new tvp::InterruptibleThread(worker_wait_cv));
+			threads.emplace_back(std::make_unique<tvp::InterruptibleThread>(worker_wait_cv, "worker_wait_cv: Starting\n", 10));
 		}
 		else if (i % 3 == 1)
 		{
-			threads.emplace_back(new tvp::InterruptibleThread(worker_wait_cv_any));
+			threads.emplace_back(std::make_unique<tvp::InterruptibleThread>(worker_wait_cv_any));
 		}
 		else
 		{
-			threads.emplace_back(new tvp::InterruptibleThread(worker_wait_future));
+			threads.emplace_back(std::make_unique<tvp::InterruptibleThread>(worker_wait_future));
 		}
 	}
 
-	std::this_thread::sleep_for(std::chrono::milliseconds(5000));
-	for (int i = 0; i < threads.size(); ++i)
-	{
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-		print("STOP THREAD " + std::to_string(i) + "\n");
-		threads[i]->interrupt();
-		delete threads[i];
-	}
+	auto fstop = [&threads]() {
+		std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+		for (unsigned int i = 0; i < threads.size(); ++i)
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+			print("STOP THREAD " + std::to_string(i) + "\n");
+			threads[i]->interrupt();
+		}
+	};
+	tvp::InterruptibleThread t(fstop);
+	t.join();
 }
 
 int main()
