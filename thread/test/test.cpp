@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include "../JoiningThread.h"
+#include "../InterruptibleThread.h"
 
 void print(std::string const& msg, std::string const& auth, int& num)
 {
@@ -21,7 +22,7 @@ public:
 	}
 };
 
-int main()
+void test_joining_thread()
 {
 	// Thread function
 	int num = 0;
@@ -32,6 +33,52 @@ int main()
 	// Thread class function
 	X x;
 	tvp::JoiningThread t2(&X::print, &x, "Hello Wold from class X!");
+}
+
+void loop()
+{
+	std::mutex mut;
+	std::condition_variable cv;
+	std::unique_lock<std::mutex> lk(mut);
+
+	while (true)
+	{
+		tvp::InterruptibleThread::interruptibleWait(cv, lk);
+		std::cout << std::this_thread::get_id() << " running ...\n" << std::flush;
+		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+	}
+}
+
+void test_interrupted_thread()
+{
+	tvp::InterruptibleThread t1(loop);
+	tvp::InterruptibleThread t2(loop);
+	// Stop
+	while (true)
+	{
+		std::string stop;
+		getline(std::cin, stop);
+		if (stop == "e" || stop == "E")
+		{
+			return;
+		}
+
+		if (stop == "1")
+		{
+			t1.interrupt();
+		}
+		else if (stop == "2")
+		{
+			t2.interrupt();
+		}
+	}
+}
+
+int main()
+{
+	//test_joining_thread();
+	test_interrupted_thread();
+	return 0;
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu

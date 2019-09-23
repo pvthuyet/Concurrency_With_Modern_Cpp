@@ -12,6 +12,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test_Tet", "Test_Tet\Test_T
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "thread", "thread", "{66400AE6-A652-4B8C-AFF9-CFF7C4C99DAB}"
 	ProjectSection(SolutionItems) = preProject
+		..\thread\InterruptFlag.h = ..\thread\InterruptFlag.h
+		..\thread\InterruptibleThread.h = ..\thread\InterruptibleThread.h
 		..\thread\JoiningThread.h = ..\thread\JoiningThread.h
 		..\thread\README.md = ..\thread\README.md
 	EndProjectSection
