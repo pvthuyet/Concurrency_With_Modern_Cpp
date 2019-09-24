@@ -18,10 +18,10 @@
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\JThread.h">
+    <ClInclude Include="..\InterruptFlag.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\InterruptFlag.h">
+    <ClInclude Include="..\JThread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

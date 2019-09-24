@@ -1,6 +1,4 @@
 #pragma once
-#include <thread>
-#include <exception>
 #include "InterruptFlag.h"
 
 namespace tvp
