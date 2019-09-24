@@ -7,9 +7,9 @@ namespace tvp
 {
 	thread_local InterruptFlag gInterruptedFlag;
 
-	struct ClearCVOnDestruct
+	struct FlagGuard
 	{
-		~ClearCVOnDestruct()
+		~FlagGuard()
 		{
 			gInterruptedFlag.clearCV();
 		}
@@ -36,7 +36,7 @@ namespace tvp
 	{
 		interruptionPoint();
 		gInterruptedFlag.setCV(cv);
-		ClearCVOnDestruct guard;
+		FlagGuard guard;
 		interruptionPoint();
 		cv.wait_for(lk, std::chrono::milliseconds(1));
 		interruptionPoint();
@@ -47,7 +47,7 @@ namespace tvp
 	{
 		interruptionPoint();
 		gInterruptedFlag.setCV(cv);
-		ClearCVOnDestruct guard;
+		FlagGuard guard;
 		while (!gInterruptedFlag.isSet() && !pred())
 		{
 			cv.wait_for(lk, std::chrono::milliseconds(1));
@@ -74,8 +74,7 @@ namespace tvp
 		interruptionPoint();
 	}
 
-
-	class InterruptibleThread
+	class JThread
 	{
 	private:
 		std::thread mT;
@@ -83,10 +82,10 @@ namespace tvp
 
 	public:
 		// Constructors
-		InterruptibleThread() noexcept = default;
+		JThread() noexcept = default;
 		
 		template<typename Callable, typename... Args>
-		explicit InterruptibleThread(Callable&& func, Args&&... args)
+		explicit JThread(Callable&& func, Args&&... args)
 		{
 			using return_type = std::result_of_t<Callable(Args...)>;
 			auto task = std::make_shared<std::packaged_task<return_type()> >(std::bind(std::forward<Callable>(func), std::forward<Args>(args)...));
@@ -98,7 +97,7 @@ namespace tvp
 				{
 					(*task)();
 				}
-				catch (ThreadInterrupted const& e)
+				catch (const tvp::ThreadInterrupted& e)
 				{
 					std::cout << e.what();
 				}
@@ -106,16 +105,16 @@ namespace tvp
 			mFlag = p.get_future().get();
 		}
 		
-		explicit InterruptibleThread(std::thread other) noexcept :
+		explicit JThread(std::thread other) noexcept :
 			mT(std::move(other))
 		{}
 		
-		InterruptibleThread(InterruptibleThread&& other) noexcept :
+		JThread(JThread&& other) noexcept :
 			mT(std::move(other.mT))
 		{}
 
 		// Destructor
-		~InterruptibleThread() noexcept
+		~JThread() noexcept
 		{
 			if (joinable())
 			{
@@ -125,7 +124,7 @@ namespace tvp
 		}
 
 		// Operators
-		InterruptibleThread& operator=(InterruptibleThread&& other) noexcept
+		JThread& operator=(JThread&& other) noexcept
 		{
 			if (joinable())
 			{
@@ -135,7 +134,7 @@ namespace tvp
 			return *this;
 		}
 
-		InterruptibleThread& operator=(std::thread other) noexcept
+		JThread& operator=(std::thread other) noexcept
 		{
 			if (joinable())
 			{
@@ -145,7 +144,7 @@ namespace tvp
 			return *this;
 		}
 		// Methods
-		void swap(InterruptibleThread& other) noexcept
+		void swap(JThread& other) noexcept
 		{
 			mT.swap(other.mT);
 		}
@@ -181,8 +180,8 @@ namespace tvp
 		}
 
 		// Delete methods
-		InterruptibleThread(InterruptibleThread&) = delete;
-		InterruptibleThread& operator=(InterruptibleThread&) = delete;
+		JThread(JThread&) = delete;
+		JThread& operator=(JThread&) = delete;
 
 		// Interrupted functoin
 		void interrupt()

@@ -6,8 +6,7 @@
 #include <sstream>
 #include <string>
 #include <memory>
-#include "../JoiningThread.h"
-#include "../InterruptibleThread.h"
+#include "../JThread.h"
 
 std::mutex gMutex;
 
@@ -23,10 +22,9 @@ void doSomeThing()
 	print(os.str());
 }
 
-int worker_wait_cv(std::string const& msg, int val)
+void worker_wait_cv(std::string const& msg)
 {
 	print(msg);
-	print(std::to_string(val) + "\n");
 	std::mutex mut;
 	std::condition_variable cv;
 	std::unique_lock<std::mutex> lk(mut);
@@ -37,16 +35,14 @@ int worker_wait_cv(std::string const& msg, int val)
 		doSomeThing();
 		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 	}
-
-	return val;
 }
 
-void worker_wait_cv_any()
+void worker_wait_cv_any(std::string const& msg)
 {
+	print(msg);
 	std::mutex mut;
 	std::condition_variable_any cv;
 	std::unique_lock<std::mutex> lk(mut);
-
 	while (true)
 	{
 		tvp::interruptibleWait(cv, lk);
@@ -56,8 +52,9 @@ void worker_wait_cv_any()
 }
 
 
-void worker_wait_future()
+void worker_wait_future(std::string const& msg)
 {
+	print(msg);
 	std::future<int> future = std::async(std::launch::async, []() {
 		std::this_thread::sleep_for(std::chrono::seconds(3));
 		return 8;
@@ -74,21 +71,23 @@ void worker_wait_future()
 void test_interrupted_thread()
 {
 	constexpr unsigned int N = 10;
-	std::vector<std::unique_ptr<tvp::InterruptibleThread> > threads;
+	std::vector<std::unique_ptr<tvp::JThread> > threads;
 
 	for (unsigned int i = 0; i < N; ++i)
 	{
-		if (i % 3 == 0)
+		switch (i % 3)
 		{
-			threads.emplace_back(std::make_unique<tvp::InterruptibleThread>(worker_wait_cv, "worker_wait_cv: Starting\n", 10));
-		}
-		else if (i % 3 == 1)
-		{
-			threads.emplace_back(std::make_unique<tvp::InterruptibleThread>(worker_wait_cv_any));
-		}
-		else
-		{
-			threads.emplace_back(std::make_unique<tvp::InterruptibleThread>(worker_wait_future));
+		case 0:
+			threads.emplace_back(std::make_unique<tvp::JThread>(worker_wait_cv, "worker_wait_cv: Starting\n"));
+			break;
+		case 1:
+			threads.emplace_back(std::make_unique<tvp::JThread>(worker_wait_cv_any, "worker_wait_cv_any: Starting\n"));
+			break;
+		case 2:
+			threads.emplace_back(std::make_unique<tvp::JThread>(worker_wait_future, "worker_wait_future: Starting\n"));
+			break;
+		default:
+			break;
 		}
 	}
 
@@ -101,7 +100,7 @@ void test_interrupted_thread()
 			threads[i]->interrupt();
 		}
 	};
-	tvp::InterruptibleThread t(fstop);
+	tvp::JThread t(fstop);
 	t.join();
 }
 

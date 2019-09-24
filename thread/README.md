@@ -1,2 +1,4 @@
-## Thread Management ##
-* **Waiting for a thread to complete:** Acquisition Is Initialization (RAII) idiom
+## JThread ##
+Features:  
+* **Joinable:** Acquisition Is Initialization (RAII) idiom
+* **Interruptiable:**
