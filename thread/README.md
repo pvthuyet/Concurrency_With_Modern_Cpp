@@ -51,3 +51,5 @@ Acquisition Is Initialization (RAII) idiom
 			}
 		}
 ```
+
+### [Running test](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/thread/test/test.cpp)
