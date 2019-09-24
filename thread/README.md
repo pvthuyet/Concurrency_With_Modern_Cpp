@@ -52,4 +52,27 @@ Acquisition Is Initialization (RAII) idiom
 		}
 ```
 
-### [Test Example](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/thread/test/test.cpp)
+#### [Test Example](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/thread/test/test.cpp)
+```
+#include "JThread.h"
+void run(std::string const& msg)
+{
+	std::mutex mut;
+	std::condition_variable cv;
+	std::unique_lock<std::mutex> lk(mut);
+
+	while (true)
+	{
+		tvp::interruptibleWait(cv, lk);
+		std::cout << msg + ": running...\n";
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+	}
+}
+void main()
+{
+	tvp::JThread t(run, "Hello world!");
+	std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+	t.interrupt();
+	return 0;
+}
+```
