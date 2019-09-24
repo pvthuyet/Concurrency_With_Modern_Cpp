@@ -2,9 +2,19 @@
 #include <string>
 #include <thread>
 #include <sstream>
+#include <exception>
 
 namespace tvp
 {
+	class TimeOut : std::exception
+	{
+	public:
+		virtual char const* what() const
+		{
+			return "Time out\n";
+		}
+	};
+
 	class Utils
 	{
 	public:

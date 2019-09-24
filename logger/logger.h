@@ -2,6 +2,7 @@
 #include <string>
 #include <mutex>
 #include <fstream>
+#include <iostream>
 #include "../utils/utils.h"
 
 namespace tvp
@@ -13,7 +14,7 @@ namespace tvp
 	class Logger
 	{
 	private:
-		std::mutex mMut;
+		std::mutex mMux;
 		std::ofstream mFile;
 
 	public:
@@ -33,8 +34,12 @@ namespace tvp
 			str = tvp::Utils::getDateTime() + "\t" 
 				+ DEBUG_LEVEL + "\t" 
 				+ msg;
-			mFile.write(str.c_str(), str.size());
-			mFile.flush();
+			{
+				std::lock_guard<std::mutex> lk(mMux);
+				mFile.write(str.c_str(), str.size());
+				mFile.flush();
+				std::cout << str << std::flush;
+			}
 		}
 	};
 }
