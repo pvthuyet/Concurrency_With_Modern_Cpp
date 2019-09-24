@@ -17,7 +17,7 @@ namespace tvp
 		std::mutex mMutex;
 
 	public:
-		InterruptFlag() : mThreadCond(nullptr), mThreadCondAny(nullptr)
+		InterruptFlag() : mThreadCond(nullptr), mThreadCondAny(nullptr), mFlag(false)
 		{}
 
 		void set()

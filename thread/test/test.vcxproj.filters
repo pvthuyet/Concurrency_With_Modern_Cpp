@@ -24,6 +24,12 @@
     <ClInclude Include="..\JThread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\logger\logger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\utils\utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

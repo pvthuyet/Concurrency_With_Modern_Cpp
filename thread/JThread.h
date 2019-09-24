@@ -1,5 +1,8 @@
 #pragma once
 #include "InterruptFlag.h"
+#include "../logger/logger.h"
+
+extern tvp::Logger gLogger;
 
 namespace tvp
 {
@@ -86,18 +89,21 @@ namespace tvp
 		explicit JThread(Callable&& func, Args&&... args)
 		{
 			using return_type = std::result_of_t<Callable(Args...)>;
-			auto task = std::make_shared<std::packaged_task<return_type()> >(std::bind(std::forward<Callable>(func), std::forward<Args>(args)...));
+			// TODO: can't catch if using std::packaged_task
+			//auto task = std::make_shared<std::packaged_task<return_type()> >(std::bind(std::forward<Callable>(func), std::forward<Args>(args)...));
+			auto f = std::bind(std::forward<Callable>(func), std::forward<Args>(args)...);
 
 			std::promise<InterruptFlag*> p;
-			mT = std::thread([task, &p] {
+			mT = std::thread([f, &p] {
 				p.set_value(&gInterruptedFlag);
 				try
 				{
-					(*task)();
+					//(*task)();
+					f();
 				}
 				catch (const tvp::ThreadInterrupted& e)
 				{
-					std::cout << e.what();
+					gLogger.debug(e.what());
 				}
 			});
 			mFlag = p.get_future().get();

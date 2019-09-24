@@ -7,24 +7,14 @@
 #include <string>
 #include <memory>
 #include "../JThread.h"
+#include "../../logger/logger.h"
+#include "../../utils/utils.h"
 
-std::mutex gMutex;
-
-void print(std::string const& msg)
-{
-	std::lock_guard<std::mutex> lk(gMutex);
-	std::cout << msg << std::flush;
-}
-void doSomeThing()
-{
-	std::ostringstream os;
-	os << "\t" << std::this_thread::get_id() << " running ...\n";
-	print(os.str());
-}
+static tvp::Logger gLogger;
 
 void worker_wait_cv(std::string const& msg)
 {
-	print(msg);
+	gLogger.debug(msg);
 	std::mutex mut;
 	std::condition_variable cv;
 	std::unique_lock<std::mutex> lk(mut);
@@ -32,21 +22,21 @@ void worker_wait_cv(std::string const& msg)
 	while (true)
 	{
 		tvp::interruptibleWait(cv, lk);
-		doSomeThing();
+		gLogger.debug(tvp::Utils::getThreadId() + " running...\n");
 		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 	}
 }
 
 void worker_wait_cv_any(std::string const& msg)
 {
-	print(msg);
+	gLogger.debug(msg);
 	std::mutex mut;
 	std::condition_variable_any cv;
 	std::unique_lock<std::mutex> lk(mut);
 	while (true)
 	{
 		tvp::interruptibleWait(cv, lk);
-		doSomeThing();
+		gLogger.debug(tvp::Utils::getThreadId() + " running...\n");
 		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 	}
 }
@@ -54,7 +44,7 @@ void worker_wait_cv_any(std::string const& msg)
 
 void worker_wait_future(std::string const& msg)
 {
-	print(msg);
+	gLogger.debug(msg);
 	std::future<int> future = std::async(std::launch::async, []() {
 		std::this_thread::sleep_for(std::chrono::seconds(3));
 		return 8;
@@ -63,7 +53,7 @@ void worker_wait_future(std::string const& msg)
 	while (true)
 	{
 		tvp::interruptibleWait(future);
-		doSomeThing();
+		gLogger.debug(tvp::Utils::getThreadId() + " running...\n");
 		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 	}
 }
@@ -96,7 +86,7 @@ void test_interrupted_thread()
 		for (unsigned int i = 0; i < threads.size(); ++i)
 		{
 			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-			print("STOP THREAD " + std::to_string(i) + "\n");
+			gLogger.debug(tvp::Utils::getThreadId() + " STOP THREAD " + std::to_string(i) + "\n");
 			threads[i]->interrupt();
 		}
 	};
