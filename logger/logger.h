@@ -2,16 +2,14 @@
 #include <string>
 #include <mutex>
 #include <fstream>
-#include <ctime>
-#include <chrono>
-#include <iomanip>
-#include <sstream>
-#include <time.h>
 #include "../utils/utils.h"
 
 namespace tvp
 {
-	static const std::string DEBUG_LEVEL = "DEBUG";
+	static const std::string DEBUG_LEVEL	= "debug";
+	static const std::string INFO_LEVEL		= "info";
+	static const std::string ERROR_LEVEL	= "error";
+
 	class Logger
 	{
 	private:
@@ -31,10 +29,11 @@ namespace tvp
 
 		void debug(std::string const& msg)
 		{
-			std::ostringstream os;
-			os << tvp::Utils::getDateTime() << "\t" << DEBUG_LEVEL << "\t" << msg;
-
-			mFile.write(os.str().c_str(), os.str().size());
+			std::string str;
+			str = tvp::Utils::getDateTime() + "\t" 
+				+ DEBUG_LEVEL + "\t" 
+				+ msg;
+			mFile.write(str.c_str(), str.size());
 			mFile.flush();
 		}
 	};
