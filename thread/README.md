@@ -1,6 +1,7 @@
 ## [JThread](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/thread/JThread.h) ##
 Books:  
-* [C++ Concurrency in Action, Second Edition](https://livebook.manning.com/book/c-plus-plus-concurrency-in-action-second-edition/chapter-9/v-7/68)  
+* C++ Concurrency in Action, Second Edition: [9 Advanced thread management](https://livebook.manning.com/book/c-plus-plus-concurrency-in-action-second-edition/chapter-9/v-7/68)  
+* Effective modern C++: [Chapter 8 The Concurrency API](https://www.aristeia.com/EMC++.html)
   
 ### Features: ###
 #### 1. Joinable ####
