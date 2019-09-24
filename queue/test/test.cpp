@@ -19,7 +19,6 @@ void testQueue()
 		std::condition_variable cv;
 		std::unique_lock<std::mutex> lk(mut);
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		int i = s;
 		while (true)
 		{
@@ -40,7 +39,6 @@ void testQueue()
 		std::condition_variable cv;
 		std::unique_lock<std::mutex> lk(mut);
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		while (true)
 		{
 			tvp::interruptibleWait(cv, lk);
