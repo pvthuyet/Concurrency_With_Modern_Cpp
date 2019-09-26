@@ -120,30 +120,21 @@ namespace tvp
 		// Destructor
 		~JThread() noexcept
 		{
-			if (joinable())
-			{
-				join();
-			}
+			join();
 			mFlag = nullptr;
 		}
 
 		// Operators
 		JThread& operator=(JThread&& other) noexcept
 		{
-			if (joinable())
-			{
-				join();
-			}
+			join();
 			mT = std::move(other.mT);
 			return *this;
 		}
 
 		JThread& operator=(std::thread other) noexcept
 		{
-			if (joinable())
-			{
-				join();
-			}
+			join();
 			mT = std::move(other);
 			return *this;
 		}
@@ -165,7 +156,10 @@ namespace tvp
 
 		void join()
 		{
-			mT.join();
+			if (joinable())
+			{
+				mT.join();
+			}
 		}
 
 		void detach()

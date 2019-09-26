@@ -11,6 +11,16 @@
 namespace tvp {
 	template<typename T>
 	class JQueue {
+	public:
+		class QueueException : public std::exception
+		{
+		public:
+			virtual char const* what() const
+			{
+				return "Queue was shutdown!\n";
+			}
+		};
+
 	private:
 		struct node {
 			std::shared_ptr<T> data;
@@ -25,6 +35,8 @@ namespace tvp {
 
 		// Number of elements
 		std::atomic_uint mSize;
+		// shutdown flag
+		std::atomic_bool mShutdown;
 
 		// APIs
 		JQueue<T>::node* getTail() {
@@ -41,14 +53,18 @@ namespace tvp {
 
 		std::unique_lock<std::mutex> waitForData() {
 			std::unique_lock<std::mutex> lock(mHeadMux);
-			//mCV.wait(lock, [&] { return mHeadNode.get() != getTail(); });
-			if (mCV.wait_for(lock, std::chrono::milliseconds(10), [&] { return mHeadNode.get() != getTail(); }))
+			//mCV.wait(lock, [&] { return (isShutdown()) || (mHeadNode.get() != getTail()); });
+			while (true)
 			{
-				return std::move(lock);
-			}
-			else
-			{
-				throw tvp::TimeOut();
+				bool res = mCV.wait_for(lock, std::chrono::milliseconds(10), [&] { return (mHeadNode.get() != getTail()); });
+				if (isShutdown())
+				{
+					throw QueueException();
+				}
+				if (res)
+				{
+					return std::move(lock);
+				}
 			}
 		}
 
@@ -81,11 +97,27 @@ namespace tvp {
 		}
 
 	public:
-		JQueue() : mHeadNode(std::make_unique<node>()), mTailNode(mHeadNode.get()), mSize(0)
+		JQueue() : 
+			mHeadNode(std::make_unique<node>()), 
+			mTailNode(mHeadNode.get()), 
+			mSize(0),
+			mShutdown(false)
 		{}
 
 		~JQueue()
 		{
+			shutdown();
+		}
+
+		void shutdown()
+		{
+			mShutdown.store(true);
+			//mCV.notify_all();
+		}
+
+		bool isShutdown()
+		{
+			return mShutdown.load();
 		}
 
 		// No copiable
@@ -100,6 +132,11 @@ namespace tvp {
 
 		void push(T newVal)
 		{
+			if (isShutdown())
+			{
+				throw QueueException();
+			}
+
 			std::shared_ptr<T> newData(std::make_shared<T>(std::move(newVal)));
 			std::unique_ptr<node> p(std::make_unique<node>());
 			node* const newTail = p.get();
@@ -115,41 +152,39 @@ namespace tvp {
 
 		std::shared_ptr<T> tryPop()
 		{
+			if (isShutdown())
+			{
+				throw QueueException();
+			}
+
 			auto oldHead = tryPopHead();
 			return oldHead ? oldHead->data : nullptr;
 		}
 
 		bool tryPop(T& value)
 		{
+			if (isShutdown())
+			{
+				throw QueueException();
+			}
+
 			auto oldHead = tryPopHead(value);
 			return oldHead ? true : false;
 		}
 
+		// Wait until pop success or queue was shutdown
+		// throw QueueException: must handle in code
 		std::shared_ptr<T> waitAndPop()
 		{
-			try
-			{
-				std::unique_ptr<node> const oldHead = waitPopHead();
-				return oldHead->data;
-			}
-			catch (const tvp::TimeOut&)
-			{
-				return nullptr;
-			}
+			std::unique_ptr<node> const oldHead = waitPopHead();
+			return oldHead->data;
 		}
 
-		bool waitAndPop(T& value)
+		// Wait until pop success or queue was shutdown
+		// throw QueueException: must handle in code
+		void waitAndPop(T& value)
 		{
-			try
-			{
-				std::unique_ptr<node> const oldHead = waitPopHead(value);
-			}
-			catch (const tvp::TimeOut&)
-			{
-				return false;
-			}
-
-			return true;
+			std::unique_ptr<node> const oldHead = waitPopHead(value);
 		}
 
 		std::size_t size()

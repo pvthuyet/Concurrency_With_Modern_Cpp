@@ -23,14 +23,22 @@ void testQueue()
 		while (true)
 		{
 			tvp::interruptibleWait(cv, lk);
-			que.push(i);
+			try
+			{
+				que.push(i);
+			}
+			catch (const tvp::JQueue<int>::QueueException& e)
+			{
+				gLogger.debug(e.what());
+				return;
+			}
 			i++;
 			gLogger.debug(tvp::Utils::getThreadId() 
 				+ " push " 
 				+ std::to_string(i) 
 				+ " into queue (" 
 				+ std::to_string(que.size()) + ")\n");
-			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		}
 	};
 
@@ -43,46 +51,65 @@ void testQueue()
 		{
 			tvp::interruptibleWait(cv, lk);
 			int v;
-			if (que.waitAndPop(v))
+			try
 			{
-				gLogger.debug(tvp::Utils::getThreadId()
-					+ " pop "
-					+ std::to_string(v)
-					+ " out of queue ("
-					+ std::to_string(que.size()) + ")\n");
+				que.waitAndPop(v);
 			}
-			else
+			catch (const tvp::JQueue<int>::QueueException& e)
 			{
-				gLogger.debug(tvp::Utils::getThreadId() + " wait time out\n");
+				gLogger.debug(e.what());
+				return;
 			}
-			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+			gLogger.debug(tvp::Utils::getThreadId()
+				+ " pop "
+				+ std::to_string(v)
+				+ " out of queue ("
+				+ std::to_string(que.size()) + ")\n");
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		}
 	};
 
-	constexpr std::size_t N = 10;
-	constexpr std::size_t M = 7;
-	std::vector<std::unique_ptr<tvp::JThread> > threads;
-	for (unsigned int i = 0; i < N; ++i)
+	// All threads must destroy befor queue
 	{
-		threads.emplace_back(std::make_unique<tvp::JThread>(pushF, 0));
-	}
-
-	for (unsigned int i = 0; i < M; ++i)
-	{
-		threads.emplace_back(std::make_unique<tvp::JThread>(popF));
-	}
-
-	auto fstop = [&threads]() {
-		std::this_thread::sleep_for(std::chrono::milliseconds(10000));
-		for (unsigned int i = 0; i < threads.size(); ++i)
+		constexpr std::size_t N = 32;
+		constexpr std::size_t M = 17;
+		std::vector<std::unique_ptr<tvp::JThread> > threads;
+		for (unsigned int i = 0; i < N; ++i)
 		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-			gLogger.debug(tvp::Utils::getThreadId() + " STOP THREAD " + std::to_string(i) + "\n");
-			threads[i]->interrupt();
+			if (i % 3 == 0)
+				threads.emplace_back(std::make_unique<tvp::JThread>(popF));
+			else
+				threads.emplace_back(std::make_unique<tvp::JThread>(pushF, i * 1000));
 		}
-	};
-	tvp::JThread t(fstop);
-	t.join();
+
+		for (unsigned int i = 0; i < M; ++i)
+		{
+			if (i % 2 == 0)
+				threads.emplace_back(std::make_unique<tvp::JThread>(popF));
+			else
+				threads.emplace_back(std::make_unique<tvp::JThread>(pushF, (i + N) * 1000));
+		}
+
+		auto fstop = [&threads, &que]() {
+			std::this_thread::sleep_for(std::chrono::milliseconds(30000));
+			que.shutdown();
+			for (unsigned int i = 0; i < threads.size(); ++i)
+			{
+				std::this_thread::sleep_for(std::chrono::milliseconds(100));
+				gLogger.debug(tvp::Utils::getThreadId() + " STOP THREAD " + std::to_string(i) + "\n");
+				threads[i]->interrupt();
+			}
+			for (unsigned int i = 0; i < threads.size(); ++i)
+			{
+				threads[i]->join();
+			}
+			// Queue must be shutdown before all thread join
+			
+		};
+
+		tvp::JThread t(fstop);
+		t.join();
+	}
 }
 
 int main()
