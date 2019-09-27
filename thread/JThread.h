@@ -184,7 +184,7 @@ namespace tvp
 		// Interrupted functoin
 		void interrupt()
 		{
-			if (mFlag)
+			if (mFlag && joinable())
 			{
 				mFlag->set();
 			}

@@ -106,18 +106,25 @@ namespace tvp {
 
 		~JQueue()
 		{
-			shutdown();
+			shutdown();			
 		}
 
 		void shutdown()
 		{
-			mShutdown.store(true);
-			//mCV.notify_all();
+			mShutdown.store(true);			
 		}
 
 		bool isShutdown()
 		{
 			return mShutdown.load();
+		}
+
+		void clear()
+		{
+			// Clean all data in queue
+			while (tryPop())
+			{
+			}
 		}
 
 		// No copiable
@@ -152,22 +159,12 @@ namespace tvp {
 
 		std::shared_ptr<T> tryPop()
 		{
-			if (isShutdown())
-			{
-				throw QueueException();
-			}
-
 			auto oldHead = tryPopHead();
 			return oldHead ? oldHead->data : nullptr;
 		}
 
 		bool tryPop(T& value)
 		{
-			if (isShutdown())
-			{
-				throw QueueException();
-			}
-
 			auto oldHead = tryPopHead(value);
 			return oldHead ? true : false;
 		}

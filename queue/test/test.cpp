@@ -25,19 +25,21 @@ void testQueue()
 			tvp::interruptibleWait(cv, lk);
 			try
 			{
-				que.push(i);
+				que.push(i);				
+				gLogger.debug(tvp::Utils::getThreadId() 
+					+ " push " 
+					+ std::to_string(i) 
+					+ " into queue (" 
+					+ std::to_string(que.size()) + ")\n");
+				i++;
 			}
 			catch (const tvp::JQueue<int>::QueueException& e)
 			{
+				// Throw exeption but must not stop thread.
+				// Becuase of only stop when call interrupt
 				gLogger.debug(e.what());
-				return;
 			}
-			i++;
-			gLogger.debug(tvp::Utils::getThreadId() 
-				+ " push " 
-				+ std::to_string(i) 
-				+ " into queue (" 
-				+ std::to_string(que.size()) + ")\n");
+
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		}
 	};
@@ -54,17 +56,19 @@ void testQueue()
 			try
 			{
 				que.waitAndPop(v);
+				gLogger.debug(tvp::Utils::getThreadId()
+					+ " pop "
+					+ std::to_string(v)
+					+ " out of queue ("
+					+ std::to_string(que.size()) + ")\n");
 			}
 			catch (const tvp::JQueue<int>::QueueException& e)
 			{
+				// Throw exeption but must not stop thread.
+				// Becuase of only stop when call interrupt
 				gLogger.debug(e.what());
-				return;
 			}
-			gLogger.debug(tvp::Utils::getThreadId()
-				+ " pop "
-				+ std::to_string(v)
-				+ " out of queue ("
-				+ std::to_string(que.size()) + ")\n");
+
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		}
 	};
@@ -99,16 +103,11 @@ void testQueue()
 				gLogger.debug(tvp::Utils::getThreadId() + " STOP THREAD " + std::to_string(i) + "\n");
 				threads[i]->interrupt();
 			}
-			for (unsigned int i = 0; i < threads.size(); ++i)
-			{
-				threads[i]->join();
-			}
-			// Queue must be shutdown before all thread join
-			
+			// Queue must be shutdown after all thread join			
 		};
 
 		tvp::JThread t(fstop);
-		t.join();
+		t.join();		
 	}
 }
 
