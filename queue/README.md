@@ -6,4 +6,4 @@ Books:
 ### Features: ###
 * thread safe queue
 * concurrent data structure  
-[a](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/queue/06_01.png)
+![1](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/queue/06_01.png)
