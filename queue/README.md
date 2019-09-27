@@ -5,5 +5,5 @@ Books:
   
 ### Features: ###
 * thread safe queue
-* concurrent data structure: queue is single link list with head and tail  
+* concurrent data structure: queue is single linked list with head and tail  
 ![1](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/queue/06_01.png)
