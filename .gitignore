@@ -16,3 +16,4 @@ tet/Debug/tet.lib
 *.idb
 *.db-shm
 *.db-wal
+.vs/ModernCpp/v15/.suo

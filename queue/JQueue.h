@@ -53,7 +53,6 @@ namespace tvp {
 
 		std::unique_lock<std::mutex> waitForData() {
 			std::unique_lock<std::mutex> lock(mHeadMux);
-			//mCV.wait(lock, [&] { return (isShutdown()) || (mHeadNode.get() != getTail()); });
 			while (true)
 			{
 				bool res = mCV.wait_for(lock, std::chrono::milliseconds(10), [&] { return (mHeadNode.get() != getTail()); });
