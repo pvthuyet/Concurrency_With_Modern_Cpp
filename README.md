@@ -54,7 +54,7 @@
   * C++’s most vexing parse
   
   ## C++11 Books:
-![1](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/cpp_concurrency_in_action.png)  
+![1](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/C-Concurrency-in-Action-2nd-Edition.jpg)  
   
 ![2](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/effectivec%2B%2B.jpg)  
   
