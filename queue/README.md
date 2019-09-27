@@ -9,4 +9,4 @@ Books:
 ![1](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/queue/06_01.png)
   
 ### Note
-* If `JThread` is an interruptiable thread, `JQueue` must shutdown after all threads are interrupted.
+* If `JThread` is an interruptiable thread, it's only exit at the tvp::interruptibleWait(cv, lk). Even JQueue is shutdowned, the JThread must not be stopped.
