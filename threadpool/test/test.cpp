@@ -8,9 +8,9 @@
 #include "../../utils/utils.h"
 #include <chrono>
 #include <list>
-#include <vld.h>
 #include "Quicksort.h"
 #include "TestThreadPool.h"
+#include "Accumulate.h"
 
 tvp::Logger gLogger;
 
@@ -19,13 +19,13 @@ int main()
 {
 	try
 	{
-		//parallelQuickSort();
 		while (true)
 		{
 			gLogger.debug("************\n\
 				1:\tQuicksort\n\
-				2:\tTest ThreadPool\n\
-				q:\tExit\n\
+				2:\tParallel accumulate\n\
+				3:\tTest ThreadPool\n\
+				q:\tQuit\n\
 				Choose: ", true, true);
 			std::string s;
 			std::cin >> s;
@@ -34,6 +34,10 @@ int main()
 				tvp::parallelQuickSort();
 			}
 			else if (s == "2")
+			{
+				tvp::parallelAccumulate();
+			}
+			else if (s == "3")
 			{
 				tvp::testThreadPool();
 			}

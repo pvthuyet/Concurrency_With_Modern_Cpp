@@ -152,6 +152,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\JThreadPool.h" />
+    <ClInclude Include="Accumulate.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Quicksort.h" />
     <ClInclude Include="TestThreadPool.h" />

@@ -8,7 +8,6 @@
 #include "../../utils/utils.h"
 #include "../../thread/JThread.h"
 #include "../../utils/JExeption.h"
-#include <vld.h>
 
 static tvp::Logger gLogger;
 

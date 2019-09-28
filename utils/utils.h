@@ -4,6 +4,7 @@
 #include <sstream>
 #include <random>
 #include <list>
+#include <vld.h>
 
 namespace tvp
 {

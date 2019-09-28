@@ -7,7 +7,6 @@
 #include <queue>
 #include "../queue/JQueue.h"
 #include "../thread/JThread.h"
-#include <vld.h>
 
 namespace tvp
 {
