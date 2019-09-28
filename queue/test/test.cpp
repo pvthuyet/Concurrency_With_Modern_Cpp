@@ -7,6 +7,7 @@
 #include "../../logger/logger.h"
 #include "../../utils/utils.h"
 #include "../../thread/JThread.h"
+#include "../../utils/JExeption.h"
 #include <vld.h>
 
 static tvp::Logger gLogger;
@@ -117,7 +118,14 @@ void testQueue()
 
 int main()
 {
-	testQueue();
+	try
+	{
+		testQueue();
+	}
+	catch (...)
+	{
+		gLogger.debug("Unknow exception!\n");
+	}
 	return 0;
 }
 

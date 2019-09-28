@@ -29,10 +29,12 @@ namespace tvp
 		std::vector<UniqueThread> mThreads;
 
 		// private method.
-		void workerThread() {
-			mLogger.debug(Utils::getThreadId() + " Initialize...:\n");
+		void workerThread() 
+		{
+			mLogger.debug(Utils::getThreadId() + " initialized\n");
 			mLocalWorkQueue.reset(new LocalQueueType());
-			while (!mShutdown) {
+			while (!mShutdown) 
+			{
 				try
 				{
 					runPendingTask();
@@ -42,19 +44,22 @@ namespace tvp
 					mLogger.debug(tvp::Utils::getThreadId() + " throw exception!\n");
 				}
 			}
-			mLogger.debug(tvp::Utils::getThreadId() + " The Pool was shutdowned!\n");
+			mLogger.debug(tvp::Utils::getThreadId() + " workerThread() threadPool was shutdown!\n");
 		}
 
 	public:
 		explicit JThreadPool(tvp::Logger& logger, std::size_t numThread = std::thread::hardware_concurrency()) :
 			mShutdown(false), mLogger(logger)
 		{
-			try {
-				for (std::size_t i = 0; i < numThread; ++i) {
+			try 
+			{
+				for (std::size_t i = 0; i < numThread; ++i) 
+				{
 					mThreads.emplace_back(std::make_unique<tvp::JThread>(&JThreadPool::workerThread, this));
 				}
 			}
-			catch (...) {
+			catch (...) 
+			{
 				mShutdown.store(true);
 				throw;
 			}
@@ -63,33 +68,37 @@ namespace tvp
 		JThreadPool(const JThreadPool&) = delete;
 		JThreadPool& operator=(const JThreadPool&) = delete;
 
-		virtual ~JThreadPool() 
+		virtual ~JThreadPool() noexcept
 		{
 			shutdown();
 		}
 
-		void shutdown()
+		void shutdown() noexcept
 		{
 			mShutdown.store(true);
 		}
 
-		bool isShutdown()
+		bool isShutdown() const noexcept
 		{
 			return mShutdown.load();
 		}
 
-		void runPendingTask() {
+		void runPendingTask() 
+		{
 			Callable task;
-			if (mLocalWorkQueue && !mLocalWorkQueue->empty()) {
+			if (mLocalWorkQueue && !mLocalWorkQueue->empty()) 
+			{
 				mLogger.debug(Utils::getThreadId() + " pop local work queue\n");
 				task = std::move(mLocalWorkQueue->front());
 				mLocalWorkQueue->pop();
 				task();
 			}
-			else if (mPoolWorkQueue.tryPop(task)) {
+			else if (mPoolWorkQueue.tryPop(task)) 
+			{
 				task();
 			}
-			else {
+			else 
+			{
 				std::this_thread::yield();
 			}
 		}
@@ -102,7 +111,7 @@ namespace tvp
 			if (isShutdown())
 			{
 				throw JException(tvp::ExceptionCode::THREADPOOL_SHUTDOWN, 
-					tvp::Utils::getThreadId() + " ThreadPool was shutdown!\n");
+					tvp::Utils::getThreadId() + " submit() threadPool was shutdown!\n");
 			}
 
 			using return_type = std::result_of_t<Fn(Args...)>;
@@ -110,13 +119,15 @@ namespace tvp
 				(std::bind(std::forward<Fn>(f), std::forward<Args>(args)...)
 					);
 			std::future<return_type> res = task->get_future();
-			if (mLocalWorkQueue) {
+			if (mLocalWorkQueue) 
+			{
 				mLogger.debug(Utils::getThreadId() + " push local work queue\n");
 				mLocalWorkQueue->push([task]() {
 					(*task)();
 				});
 			}
-			else {
+			else 
+			{
 				mPoolWorkQueue.push([task]() {
 					(*task)();
 				});

@@ -58,7 +58,7 @@ void worker_wait_future(std::string const& msg)
 	}
 }
 
-void test_interrupted_thread()
+void testInterruptedThread()
 {
 	constexpr unsigned int N = 10;
 	std::vector<std::unique_ptr<tvp::JThread> > threads;
@@ -96,7 +96,14 @@ void test_interrupted_thread()
 
 int main()
 {
-	test_interrupted_thread();
+	try
+	{
+		testInterruptedThread();
+	}
+	catch (...)
+	{
+		gLogger.debug("Unknow exception!\n");
+	}
 	return 0;
 }
 

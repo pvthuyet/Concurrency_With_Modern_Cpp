@@ -153,6 +153,8 @@
   <ItemGroup>
     <ClInclude Include="..\JThreadPool.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Quicksort.h" />
+    <ClInclude Include="TestThreadPool.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

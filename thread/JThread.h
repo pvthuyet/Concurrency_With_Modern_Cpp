@@ -2,6 +2,7 @@
 #include "InterruptFlag.h"
 #include "../logger/logger.h"
 #include "../utils/utils.h"
+#include "../utils/JExeption.h"
 
 extern tvp::Logger gLogger;
 

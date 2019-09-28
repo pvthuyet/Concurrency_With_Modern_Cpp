@@ -21,6 +21,12 @@
     <ClInclude Include="..\JThreadPool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Quicksort.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TestThreadPool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

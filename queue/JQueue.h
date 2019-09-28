@@ -6,16 +6,20 @@
 #include <atomic>
 #include <chrono>
 #include <limits>
-#include "../utils/utils.h"
+#include "../utils/JExeption.h"
 
-namespace tvp {
+namespace tvp 
+{
 	template<typename T>
-	class JQueue {
+	class JQueue 
+	{
 	private:
-		struct node {
+		struct node 
+		{
 			std::shared_ptr<T> data;
 			std::unique_ptr<node> next;
 		};
+
 		std::condition_variable mCV;
 		std::mutex mHeadMux;
 		std::unique_ptr<node> mHeadNode;
@@ -30,19 +34,22 @@ namespace tvp {
 		const std::size_t mLimit;
 
 		// APIs
-		JQueue<T>::node* getTail() {
+		JQueue<T>::node* getTail() 
+		{
 			std::lock_guard<std::mutex> lock(mTailMux);
 			return mTailNode;
 		}
 
-		std::unique_ptr<node> popHead() {
+		std::unique_ptr<node> popHead() 
+		{
 			std::unique_ptr<node> oldHead = std::move(mHeadNode);
 			mHeadNode = std::move(oldHead->next);
 			mSize.fetch_sub(1);
 			return oldHead;
 		}
 
-		std::unique_lock<std::mutex> waitForData() {
+		std::unique_lock<std::mutex> waitForData() 
+		{
 			std::unique_lock<std::mutex> lock(mHeadMux);
 			while (true)
 			{
@@ -52,6 +59,7 @@ namespace tvp {
 					throw JException(tvp::ExceptionCode::QUEUE_SHUTDOWN,
 						tvp::Utils::getThreadId() + " ThreadPool was shutdown!\n");
 				}
+
 				if (res)
 				{
 					return std::move(lock);
@@ -59,29 +67,33 @@ namespace tvp {
 			}
 		}
 
-		std::unique_ptr<node> tryPopHead() {
+		std::unique_ptr<node> tryPopHead() 
+		{
 			std::lock_guard<std::mutex> lock(mHeadMux);
-			if (mHeadNode.get() == getTail()) {
+			if (mHeadNode.get() == getTail()) 
 				return nullptr;
-			}
+
 			return popHead();
 		}
 
-		std::unique_ptr<node> tryPopHead(T& value) {
+		std::unique_ptr<node> tryPopHead(T& value) 
+		{
 			std::lock_guard<std::mutex> lock(mHeadMux);
-			if (mHeadNode.get() == getTail()) {
+			if (mHeadNode.get() == getTail()) 
 				return nullptr;
-			}
+
 			value = std::move(*mHeadNode->data);
 			return popHead();
 		}
 
-		std::unique_ptr<node> waitPopHead() {
+		std::unique_ptr<node> waitPopHead() 
+		{
 			std::unique_lock<std::mutex> lock(waitForData());
 			return popHead();
 		}
 
-		std::unique_ptr<node> waitPopHead(T& value) {
+		std::unique_ptr<node> waitPopHead(T& value) 
+		{
 			std::unique_lock<std::mutex> lock(waitForData());
 			value = std::move(*mHeadNode->data);
 			return popHead();
@@ -102,12 +114,12 @@ namespace tvp {
 			clear();
 		}
 
-		void shutdown()
+		void shutdown() noexcept
 		{
 			mShutdown.store(true);			
 		}
 
-		bool isShutdown()
+		bool isShutdown() const noexcept
 		{
 			return mShutdown.load();
 		}
@@ -116,8 +128,7 @@ namespace tvp {
 		{
 			// Clean all data in queue
 			while (tryPop())
-			{
-			}
+			{}
 		}
 
 		// No copiable
