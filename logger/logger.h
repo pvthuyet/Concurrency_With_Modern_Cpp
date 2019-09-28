@@ -28,12 +28,10 @@ namespace tvp
 			mFile.close();
 		}
 
-		void debug(std::string const& msg)
+		void debug(std::string const& msg, bool msgOnly = false)
 		{
 			std::string str;
-			str = tvp::Utils::getDateTime() + "\t" 
-				+ DEBUG_LEVEL + "\t" 
-				+ msg;
+			str = msgOnly ? msg : (tvp::Utils::getDateTime() + "\t" + DEBUG_LEVEL + "\t" + msg);
 			{
 				std::lock_guard<std::mutex> lk(mMux);
 				mFile.write(str.c_str(), str.size());

@@ -22,7 +22,9 @@ void testQueue()
 		int i = s;
 		while (true)
 		{
+			// Only quit loop by this function.
 			tvp::interruptibleWait(cv, lk);
+
 			try
 			{
 				que.push(i);				
@@ -51,7 +53,9 @@ void testQueue()
 
 		while (true)
 		{
+			// Only quit loop by this function.
 			tvp::interruptibleWait(cv, lk);
+
 			int v;
 			try
 			{
