@@ -17,12 +17,15 @@ struct sorter
 {
 	std::unique_ptr<tvp::JThreadPool> mPool;
 	sorter() :
-		mPool(std::make_unique<tvp::JThreadPool>(4))
+		mPool(std::make_unique<tvp::JThreadPool>(gLogger, 4))
 	{
+	}
+	void stop()
+	{
+		mPool->shutdown();
 	}
 
 	std::list<T> doSort(std::list<T>& chunkData) {
-		gLogger.debug(tvp::Utils::getThreadId() + " sorting...\n");
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		if (chunkData.empty() || chunkData.size() == 1) {
@@ -63,8 +66,30 @@ std::list<T> parallelQuickSort(std::list<T> input) {
 	if (input.empty() || input.size() == 1) {
 		return input;
 	}
-	sorter<T> a;
-	return a.doSort(input);
+	sorter<T> st;
+	auto runPool = [&st, &input]() -> std::list<T> {
+		return st.doSort(input);
+	};
+
+	auto task = std::async(std::launch::async, runPool);
+
+	auto stopPool = [&st]() {
+		std::string s;
+		while (!st.mPool->isShutdown())
+		{
+			std::cin >> s;
+			if (s == "S" || s == "s")
+			{
+				st.stop();
+				break;
+			}
+		}
+	};
+
+	tvp::JThread stop(stopPool);
+	stop.join();
+
+	return task.get();
 }
 
 template<typename T>
@@ -78,7 +103,7 @@ void print(std::list<T> const& list, std::string const& msg = "")
 	gLogger.debug("\n", true);
 }
 
-void testThreadpool()
+void parallelQuickSort()
 {
 	int sz = 50;
 	std::list<int> v = tvp::Utils::random(sz, -100, 100);
@@ -86,10 +111,68 @@ void testThreadpool()
 	std::list<int> result = parallelQuickSort(v);
 	print(result, "Resutl: ");
 }
+// ****************************************
+void testThreadPool()
+{
+	tvp::JThreadPool pool(gLogger, 4U);
+
+	auto fun = [](int i) {
+		gLogger.debug(tvp::Utils::getThreadId() + " processing " + std::to_string(i) + "\n");
+		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+	};
+	auto push = [&fun, &pool]() {
+		int i = 0;
+		while (true)
+		{
+			try
+			{
+				pool.submit(fun, i);
+				i++;
+			}
+			catch (tvp::JException const& e)
+			{
+				gLogger.debug(e.what());
+				switch (e.getCode())
+				{
+				case tvp::ExceptionCode::QUEUE_LIMIT:
+					std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+					break;
+				case tvp::ExceptionCode::QUEUE_SHUTDOWN:
+				case tvp::ExceptionCode::THREADPOOL_SHUTDOWN:
+					return;
+				default:
+					break;
+				}
+			}
+
+			//std::this_thread::yield();
+			std::this_thread::sleep_for(std::chrono::milliseconds(200));
+		}
+	};
+	auto stop = [&pool]() {
+		std::string s;
+		while (!pool.isShutdown())
+		{
+			gLogger.debug("Press 'q' to exit: \n", false, true);
+			std::cin >> s;
+			if (s == "q" || s == "q")
+			{
+				pool.shutdown();
+				break;
+			}
+		}
+	};
+
+	tvp::JThread t1(push);
+	tvp::JThread t2(stop);
+	t1.join();
+	t2.join();
+}
 
 int main()
 {
-	testThreadpool();
+	//parallelQuickSort();
+	testThreadPool();
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu

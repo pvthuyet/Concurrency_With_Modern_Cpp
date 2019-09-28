@@ -8,12 +8,28 @@
 
 namespace tvp
 {
-	class TimeOut : std::exception
+	enum class ExceptionCode
 	{
+		TIME_OUT,
+		QUEUE_SHUTDOWN,
+		QUEUE_LIMIT,
+		THREAD_INTERRUPTED,
+		THREADPOOL_SHUTDOWN,
+	};
+
+	class JException : public std::exception
+	{
+	private:
+		ExceptionCode mExCode;
 	public:
-		virtual char const* what() const
+		explicit JException(ExceptionCode const& exCode, std::string const& msg) noexcept
+			: std::exception(msg.c_str()),
+			mExCode(exCode)
 		{
-			return "Time out\n";
+		}
+		ExceptionCode getCode() const noexcept
+		{
+			return mExCode;
 		}
 	};
 

@@ -28,7 +28,7 @@ namespace tvp
 			mFile.close();
 		}
 
-		void debug(std::string const& msg, bool msgOnly = false)
+		void debug(std::string const& msg, bool msgOnly = false, bool console = true)
 		{
 			std::string str;
 			str = msgOnly ? msg : (tvp::Utils::getDateTime() + "\t" + DEBUG_LEVEL + "\t" + msg);
@@ -36,7 +36,10 @@ namespace tvp
 				std::lock_guard<std::mutex> lk(mMux);
 				mFile.write(str.c_str(), str.size());
 				mFile.flush();
-				std::cout << str << std::flush;
+				if (console)
+				{
+					std::cout << str << std::flush;
+				}
 			}
 		}
 	};

@@ -1,6 +1,7 @@
 #pragma once
 #include "InterruptFlag.h"
 #include "../logger/logger.h"
+#include "../utils/utils.h"
 
 extern tvp::Logger gLogger;
 
@@ -16,20 +17,12 @@ namespace tvp
 		}
 	};
 
-	class ThreadInterrupted : public std::exception
-	{
-	public:
-		virtual char const* what() const
-		{
-			return "Thread Interrupted Exception!\n";
-		}
-	};
-
 	void interruptionPoint()
 	{
 		if (gInterruptedFlag.isSet())
 		{
-			throw ThreadInterrupted();
+			throw tvp::JException(tvp::ExceptionCode::THREAD_INTERRUPTED,
+				tvp::Utils::getThreadId() + " interrupted\n");
 		}
 	}
 
@@ -101,7 +94,7 @@ namespace tvp
 					//(*task)();
 					f();
 				}
-				catch (const tvp::ThreadInterrupted& e)
+				catch (const tvp::JException& e)
 				{
 					gLogger.debug(e.what());
 				}

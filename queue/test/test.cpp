@@ -35,7 +35,7 @@ void testQueue()
 					+ std::to_string(que.size()) + ")\n");
 				i++;
 			}
-			catch (const tvp::JQueue<int>::QueueException& e)
+			catch (const tvp::JException& e)
 			{
 				// Throw exeption but must not stop thread.
 				// Becuase of only stop when call interrupt
@@ -66,7 +66,7 @@ void testQueue()
 					+ " out of queue ("
 					+ std::to_string(que.size()) + ")\n");
 			}
-			catch (const tvp::JQueue<int>::QueueException& e)
+			catch (const tvp::JException& e)
 			{
 				// Throw exeption but must not stop thread.
 				// Becuase of only stop when call interrupt

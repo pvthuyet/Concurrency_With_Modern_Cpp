@@ -11,16 +11,6 @@
 namespace tvp {
 	template<typename T>
 	class JQueue {
-	public:
-		class QueueException : public std::exception
-		{
-		public:
-			virtual char const* what() const
-			{
-				return "Queue was shutdown!\n";
-			}
-		};
-
 	private:
 		struct node {
 			std::shared_ptr<T> data;
@@ -37,6 +27,7 @@ namespace tvp {
 		std::atomic_uint mSize;
 		// shutdown flag
 		std::atomic_bool mShutdown;
+		const std::size_t mLimit;
 
 		// APIs
 		JQueue<T>::node* getTail() {
@@ -58,7 +49,8 @@ namespace tvp {
 				bool res = mCV.wait_for(lock, std::chrono::milliseconds(10), [&] { return (mHeadNode.get() != getTail()); });
 				if (isShutdown())
 				{
-					throw QueueException();
+					throw JException(tvp::ExceptionCode::QUEUE_SHUTDOWN,
+						tvp::Utils::getThreadId() + " ThreadPool was shutdown!\n");
 				}
 				if (res)
 				{
@@ -96,7 +88,8 @@ namespace tvp {
 		}
 
 	public:
-		JQueue() : 
+		explicit JQueue(std::size_t limit = 100U) :
+			mLimit(limit),
 			mHeadNode(std::make_unique<node>()), 
 			mTailNode(mHeadNode.get()), 
 			mSize(0),
@@ -105,7 +98,8 @@ namespace tvp {
 
 		~JQueue()
 		{
-			shutdown();			
+			shutdown();
+			clear();
 		}
 
 		void shutdown()
@@ -140,7 +134,13 @@ namespace tvp {
 		{
 			if (isShutdown())
 			{
-				throw QueueException();
+				throw JException(tvp::ExceptionCode::QUEUE_SHUTDOWN,
+					tvp::Utils::getThreadId() + " ThreadPool was shutdown!\n");
+			}
+			if (size() >= mLimit)
+			{
+				throw JException(tvp::ExceptionCode::QUEUE_LIMIT,
+					tvp::Utils::getThreadId() + " Queue is fulfill!\n");
 			}
 
 			std::shared_ptr<T> newData(std::make_shared<T>(std::move(newVal)));
@@ -169,7 +169,7 @@ namespace tvp {
 		}
 
 		// Wait until pop success or queue was shutdown
-		// throw QueueException: must handle in code
+		// throw ShutdownQueueException: must handle in code
 		std::shared_ptr<T> waitAndPop()
 		{
 			std::unique_ptr<node> const oldHead = waitPopHead();
@@ -177,7 +177,7 @@ namespace tvp {
 		}
 
 		// Wait until pop success or queue was shutdown
-		// throw QueueException: must handle in code
+		// throw ShutdownQueueException: must handle in code
 		void waitAndPop(T& value)
 		{
 			std::unique_ptr<node> const oldHead = waitPopHead(value);
