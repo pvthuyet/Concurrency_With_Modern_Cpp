@@ -79,23 +79,16 @@ void testQueue()
 
 	// All threads must destroy befor queue
 	{
-		constexpr std::size_t N = 32;
-		constexpr std::size_t M = 17;
+		constexpr std::size_t N = 33;
+		constexpr std::size_t div = 2;
 		std::vector<std::unique_ptr<tvp::JThread> > threads;
-		for (unsigned int i = 0; i < N; ++i)
+		for (std::size_t i = 0; i < N; ++i)
 		{
-			if (i % 3 == 0)
+			std::size_t r = tvp::Utils::randomNum(0, 10);
+			if (r % div == 0)
 				threads.emplace_back(std::make_unique<tvp::JThread>(popF));
 			else
 				threads.emplace_back(std::make_unique<tvp::JThread>(pushF, i * 1000));
-		}
-
-		for (unsigned int i = 0; i < M; ++i)
-		{
-			if (i % 2 == 0)
-				threads.emplace_back(std::make_unique<tvp::JThread>(popF));
-			else
-				threads.emplace_back(std::make_unique<tvp::JThread>(pushF, (i + N) * 1000));
 		}
 
 		auto fstop = [&threads, &que]() {

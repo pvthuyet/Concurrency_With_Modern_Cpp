@@ -15,6 +15,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test", "thread\test\test.vc
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test", "threadpool\test\test.vcxproj", "{695BBB74-C25A-4C6C-8120-7FDC1C73B01D}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "spinlock", "spinlock", "{8CB94528-6BB9-46C3-A82A-9FF071DBB457}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test", "spinlock\test\test.vcxproj", "{22471A14-F88B-4554-82EF-5054C7125AFF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -47,6 +51,14 @@ Global
 		{695BBB74-C25A-4C6C-8120-7FDC1C73B01D}.Release|x64.Build.0 = Release|x64
 		{695BBB74-C25A-4C6C-8120-7FDC1C73B01D}.Release|x86.ActiveCfg = Release|Win32
 		{695BBB74-C25A-4C6C-8120-7FDC1C73B01D}.Release|x86.Build.0 = Release|Win32
+		{22471A14-F88B-4554-82EF-5054C7125AFF}.Debug|x64.ActiveCfg = Debug|x64
+		{22471A14-F88B-4554-82EF-5054C7125AFF}.Debug|x64.Build.0 = Debug|x64
+		{22471A14-F88B-4554-82EF-5054C7125AFF}.Debug|x86.ActiveCfg = Debug|Win32
+		{22471A14-F88B-4554-82EF-5054C7125AFF}.Debug|x86.Build.0 = Debug|Win32
+		{22471A14-F88B-4554-82EF-5054C7125AFF}.Release|x64.ActiveCfg = Release|x64
+		{22471A14-F88B-4554-82EF-5054C7125AFF}.Release|x64.Build.0 = Release|x64
+		{22471A14-F88B-4554-82EF-5054C7125AFF}.Release|x86.ActiveCfg = Release|Win32
+		{22471A14-F88B-4554-82EF-5054C7125AFF}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -55,6 +67,7 @@ Global
 		{933F9E98-5CF4-4E2D-AB05-D53E9A113208} = {E1C1459A-43C9-4C80-BD5F-72CD4282B210}
 		{4418AA1B-2B09-4151-9040-31DC4C11DD45} = {54CB2438-D28A-4323-8485-8EFEF9FA69C0}
 		{695BBB74-C25A-4C6C-8120-7FDC1C73B01D} = {9323B638-9C50-47AF-80D9-BB4600D3170A}
+		{22471A14-F88B-4554-82EF-5054C7125AFF} = {8CB94528-6BB9-46C3-A82A-9FF071DBB457}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A9E87E4B-73A3-4335-91C9-DD38B1116ABE}

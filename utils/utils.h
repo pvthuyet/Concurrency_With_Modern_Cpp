@@ -29,6 +29,14 @@ namespace tvp
 		}
 
 		template<typename T>
+		static T randomNum(T min = 0, T max = (std::numeric_limits<T>::max)())
+		{
+			std::random_device rd;
+			std::uniform_int_distribution<T> dist(min, max);
+			return dist(rd);
+		}
+
+		template<typename T>
 		static std::list<T> random(std::size_t size, 
 			T min = 0, 
 			T max = (std::numeric_limits<T>::max)()) 

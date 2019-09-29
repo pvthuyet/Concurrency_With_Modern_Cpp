@@ -44,7 +44,7 @@ namespace tvp
 		{
 			std::unique_ptr<node> oldHead = std::move(mHeadNode);
 			mHeadNode = std::move(oldHead->next);
-			mSize.fetch_sub(1);
+			--mSize;
 			return oldHead;
 		}
 
@@ -53,14 +53,14 @@ namespace tvp
 			std::unique_lock<std::mutex> lock(mHeadMux);
 			while (true)
 			{
-				bool res = mCV.wait_for(lock, std::chrono::milliseconds(10), [&] { return (mHeadNode.get() != getTail()); });
+				bool res = mCV.wait_for(lock, std::chrono::milliseconds(10), [&] { return size() > 0; });
 				if (isShutdown())
 				{
 					throw JException(tvp::ExceptionCode::QUEUE_SHUTDOWN,
 						tvp::Utils::getThreadId() + " ThreadPool was shutdown!\n");
 				}
 
-				if (res)
+				if (res || (size() > 0))
 				{
 					return std::move(lock);
 				}
@@ -162,7 +162,7 @@ namespace tvp
 				mTailNode->data = newData;
 				mTailNode->next = std::move(p);
 				mTailNode = newTail;
-				mSize.fetch_add(1);
+				++mSize;
 			}
 			mCV.notify_one();
 		}
