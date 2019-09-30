@@ -13,7 +13,7 @@ namespace tvp
 		std::atomic<bool> mFlag;
 		std::condition_variable* mThreadCond;
 		std::condition_variable_any* mThreadCondAny;
-		tvp::Spinlock mMutex;
+		tvp::lockfree::Spinlock mMutex;
 
 	public:
 		InterruptFlagLockFree() noexcept : mThreadCond(nullptr), mThreadCondAny(nullptr), mFlag(false)
@@ -22,7 +22,7 @@ namespace tvp
 		void set()
 		{
 			mFlag.store(true, std::memory_order_relaxed);
-			tvp::LockGuard lk(mMutex);
+			tvp::lockfree::LockGuard lk(mMutex);
 			if (mThreadCond)
 			{
 				mThreadCond->notify_all();
@@ -40,13 +40,13 @@ namespace tvp
 
 		void setCV(std::condition_variable& cv)
 		{
-			tvp::LockGuard lk(mMutex);
+			tvp::lockfree::LockGuard lk(mMutex);
 			mThreadCond = &cv;
 		}
 
 		void clearCV()
 		{
-			tvp::LockGuard lk(mMutex);
+			tvp::lockfree::LockGuard lk(mMutex);
 			mThreadCond = nullptr;
 		}
 	};

@@ -6,11 +6,11 @@
 #include "../Spinlock.h"
 #include <thread>
 
-tvp::Spinlock spin;
+tvp::lockfree::Spinlock spin;
 
 void workOnResource()
 {
-	tvp::LockGuard lk(spin);
+	tvp::lockfree::LockGuard lk(spin);
 	std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 }
 

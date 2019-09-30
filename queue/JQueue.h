@@ -26,7 +26,7 @@ namespace tvp
 		std::unique_ptr<node> mHeadNode;
 
 		//std::mutex mTailMux;
-		tvp::Spinlock mTailMux; // Using lock-free
+		tvp::lockfree::Spinlock mTailMux; // Using lock-free
 		node* mTailNode;
 
 		// Number of elements
@@ -39,7 +39,7 @@ namespace tvp
 		JQueue<T>::node* getTail() 
 		{
 			//std::lock_guard<std::mutex> lock(mTailMux);
-			tvp::LockGuard lock(mTailMux); // Using lock-free
+			tvp::lockfree::LockGuard lock(mTailMux); // Using lock-free
 			return mTailNode;
 		}
 
@@ -162,7 +162,7 @@ namespace tvp
 			node* const newTail = p.get();
 			{
 				//std::lock_guard<std::mutex> lock(mTailMux);
-				tvp::LockGuard lock(mTailMux); // Using lock-free
+				tvp::lockfree::LockGuard lock(mTailMux); // Using lock-free
 				mTailNode->data = newData;
 				mTailNode->next = std::move(p);
 				mTailNode = newTail;
