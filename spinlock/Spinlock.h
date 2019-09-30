@@ -19,7 +19,7 @@ namespace tvp
 
 			void lock() noexcept
 			{
-				while (mFlag.test_and_set(std::memory_order_acq_rel))
+				while (mFlag.test_and_set(std::memory_order_acquire))
 				{
 					std::this_thread::sleep_for(std::chrono::milliseconds(1));
 				}
