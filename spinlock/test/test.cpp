@@ -10,7 +10,7 @@ tvp::Spinlock spin;
 
 void workOnResource()
 {
-	tvp::SpinlockGuard lk(spin);
+	tvp::LockGuard lk(spin);
 	std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 }
 
@@ -23,6 +23,11 @@ int main()
 	std::thread t5(workOnResource);
 	std::thread t6(workOnResource);
 	std::thread t7(workOnResource);
+	std::thread t8(workOnResource);
+	std::thread t9(workOnResource);
+	std::thread t10(workOnResource);
+	std::thread t11(workOnResource);
+	std::thread t12(workOnResource);
 
 	t1.join();
 	t2.join();
@@ -31,6 +36,11 @@ int main()
 	t5.join();
 	t6.join();
 	t7.join();
+	t8.join();
+	t9.join();
+	t10.join();
+	t11.join();
+	t12.join();
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu

@@ -21,7 +21,7 @@ namespace tvp
 		// data members
 		tvp::Logger& mLogger;
 		std::atomic_bool mShutdown;
-		JQueue<Callable> mPoolWorkQueue;
+		tvp::JQueue<Callable> mPoolWorkQueue;
 		static thread_local std::unique_ptr<LocalQueueType> mLocalWorkQueue;
 
 		// mThreads
@@ -32,7 +32,7 @@ namespace tvp
 		{
 			mLogger.debug(Utils::getThreadId() + " initialized\n");
 			mLocalWorkQueue.reset(new LocalQueueType());
-			while (!mShutdown) 
+			while (!mShutdown.load(std::memory_order_relaxed))
 			{
 				try
 				{
@@ -59,7 +59,7 @@ namespace tvp
 			}
 			catch (...) 
 			{
-				mShutdown.store(true);
+				mShutdown.store(true, std::memory_order_relaxed);
 				throw;
 			}
 		}
@@ -74,12 +74,12 @@ namespace tvp
 
 		void shutdown() noexcept
 		{
-			mShutdown.store(true);
+			mShutdown.store(true, std::memory_order_relaxed);
 		}
 
 		bool isShutdown() const noexcept
 		{
-			return mShutdown.load();
+			return mShutdown.load(std::memory_order_relaxed);
 		}
 
 		void runPendingTask() 

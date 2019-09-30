@@ -17,7 +17,7 @@ namespace tvp
 		std::mutex mMutex;
 
 	public:
-		InterruptFlag() : mThreadCond(nullptr), mThreadCondAny(nullptr), mFlag(false)
+		InterruptFlag() noexcept : mThreadCond(nullptr), mThreadCondAny(nullptr), mFlag(false)
 		{}
 
 		void set()
@@ -34,7 +34,7 @@ namespace tvp
 			}
 		}
 
-		bool isSet() const
+		bool isSet() const noexcept
 		{
 			return mFlag.load(std::memory_order_relaxed);
 		}
@@ -74,7 +74,7 @@ namespace tvp
 
 				void lock()
 				{
-					std::lock(self->mMutex, lk);
+					std::lock(self->mMutex, lk); // TODO: deadlock
 				}
 
 				~CustomLock()

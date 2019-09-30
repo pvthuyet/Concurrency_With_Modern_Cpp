@@ -154,6 +154,7 @@
     <ClInclude Include="..\..\logger\logger.h" />
     <ClInclude Include="..\..\utils\utils.h" />
     <ClInclude Include="..\InterruptFlag.h" />
+    <ClInclude Include="..\InterruptFlagLockFree.h" />
     <ClInclude Include="..\JThread.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>

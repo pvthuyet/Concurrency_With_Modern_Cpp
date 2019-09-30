@@ -7,6 +7,7 @@
 #include <chrono>
 #include <limits>
 #include "../utils/JExeption.h"
+#include "../spinlock/Spinlock.h"
 
 namespace tvp 
 {
@@ -24,7 +25,8 @@ namespace tvp
 		std::mutex mHeadMux;
 		std::unique_ptr<node> mHeadNode;
 
-		std::mutex mTailMux;
+		//std::mutex mTailMux;
+		tvp::Spinlock mTailMux; // Using lock-free
 		node* mTailNode;
 
 		// Number of elements
@@ -36,7 +38,8 @@ namespace tvp
 		// APIs
 		JQueue<T>::node* getTail() 
 		{
-			std::lock_guard<std::mutex> lock(mTailMux);
+			//std::lock_guard<std::mutex> lock(mTailMux);
+			tvp::LockGuard lock(mTailMux); // Using lock-free
 			return mTailNode;
 		}
 
@@ -44,7 +47,7 @@ namespace tvp
 		{
 			std::unique_ptr<node> oldHead = std::move(mHeadNode);
 			mHeadNode = std::move(oldHead->next);
-			--mSize;
+			mSize.fetch_sub(1, std::memory_order_relaxed);
 			return oldHead;
 		}
 
@@ -116,12 +119,12 @@ namespace tvp
 
 		void shutdown() noexcept
 		{
-			mShutdown.store(true);			
+			mShutdown.store(true, std::memory_order_relaxed);			
 		}
 
 		bool isShutdown() const noexcept
 		{
-			return mShutdown.load();
+			return mShutdown.load(std::memory_order_relaxed);
 		}
 
 		void clear()
@@ -158,11 +161,12 @@ namespace tvp
 			std::unique_ptr<node> p(std::make_unique<node>());
 			node* const newTail = p.get();
 			{
-				std::lock_guard<std::mutex> lock(mTailMux);
+				//std::lock_guard<std::mutex> lock(mTailMux);
+				tvp::LockGuard lock(mTailMux); // Using lock-free
 				mTailNode->data = newData;
 				mTailNode->next = std::move(p);
 				mTailNode = newTail;
-				++mSize;
+				mSize.fetch_add(1, std::memory_order_relaxed);
 			}
 			mCV.notify_one();
 		}
@@ -196,7 +200,7 @@ namespace tvp
 
 		std::size_t size()
 		{
-			return mSize.load();			
+			return mSize.load(std::memory_order_relaxed);
 		}
 	};
 }

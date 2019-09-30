@@ -27,19 +27,19 @@ void worker_wait_cv(std::string const& msg)
 	}
 }
 
-void worker_wait_cv_any(std::string const& msg)
-{
-	gLogger.debug(msg);
-	std::mutex mut;
-	std::condition_variable_any cv;
-	std::unique_lock<std::mutex> lk(mut);
-	while (true)
-	{
-		tvp::interruptibleWait(cv, lk);
-		gLogger.debug(tvp::Utils::getThreadId() + " running...\n");
-		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-	}
-}
+//void worker_wait_cv_any(std::string const& msg)
+//{
+//	gLogger.debug(msg);
+//	std::mutex mut;
+//	std::condition_variable_any cv;
+//	std::unique_lock<std::mutex> lk(mut);
+//	while (true)
+//	{
+//		tvp::interruptibleWait(cv, lk);
+//		gLogger.debug(tvp::Utils::getThreadId() + " running...\n");
+//		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+//	}
+//}
 
 
 void worker_wait_future(std::string const& msg)
@@ -71,7 +71,8 @@ void testInterruptedThread()
 			threads.emplace_back(std::make_unique<tvp::JThread>(worker_wait_cv, "worker_wait_cv: Starting\n"));
 			break;
 		case 1:
-			threads.emplace_back(std::make_unique<tvp::JThread>(worker_wait_cv_any, "worker_wait_cv_any: Starting\n"));
+			//threads.emplace_back(std::make_unique<tvp::JThread>(worker_wait_cv_any, "worker_wait_cv_any: Starting\n"));
+			threads.emplace_back(std::make_unique<tvp::JThread>(worker_wait_cv, "worker_wait_cv: Starting\n"));
 			break;
 		case 2:
 			threads.emplace_back(std::make_unique<tvp::JThread>(worker_wait_future, "worker_wait_future: Starting\n"));

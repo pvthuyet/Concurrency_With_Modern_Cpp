@@ -1,5 +1,7 @@
 #pragma once
 #include <atomic>
+#include <thread>
+#include <chrono>
 
 namespace tvp
 {
@@ -15,32 +17,34 @@ namespace tvp
 
 		void lock() noexcept
 		{
-			while(mFlag.test_and_set())
-			{ }
+			while(mFlag.test_and_set(std::memory_order_acq_rel))
+			{ 
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			}
 		}
 		void unlock() noexcept
 		{
-			mFlag.clear();
+			mFlag.clear(std::memory_order_release);
 		}
 	};
 
-	class SpinlockGuard
+	class LockGuard
 	{
 	private:
 		Spinlock& mSpin;
 	public:
-		SpinlockGuard() = delete;
-		SpinlockGuard(Spinlock& spin) noexcept
+		LockGuard() = delete;
+		LockGuard(Spinlock& spin) noexcept
 			: mSpin(spin)
 		{
 			mSpin.lock();
 		}
-		~SpinlockGuard() noexcept
+		~LockGuard() noexcept
 		{
 			mSpin.unlock();
 		}
 
-		SpinlockGuard(const Spinlock&) = delete;
-		SpinlockGuard& operator=(const Spinlock&) = delete;
+		LockGuard(const Spinlock&) = delete;
+		LockGuard& operator=(const Spinlock&) = delete;
 	};
 }

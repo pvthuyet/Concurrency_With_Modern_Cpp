@@ -1,5 +1,7 @@
 #pragma once
-#include "InterruptFlag.h"
+#include <future>
+//#include "InterruptFlag.h"
+#include "InterruptFlagLockFree.h"
 #include "../logger/logger.h"
 #include "../utils/utils.h"
 #include "../utils/JExeption.h"
@@ -8,7 +10,7 @@ extern tvp::Logger gLogger;
 
 namespace tvp
 {
-	thread_local InterruptFlag gInterruptedFlag;
+	thread_local InterruptFlagLockFree gInterruptedFlag;
 
 	struct FlagGuard
 	{
@@ -50,11 +52,11 @@ namespace tvp
 		interruptionPoint();
 	}
 
-	template<typename Lockable>
-	void interruptibleWait(std::condition_variable_any& cv, Lockable& lk)
-	{
-		gInterruptedFlag.wait(cv, lk);
-	}
+	//template<typename Lockable>
+	//void interruptibleWait(std::condition_variable_any& cv, Lockable& lk)
+	//{
+	//	gInterruptedFlag.wait(cv, lk);
+	//}
 
 	template<typename T>
 	void interruptibleWait(std::future<T>& uf)
@@ -73,7 +75,7 @@ namespace tvp
 	{
 	private:
 		std::thread mT;
-		InterruptFlag* mFlag;
+		InterruptFlagLockFree* mFlag;
 
 	public:
 		// Constructors
@@ -87,7 +89,7 @@ namespace tvp
 			//auto task = std::make_shared<std::packaged_task<return_type()> >(std::bind(std::forward<Callable>(func), std::forward<Args>(args)...));
 			auto f = std::bind(std::forward<Callable>(func), std::forward<Args>(args)...);
 
-			std::promise<InterruptFlag*> p;
+			std::promise<InterruptFlagLockFree*> p;
 			mT = std::thread([f, &p] {
 				p.set_value(&gInterruptedFlag);
 				try
