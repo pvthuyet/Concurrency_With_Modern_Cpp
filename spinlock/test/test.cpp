@@ -7,27 +7,48 @@
 #include <thread>
 
 tvp::lockfree::Spinlock spin;
+int data = 0;
 
-void workOnResource()
+void workOnResource(int v)
 {
-	tvp::lockfree::LockGuard lk(spin);
-	std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+	for (int i = 0; i < 10; ++i)
+	{
+		{
+			//tvp::lockfree::LockGuard lk(spin);
+			data += v;
+			std::cout << data << std::endl;
+		}
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+	}
+}
+
+void print()
+{
+	while (data > 0)
+	{
+		{
+			tvp::lockfree::LockGuard lk(spin);
+			std::cout << data << std::endl;
+			--data;
+		}
+		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+	}
 }
 
 int main()
 {
-	std::thread t1(workOnResource);
-	std::thread t2(workOnResource);
-	std::thread t3(workOnResource);
-	std::thread t4(workOnResource);
-	std::thread t5(workOnResource);
-	std::thread t6(workOnResource);
-	std::thread t7(workOnResource);
-	std::thread t8(workOnResource);
-	std::thread t9(workOnResource);
-	std::thread t10(workOnResource);
-	std::thread t11(workOnResource);
-	std::thread t12(workOnResource);
+	std::thread t1(workOnResource,1);
+	std::thread t2(workOnResource, 1);
+	std::thread t3(workOnResource, 1);
+	std::thread t4(workOnResource, 1);
+	std::thread t5(workOnResource, 1);
+	std::thread t6(workOnResource, 1);
+	std::thread t7(workOnResource, 1);
+	std::thread t8(workOnResource, 1);
+	std::thread t9(workOnResource, 1);
+	std::thread t10(workOnResource, 1);
+	std::thread t11(workOnResource, 1);
+	std::thread t12(workOnResource, 1);
 
 	t1.join();
 	t2.join();
