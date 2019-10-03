@@ -17,3 +17,5 @@ tet/Debug/tet.lib
 *.db-shm
 *.db-wal
 .vs/ModernCpp/v15/.suo
+*.iobj
+*.ipdb

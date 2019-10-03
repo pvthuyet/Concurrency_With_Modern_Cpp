@@ -1,8 +1,10 @@
 #pragma once
 #include <mutex>
 #include <vld.h>
+#include <atomic>
 #include "../utils/Utils.h"
 #include "../logger/Logger.h"
+#include "../spinlock/Spinlock.h"
 
 namespace tvp
 {
@@ -29,7 +31,7 @@ namespace tvp
 			Singleton& operator=(const Singleton&) = delete;
 			static Singleton& getInstance()
 			{
-				static Singleton instance(11);
+				static Singleton instance(1);
 				//volatile int dummy{}; // for without optimization
 				return instance;
 			}
@@ -60,10 +62,148 @@ namespace tvp
 			Singleton& operator=(const Singleton&) = delete;
 			static Singleton& getInstance()
 			{
-				static Singleton instance(13);
+				static Singleton instance(2);
 				return instance;
 			}
 		};
+	}
+
+	namespace relax
+	{
+		class Singleton
+		{
+		private:
+			static std::atomic<Singleton*> mInstance;
+			static std::mutex mMutex;
+
+			unsigned int mId;
+
+			explicit Singleton(unsigned int id) noexcept :
+				mId(id)
+			{
+				std::cout << "Relax Singleton(id = " << id << ")\t";
+			}
+
+		public:
+			~Singleton() noexcept
+			{
+				std::cout << "Relax ~Singleton\n";
+			}
+
+			Singleton(const Singleton&) = delete;
+			Singleton& operator=(const Singleton&) = delete;
+
+			static Singleton* getInstance()
+			{
+				Singleton* sin = mInstance.load(std::memory_order_relaxed);
+				if (!sin)
+				{
+					std::lock_guard<std::mutex> lk(mMutex);
+					sin = mInstance.load(std::memory_order_relaxed); //double - checked locking pattern.
+					if (!sin)
+					{
+						sin = new Singleton(3);
+						mInstance.store(sin, std::memory_order_relaxed);
+					}
+
+				}
+				return sin;
+			}
+		};
+		std::atomic<Singleton*> Singleton::mInstance(nullptr);
+		std::mutex Singleton::mMutex;
+	}
+
+	namespace acqrel
+	{
+		class Singleton
+		{
+		private:
+			static std::atomic<Singleton*> mInstance;
+			static std::mutex mMutex;
+
+			unsigned int mId;
+
+			explicit Singleton(unsigned int id) noexcept :
+				mId(id)
+			{
+				std::cout << "Acquire release Singleton(id = " << id << ")\t";
+			}
+
+		public:
+			~Singleton() noexcept
+			{
+				std::cout << "Acquire release ~Singleton\n";
+			}
+
+			Singleton(const Singleton&) = delete;
+			Singleton& operator=(const Singleton&) = delete;
+
+			static Singleton* getInstance()
+			{
+				Singleton* sin = mInstance.load(std::memory_order_acquire);
+				if (!sin)
+				{
+					std::lock_guard<std::mutex> lk(mMutex);
+					sin = mInstance.load(std::memory_order_relaxed); //double - checked locking pattern.
+					if (!sin)
+					{
+						sin = new Singleton(4);
+						mInstance.store(sin, std::memory_order_release);
+					}
+
+				}
+				return sin;
+			}
+		};
+		std::atomic<Singleton*> Singleton::mInstance(nullptr);
+		std::mutex Singleton::mMutex;
+	}
+
+	namespace seqcst
+	{
+		class Singleton
+		{
+		private:
+			static std::atomic<Singleton*> mInstance;
+			static std::mutex mMutex;
+
+			unsigned int mId;
+
+			explicit Singleton(unsigned int id) noexcept :
+				mId(id)
+			{
+				std::cout << "Sequential consistency Singleton(id = " << id << ")\t";
+			}
+
+		public:
+			~Singleton() noexcept
+			{
+				std::cout << "Sequential consistency ~Singleton\n";
+			}
+
+			Singleton(const Singleton&) = delete;
+			Singleton& operator=(const Singleton&) = delete;
+
+			static Singleton* getInstance()
+			{
+				Singleton* sin = mInstance.load();
+				if (!sin)
+				{
+					std::lock_guard<std::mutex> lk(mMutex);
+					sin = mInstance.load(); //double - checked locking pattern.
+					if (!sin)
+					{
+						sin = new Singleton(5);
+						mInstance.store(sin);
+					}
+
+				}
+				return sin;
+			}
+		};
+		std::atomic<Singleton*> Singleton::mInstance(nullptr);
+		std::mutex Singleton::mMutex;
 	}
 
 	namespace onceflag
@@ -85,7 +225,7 @@ namespace tvp
 			}
 			static void initSingleton() noexcept
 			{
-				mInstance = new Singleton(15);
+				mInstance = new Singleton(6);
 			}
 
 		public:
@@ -110,5 +250,44 @@ namespace tvp
 		// Initialize for static data members
 		Singleton* Singleton::mInstance = nullptr;
 		std::once_flag Singleton::mOnceFlag;
+	}
+
+	namespace lock
+	{
+		class Singleton
+		{
+		private:
+			static Singleton* mInstance;
+			unsigned int mId;
+			static std::mutex mMutex;
+
+		private:
+			explicit Singleton(unsigned int id) noexcept:
+				mId(id)
+			{
+				std::cout << "Lock mutex Singleton(id = " << id << ")\t";
+			}
+
+		public:
+			~Singleton() noexcept
+			{
+				std::cout << "Lock mutex ~Singleton\n";
+			}
+
+			Singleton(const Singleton&) = delete;
+			Singleton& operator=(const Singleton&) = delete;
+
+			static Singleton& getInstance()
+			{
+				std::lock_guard<std::mutex> lk(mMutex);
+				if (!mInstance)
+				{
+					mInstance = new Singleton(7);
+				}
+				return *mInstance;
+			}
+		};
+		Singleton* Singleton::mInstance = nullptr;
+		std::mutex Singleton::mMutex;
 	}
 }

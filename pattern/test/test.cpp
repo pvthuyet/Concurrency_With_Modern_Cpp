@@ -13,7 +13,9 @@ tvp::Logger gLogger;
 
 void terminal(int signal)
 {
-	//delete tvp::onceflag::Singleton::getInstance();
+	delete (&tvp::onceflag::Singleton::getInstance());
+	delete (&tvp::lock::Singleton::getInstance());
+	delete (tvp::seqcst::Singleton::getInstance());
 }
 
 //*************** Single thread *****************
@@ -96,6 +98,133 @@ void testOnceFlag()
 	std::cout << total.count() << std::endl;
 }
 
+//*************** Lock *****************
+std::chrono::duration<double> getTimeLock()
+{
+	auto begin = std::chrono::system_clock::now();
+	for (size_t i = 0; i <= tenMill; ++i)
+	{
+		tvp::lock::Singleton::getInstance();
+	}
+	return std::chrono::system_clock::now() - begin;
+};
+void testLock()
+{
+	auto fut1 = std::async(std::launch::async, getTimeLock);
+	auto fut2 = std::async(std::launch::async, getTimeLock);
+	auto fut3 = std::async(std::launch::async, getTimeLock);
+	auto fut4 = std::async(std::launch::async, getTimeLock);
+	auto fut5 = std::async(std::launch::async, getTimeLock);
+	auto fut6 = std::async(std::launch::async, getTimeLock);
+	auto fut7 = std::async(std::launch::async, getTimeLock);
+	auto fut8 = std::async(std::launch::async, getTimeLock);
+	auto fut9 = std::async(std::launch::async, getTimeLock);
+	auto fut10 = std::async(std::launch::async, getTimeLock);
+	auto fut11 = std::async(std::launch::async, getTimeLock);
+	auto fut12 = std::async(std::launch::async, getTimeLock);
+
+	auto total = fut1.get() + fut2.get() + fut3.get() + fut4.get() +
+		fut5.get() + fut6.get() + fut7.get() + fut8.get() +
+		fut9.get() + fut10.get() + fut11.get() + fut12.get();
+
+	std::cout << total.count() << std::endl;
+}
+
+//*************** Sequential consistency *****************
+std::chrono::duration<double> getTimeSeqCst()
+{
+	auto begin = std::chrono::system_clock::now();
+	for (size_t i = 0; i <= tenMill; ++i)
+	{
+		tvp::seqcst::Singleton::getInstance();
+	}
+	return std::chrono::system_clock::now() - begin;
+};
+void tesSeqCst()
+{
+	auto fut1 = std::async(std::launch::async, getTimeSeqCst);
+	auto fut2 = std::async(std::launch::async, getTimeSeqCst);
+	auto fut3 = std::async(std::launch::async, getTimeSeqCst);
+	auto fut4 = std::async(std::launch::async, getTimeSeqCst);
+	auto fut5 = std::async(std::launch::async, getTimeSeqCst);
+	auto fut6 = std::async(std::launch::async, getTimeSeqCst);
+	auto fut7 = std::async(std::launch::async, getTimeSeqCst);
+	auto fut8 = std::async(std::launch::async, getTimeSeqCst);
+	auto fut9 = std::async(std::launch::async, getTimeSeqCst);
+	auto fut10 = std::async(std::launch::async, getTimeSeqCst);
+	auto fut11 = std::async(std::launch::async, getTimeSeqCst);
+	auto fut12 = std::async(std::launch::async, getTimeSeqCst);
+
+	auto total = fut1.get() + fut2.get() + fut3.get() + fut4.get() +
+		fut5.get() + fut6.get() + fut7.get() + fut8.get() +
+		fut9.get() + fut10.get() + fut11.get() + fut12.get();
+
+	std::cout << total.count() << std::endl;
+}
+//*************** Relax *****************
+std::chrono::duration<double> getTimeRelax()
+{
+	auto begin = std::chrono::system_clock::now();
+	for (size_t i = 0; i <= tenMill; ++i)
+	{
+		tvp::relax::Singleton::getInstance();
+	}
+	return std::chrono::system_clock::now() - begin;
+};
+void testRelax()
+{
+	auto fut1 = std::async(std::launch::async, getTimeRelax);
+	auto fut2 = std::async(std::launch::async, getTimeRelax);
+	auto fut3 = std::async(std::launch::async, getTimeRelax);
+	auto fut4 = std::async(std::launch::async, getTimeRelax);
+	auto fut5 = std::async(std::launch::async, getTimeRelax);
+	auto fut6 = std::async(std::launch::async, getTimeRelax);
+	auto fut7 = std::async(std::launch::async, getTimeRelax);
+	auto fut8 = std::async(std::launch::async, getTimeRelax);
+	auto fut9 = std::async(std::launch::async, getTimeRelax);
+	auto fut10 = std::async(std::launch::async, getTimeRelax);
+	auto fut11 = std::async(std::launch::async, getTimeRelax);
+	auto fut12 = std::async(std::launch::async, getTimeRelax);
+
+	auto total = fut1.get() + fut2.get() + fut3.get() + fut4.get() +
+		fut5.get() + fut6.get() + fut7.get() + fut8.get() +
+		fut9.get() + fut10.get() + fut11.get() + fut12.get();
+
+	std::cout << total.count() << std::endl;
+}
+
+//*************** Acquire release *****************
+std::chrono::duration<double> getTimeAcqRel()
+{
+	auto begin = std::chrono::system_clock::now();
+	for (size_t i = 0; i <= tenMill; ++i)
+	{
+		tvp::acqrel::Singleton::getInstance();
+	}
+	return std::chrono::system_clock::now() - begin;
+};
+void testAcqRel()
+{
+	auto fut1 = std::async(std::launch::async, getTimeAcqRel);
+	auto fut2 = std::async(std::launch::async, getTimeAcqRel);
+	auto fut3 = std::async(std::launch::async, getTimeAcqRel);
+	auto fut4 = std::async(std::launch::async, getTimeAcqRel);
+	auto fut5 = std::async(std::launch::async, getTimeAcqRel);
+	auto fut6 = std::async(std::launch::async, getTimeAcqRel);
+	auto fut7 = std::async(std::launch::async, getTimeAcqRel);
+	auto fut8 = std::async(std::launch::async, getTimeAcqRel);
+	auto fut9 = std::async(std::launch::async, getTimeAcqRel);
+	auto fut10 = std::async(std::launch::async, getTimeAcqRel);
+	auto fut11 = std::async(std::launch::async, getTimeAcqRel);
+	auto fut12 = std::async(std::launch::async, getTimeAcqRel);
+
+	auto total = fut1.get() + fut2.get() + fut3.get() + fut4.get() +
+		fut5.get() + fut6.get() + fut7.get() + fut8.get() +
+		fut9.get() + fut10.get() + fut11.get() + fut12.get();
+
+	std::cout << total.count() << std::endl;
+}
+
 int main()
 {
 	std::cout << std::fixed;
@@ -108,7 +237,11 @@ int main()
 			gLogger.debug("************\n\
 				1:\tsingle thread Singleton\n\
 				2:\tScott Mayer Singleton\n\
-				3:\tonce_flag Singleton\n\
+				3:\tRelax Singleton\n\
+				4:\tAcquire release Singleton\n\
+				5:\tSequential consistency Singleton\n\
+				6:\ttonce_flag Singleton\n\
+				7:\tLock mutex Singleton\n\
 				q:\tQuit\n\
 				Choose: ", true, true);
 			std::string s;
@@ -123,10 +256,33 @@ int main()
 			}
 			else if (s == "3")
 			{
-				testOnceFlag();
+				testRelax();
 			}
 			else if (s == "4")
 			{
+				testAcqRel();
+			}
+			else if (s == "5")
+			{
+				tesSeqCst();
+			}
+			else if (s == "6")
+			{
+				testOnceFlag();
+			}
+			else if (s == "7")
+			{
+				testLock();
+			}
+			else if (s == "a")
+			{
+				std::cout << "Single thread:\t\t\t\t"; testSingleThread(); std::cout << std::endl;
+				std::cout << "Scott Mayer:\t\t\t\t"; testScottMayer(); std::cout << std::endl;
+				std::cout << "memory order relaxed:\t\t\t"; testRelax(); std::cout << std::endl;
+				std::cout << "memory order acquire-release:\t\t"; testAcqRel(); std::cout << std::endl;
+				std::cout << "Memory order Sequential consistency:\t"; tesSeqCst(); std::cout << std::endl;
+				std::cout << "Function onceflag:\t\t\t"; testOnceFlag(); std::cout << std::endl;
+				std::cout << "Mutex lock:\t\t\t\t"; testLock(); std::cout << std::endl;
 			}
 			else if (s == "q" || s == "Q")
 			{
