@@ -19,3 +19,5 @@ tet/Debug/tet.lib
 .vs/ModernCpp/v15/.suo
 *.iobj
 *.ipdb
+*.iobj
+*.ipdb

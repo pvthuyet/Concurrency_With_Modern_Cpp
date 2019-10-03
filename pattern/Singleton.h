@@ -252,6 +252,45 @@ namespace tvp
 		std::once_flag Singleton::mOnceFlag;
 	}
 
+	namespace spinlock
+	{
+		class Singleton
+		{
+		private:
+			static Singleton* mInstance;
+			unsigned int mId;
+			static tvp::lockfree::Spinlock mSpin;
+
+		private:
+			explicit Singleton(unsigned int id) noexcept :
+				mId(id)
+			{
+				std::cout << "Spin lock Singleton(id = " << id << ")\t";
+			}
+
+		public:
+			~Singleton() noexcept
+			{
+				std::cout << "Spin lock ~Singleton\n";
+			}
+
+			Singleton(const Singleton&) = delete;
+			Singleton& operator=(const Singleton&) = delete;
+
+			static Singleton& getInstance()
+			{
+				tvp::lockfree::LockGuard lk(mSpin);
+				if (!mInstance)
+				{
+					mInstance = new Singleton(8);
+				}
+				return *mInstance;
+			}
+		};
+		Singleton* Singleton::mInstance = nullptr;
+		tvp::lockfree::Spinlock Singleton::mSpin;
+	}
+
 	namespace lock
 	{
 		class Singleton
@@ -262,7 +301,7 @@ namespace tvp
 			static std::mutex mMutex;
 
 		private:
-			explicit Singleton(unsigned int id) noexcept:
+			explicit Singleton(unsigned int id) noexcept :
 				mId(id)
 			{
 				std::cout << "Lock mutex Singleton(id = " << id << ")\t";

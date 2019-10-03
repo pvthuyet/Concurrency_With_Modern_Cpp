@@ -13,9 +13,12 @@ tvp::Logger gLogger;
 
 void terminal(int signal)
 {
-	delete (&tvp::onceflag::Singleton::getInstance());
-	delete (&tvp::lock::Singleton::getInstance());
+	delete (tvp::relax::Singleton::getInstance());
+	delete (tvp::acqrel::Singleton::getInstance());
 	delete (tvp::seqcst::Singleton::getInstance());
+	delete (&tvp::onceflag::Singleton::getInstance());
+	delete (&tvp::spinlock::Singleton::getInstance());
+	delete (&tvp::lock::Singleton::getInstance());	
 }
 
 //*************** Single thread *****************
@@ -225,6 +228,37 @@ void testAcqRel()
 	std::cout << total.count() << std::endl;
 }
 
+//*************** Spin lock *****************
+std::chrono::duration<double> getTimeSpin()
+{
+	auto begin = std::chrono::system_clock::now();
+	for (size_t i = 0; i <= tenMill; ++i)
+	{
+		tvp::spinlock::Singleton::getInstance();
+	}
+	return std::chrono::system_clock::now() - begin;
+};
+void testSpinlock()
+{
+	auto fut1 = std::async(std::launch::async, getTimeSpin);
+	auto fut2 = std::async(std::launch::async, getTimeSpin);
+	auto fut3 = std::async(std::launch::async, getTimeSpin);
+	auto fut4 = std::async(std::launch::async, getTimeSpin);
+	auto fut5 = std::async(std::launch::async, getTimeSpin);
+	auto fut6 = std::async(std::launch::async, getTimeSpin);
+	auto fut7 = std::async(std::launch::async, getTimeSpin);
+	auto fut8 = std::async(std::launch::async, getTimeSpin);
+	auto fut9 = std::async(std::launch::async, getTimeSpin);
+	auto fut10 = std::async(std::launch::async, getTimeSpin);
+	auto fut11 = std::async(std::launch::async, getTimeSpin);
+	auto fut12 = std::async(std::launch::async, getTimeSpin);
+
+	auto total = fut1.get() + fut2.get() + fut3.get() + fut4.get() +
+		fut5.get() + fut6.get() + fut7.get() + fut8.get() +
+		fut9.get() + fut10.get() + fut11.get() + fut12.get();
+
+	std::cout << total.count() << std::endl;
+}
 int main()
 {
 	std::cout << std::fixed;
@@ -241,7 +275,8 @@ int main()
 				4:\tAcquire release Singleton\n\
 				5:\tSequential consistency Singleton\n\
 				6:\ttonce_flag Singleton\n\
-				7:\tLock mutex Singleton\n\
+				7:\tSpin lock Singleton\n\
+				8:\tLock mutex Singleton\n\
 				q:\tQuit\n\
 				Choose: ", true, true);
 			std::string s;
@@ -272,6 +307,10 @@ int main()
 			}
 			else if (s == "7")
 			{
+				testSpinlock();
+			}
+			else if (s == "8")
+			{
 				testLock();
 			}
 			else if (s == "a")
@@ -282,6 +321,7 @@ int main()
 				std::cout << "memory order acquire-release:\t\t"; testAcqRel(); std::cout << std::endl;
 				std::cout << "Memory order Sequential consistency:\t"; tesSeqCst(); std::cout << std::endl;
 				std::cout << "Function onceflag:\t\t\t"; testOnceFlag(); std::cout << std::endl;
+				std::cout << "Spin lock:\t\t\t\t"; testSpinlock(); std::cout << std::endl;
 				std::cout << "Mutex lock:\t\t\t\t"; testLock(); std::cout << std::endl;
 			}
 			else if (s == "q" || s == "Q")
