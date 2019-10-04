@@ -46,8 +46,9 @@ namespace tvp
 				mSpin.unlock();
 			}
 
-			LockGuard(const Spinlock&) = delete;
-			LockGuard& operator=(const Spinlock&) = delete;
+			// copiable
+			LockGuard(const LockGuard&) = delete;
+			LockGuard& operator=(const LockGuard&) = delete;
 		};
 	}
 }
