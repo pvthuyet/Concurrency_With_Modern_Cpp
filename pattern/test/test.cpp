@@ -254,6 +254,7 @@ int main()
 				Choose: ", true, true);
 			std::string s;
 			std::cin >> s;
+			gLogger->debug("\n", true, true);
 			if (s == "1")
 			{
 				testSingleThread(); 

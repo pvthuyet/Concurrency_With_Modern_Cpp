@@ -24,3 +24,4 @@ tet/Debug/tet.lib
 Release/test.iobj
 Release/test.ipdb
 *.ipdb
+Release/test.ipdb

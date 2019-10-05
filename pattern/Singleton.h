@@ -18,7 +18,7 @@ namespace tvp
 			explicit Singleton(unsigned int id) :
 				mId(id)
 			{
-				std::cout << "Single thread Singleton(id = " << id << ")\t";
+				//std::cout << "Single thread Singleton(id = " << id << ")\t";
 			}
 
 		public:
@@ -54,7 +54,7 @@ namespace tvp
 			explicit Singleton(unsigned int id) noexcept
 				: mId(id)
 			{
-				std::cout << "Scott Mayer Singleton(id = " << id << ")\t";
+				//std::cout << "Scott Mayer Singleton(id = " << id << ")\t";
 			}
 
 		public:
@@ -91,7 +91,7 @@ namespace tvp
 			explicit Singleton(unsigned int id) noexcept :
 				mId(id)
 			{
-				std::cout << "Acquire release Singleton(id = " << id << ")\t";
+				//std::cout << "Acquire release Singleton(id = " << id << ")\t";
 			}
 
 		public:
@@ -142,7 +142,7 @@ namespace tvp
 			explicit Singleton(unsigned int id) noexcept :
 				mId(id)
 			{
-				std::cout << "Acquire release Spin Singleton(id = " << id << ")\t";
+				//std::cout << "Acquire release Spin Singleton(id = " << id << ")\t";
 			}
 
 		public:
@@ -192,7 +192,7 @@ namespace tvp
 			explicit Singleton(unsigned int id) noexcept :
 				mId(id)
 			{
-				std::cout << "Sequential consistency Singleton(id = " << id << ")\t";
+				//std::cout << "Sequential consistency Singleton(id = " << id << ")\t";
 			}
 
 		public:
@@ -245,7 +245,7 @@ namespace tvp
 			explicit Singleton(unsigned int id) noexcept :
 				mId(id)
 			{
-				std::cout << "Once Flag Singleton(id = " << id << ")\t";
+				//std::cout << "Once Flag Singleton(id = " << id << ")\t";
 			}
 			static void initSingleton() noexcept
 			{
@@ -294,7 +294,7 @@ namespace tvp
 			explicit Singleton(unsigned int id) noexcept :
 				mId(id)
 			{
-				std::cout << "Spin lock Singleton(id = " << id << ")\t";
+				//std::cout << "Spin lock Singleton(id = " << id << ")\t";
 			}
 
 		public:
@@ -338,7 +338,7 @@ namespace tvp
 			explicit Singleton(unsigned int id) noexcept :
 				mId(id)
 			{
-				std::cout << "Lock mutex Singleton(id = " << id << ")\t";
+				//std::cout << "Lock mutex Singleton(id = " << id << ")\t";
 			}
 
 		public:
