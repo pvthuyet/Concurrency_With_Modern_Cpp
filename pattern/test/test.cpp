@@ -10,12 +10,15 @@
 
 constexpr auto tenMill = 10000000;
 tvp::Logger gLogger;
+constexpr int NUM_THREAD = 12;
+using chronoDura = std::chrono::duration<double>;
+using futDura = std::future<chronoDura>;
 
 void terminal(int signal)
 {
-	delete (tvp::relax::Singleton::getInstance());
 	delete (tvp::acqrel::Singleton::getInstance());
-	delete (tvp::seqcst::Singleton::getInstance());
+	delete (tvp::acqrelspin::Singleton::getInstance());
+	delete (tvp::seqcst::Singleton::getInstance());	
 	delete (&tvp::onceflag::Singleton::getInstance());
 	delete (&tvp::spinlock::Singleton::getInstance());
 	delete (&tvp::lock::Singleton::getInstance());	
@@ -28,12 +31,12 @@ void testSingleThread()
 	auto begin = std::chrono::system_clock::now();
 
 	for (size_t i = 0; i <= twelvehundredMill; ++i) {
-		tvp::singlethread::Singleton::getInstance();
+		tvp::singlethread::Singleton::getInstance().test();
 	}
 
 	auto end = std::chrono::system_clock::now() - begin;
 
-	std::cout << std::chrono::duration<double>(end).count() << std::endl;
+	std::cout << std::chrono::duration<double>(end).count();
 }
 
 //*************** Scott Mayer *****************
@@ -42,31 +45,26 @@ std::chrono::duration<double> getTimeScottMayer()
 	auto begin = std::chrono::system_clock::now();
 	for (size_t i = 0; i <= tenMill; ++i)
 	{
-		tvp::scottmayer::Singleton::getInstance();
+		tvp::scottmayer::Singleton::getInstance().test();
 	}
 	return std::chrono::system_clock::now() - begin;
-
 };
+
 void testScottMayer()
 {
-	auto fut1 = std::async(std::launch::async, getTimeScottMayer);
-	auto fut2 = std::async(std::launch::async, getTimeScottMayer);
-	auto fut3 = std::async(std::launch::async, getTimeScottMayer);
-	auto fut4 = std::async(std::launch::async, getTimeScottMayer);
-	auto fut5 = std::async(std::launch::async, getTimeScottMayer);
-	auto fut6 = std::async(std::launch::async, getTimeScottMayer);
-	auto fut7 = std::async(std::launch::async, getTimeScottMayer);
-	auto fut8 = std::async(std::launch::async, getTimeScottMayer);
-	auto fut9 = std::async(std::launch::async, getTimeScottMayer);
-	auto fut10 = std::async(std::launch::async, getTimeScottMayer);
-	auto fut11 = std::async(std::launch::async, getTimeScottMayer);
-	auto fut12 = std::async(std::launch::async, getTimeScottMayer);
+	std::vector<futDura> vt;
+	vt.reserve(NUM_THREAD);
+	for (int i = 0; i < NUM_THREAD; ++i)
+	{
+		vt.emplace_back(std::async(std::launch::async, getTimeScottMayer));
+	}	
 
-	auto total = fut1.get() + fut2.get() + fut3.get() + fut4.get() +
-		fut5.get() + fut6.get() + fut7.get() + fut8.get() +
-		fut9.get() + fut10.get() + fut11.get() + fut12.get();
-
-	std::cout << total.count() << std::endl;
+	chronoDura total(0);
+	for (int i = 0; i < NUM_THREAD; ++i)
+	{	
+		total += vt[i].get();
+	}
+	std::cout << total.count();
 }
 
 //*************** Once Flag *****************
@@ -75,30 +73,25 @@ std::chrono::duration<double> getTime()
 	auto begin = std::chrono::system_clock::now();
 	for (size_t i = 0; i <= tenMill; ++i) 
 	{
-		tvp::onceflag::Singleton::getInstance();
+		tvp::onceflag::Singleton::getInstance().test();
 	}
 	return std::chrono::system_clock::now() - begin;
 };
 void testOnceFlag()
 {
-	auto fut1 = std::async(std::launch::async, getTime);
-	auto fut2 = std::async(std::launch::async, getTime);
-	auto fut3 = std::async(std::launch::async, getTime);
-	auto fut4 = std::async(std::launch::async, getTime);
-	auto fut5 = std::async(std::launch::async, getTime);
-	auto fut6 = std::async(std::launch::async, getTime);
-	auto fut7 = std::async(std::launch::async, getTime);
-	auto fut8 = std::async(std::launch::async, getTime);
-	auto fut9 = std::async(std::launch::async, getTime);
-	auto fut10 = std::async(std::launch::async, getTime);
-	auto fut11 = std::async(std::launch::async, getTime);
-	auto fut12 = std::async(std::launch::async, getTime);
+	std::vector<futDura> vt;
+	vt.reserve(NUM_THREAD);
+	for (int i = 0; i < NUM_THREAD; ++i)
+	{
+		vt.emplace_back(std::async(std::launch::async, getTime));
+	}
 
-	auto total = fut1.get() + fut2.get() + fut3.get() + fut4.get() +
-		fut5.get() + fut6.get() + fut7.get() + fut8.get() +
-		fut9.get() + fut10.get() + fut11.get() + fut12.get();
-
-	std::cout << total.count() << std::endl;
+	chronoDura total(0);
+	for (int i = 0; i < NUM_THREAD; ++i)
+	{
+		total += vt[i].get();
+	}
+	std::cout << total.count();
 }
 
 //*************** Lock *****************
@@ -107,30 +100,25 @@ std::chrono::duration<double> getTimeLock()
 	auto begin = std::chrono::system_clock::now();
 	for (size_t i = 0; i <= tenMill; ++i)
 	{
-		tvp::lock::Singleton::getInstance();
+		tvp::lock::Singleton::getInstance().test();
 	}
 	return std::chrono::system_clock::now() - begin;
 };
 void testLock()
 {
-	auto fut1 = std::async(std::launch::async, getTimeLock);
-	auto fut2 = std::async(std::launch::async, getTimeLock);
-	auto fut3 = std::async(std::launch::async, getTimeLock);
-	auto fut4 = std::async(std::launch::async, getTimeLock);
-	auto fut5 = std::async(std::launch::async, getTimeLock);
-	auto fut6 = std::async(std::launch::async, getTimeLock);
-	auto fut7 = std::async(std::launch::async, getTimeLock);
-	auto fut8 = std::async(std::launch::async, getTimeLock);
-	auto fut9 = std::async(std::launch::async, getTimeLock);
-	auto fut10 = std::async(std::launch::async, getTimeLock);
-	auto fut11 = std::async(std::launch::async, getTimeLock);
-	auto fut12 = std::async(std::launch::async, getTimeLock);
+	std::vector<futDura> vt;
+	vt.reserve(NUM_THREAD);
+	for (int i = 0; i < NUM_THREAD; ++i)
+	{
+		vt.emplace_back(std::async(std::launch::async, getTimeLock));
+	}
 
-	auto total = fut1.get() + fut2.get() + fut3.get() + fut4.get() +
-		fut5.get() + fut6.get() + fut7.get() + fut8.get() +
-		fut9.get() + fut10.get() + fut11.get() + fut12.get();
-
-	std::cout << total.count() << std::endl;
+	chronoDura total(0);
+	for (int i = 0; i < NUM_THREAD; ++i)
+	{
+		total += vt[i].get();
+	}
+	std::cout << total.count();
 }
 
 //*************** Sequential consistency *****************
@@ -139,61 +127,25 @@ std::chrono::duration<double> getTimeSeqCst()
 	auto begin = std::chrono::system_clock::now();
 	for (size_t i = 0; i <= tenMill; ++i)
 	{
-		tvp::seqcst::Singleton::getInstance();
+		tvp::seqcst::Singleton::getInstance()->test();
 	}
 	return std::chrono::system_clock::now() - begin;
 };
 void tesSeqCst()
 {
-	auto fut1 = std::async(std::launch::async, getTimeSeqCst);
-	auto fut2 = std::async(std::launch::async, getTimeSeqCst);
-	auto fut3 = std::async(std::launch::async, getTimeSeqCst);
-	auto fut4 = std::async(std::launch::async, getTimeSeqCst);
-	auto fut5 = std::async(std::launch::async, getTimeSeqCst);
-	auto fut6 = std::async(std::launch::async, getTimeSeqCst);
-	auto fut7 = std::async(std::launch::async, getTimeSeqCst);
-	auto fut8 = std::async(std::launch::async, getTimeSeqCst);
-	auto fut9 = std::async(std::launch::async, getTimeSeqCst);
-	auto fut10 = std::async(std::launch::async, getTimeSeqCst);
-	auto fut11 = std::async(std::launch::async, getTimeSeqCst);
-	auto fut12 = std::async(std::launch::async, getTimeSeqCst);
-
-	auto total = fut1.get() + fut2.get() + fut3.get() + fut4.get() +
-		fut5.get() + fut6.get() + fut7.get() + fut8.get() +
-		fut9.get() + fut10.get() + fut11.get() + fut12.get();
-
-	std::cout << total.count() << std::endl;
-}
-//*************** Relax *****************
-std::chrono::duration<double> getTimeRelax()
-{
-	auto begin = std::chrono::system_clock::now();
-	for (size_t i = 0; i <= tenMill; ++i)
+	std::vector<futDura> vt;
+	vt.reserve(NUM_THREAD);
+	for (int i = 0; i < NUM_THREAD; ++i)
 	{
-		tvp::relax::Singleton::getInstance();
+		vt.emplace_back(std::async(std::launch::async, getTimeSeqCst));
 	}
-	return std::chrono::system_clock::now() - begin;
-};
-void testRelax()
-{
-	auto fut1 = std::async(std::launch::async, getTimeRelax);
-	auto fut2 = std::async(std::launch::async, getTimeRelax);
-	auto fut3 = std::async(std::launch::async, getTimeRelax);
-	auto fut4 = std::async(std::launch::async, getTimeRelax);
-	auto fut5 = std::async(std::launch::async, getTimeRelax);
-	auto fut6 = std::async(std::launch::async, getTimeRelax);
-	auto fut7 = std::async(std::launch::async, getTimeRelax);
-	auto fut8 = std::async(std::launch::async, getTimeRelax);
-	auto fut9 = std::async(std::launch::async, getTimeRelax);
-	auto fut10 = std::async(std::launch::async, getTimeRelax);
-	auto fut11 = std::async(std::launch::async, getTimeRelax);
-	auto fut12 = std::async(std::launch::async, getTimeRelax);
 
-	auto total = fut1.get() + fut2.get() + fut3.get() + fut4.get() +
-		fut5.get() + fut6.get() + fut7.get() + fut8.get() +
-		fut9.get() + fut10.get() + fut11.get() + fut12.get();
-
-	std::cout << total.count() << std::endl;
+	chronoDura total(0);
+	for (int i = 0; i < NUM_THREAD; ++i)
+	{
+		total += vt[i].get();
+	}
+	std::cout << total.count();
 }
 
 //*************** Acquire release *****************
@@ -202,30 +154,52 @@ std::chrono::duration<double> getTimeAcqRel()
 	auto begin = std::chrono::system_clock::now();
 	for (size_t i = 0; i <= tenMill; ++i)
 	{
-		tvp::acqrel::Singleton::getInstance();
+		tvp::acqrel::Singleton::getInstance()->test();
 	}
 	return std::chrono::system_clock::now() - begin;
 };
 void testAcqRel()
 {
-	auto fut1 = std::async(std::launch::async, getTimeAcqRel);
-	auto fut2 = std::async(std::launch::async, getTimeAcqRel);
-	auto fut3 = std::async(std::launch::async, getTimeAcqRel);
-	auto fut4 = std::async(std::launch::async, getTimeAcqRel);
-	auto fut5 = std::async(std::launch::async, getTimeAcqRel);
-	auto fut6 = std::async(std::launch::async, getTimeAcqRel);
-	auto fut7 = std::async(std::launch::async, getTimeAcqRel);
-	auto fut8 = std::async(std::launch::async, getTimeAcqRel);
-	auto fut9 = std::async(std::launch::async, getTimeAcqRel);
-	auto fut10 = std::async(std::launch::async, getTimeAcqRel);
-	auto fut11 = std::async(std::launch::async, getTimeAcqRel);
-	auto fut12 = std::async(std::launch::async, getTimeAcqRel);
+	std::vector<futDura> vt;
+	vt.reserve(NUM_THREAD);
+	for (int i = 0; i < NUM_THREAD; ++i)
+	{
+		vt.emplace_back(std::async(std::launch::async, getTimeAcqRel));
+	}
 
-	auto total = fut1.get() + fut2.get() + fut3.get() + fut4.get() +
-		fut5.get() + fut6.get() + fut7.get() + fut8.get() +
-		fut9.get() + fut10.get() + fut11.get() + fut12.get();
+	chronoDura total(0);
+	for (int i = 0; i < NUM_THREAD; ++i)
+	{
+		total += vt[i].get();
+	}
+	std::cout << total.count();
+}
 
-	std::cout << total.count() << std::endl;
+//*************** Acquire release spin *****************
+std::chrono::duration<double> getTimeAcqRelSpin()
+{
+	auto begin = std::chrono::system_clock::now();
+	for (size_t i = 0; i <= tenMill; ++i)
+	{
+		tvp::acqrelspin::Singleton::getInstance()->test();
+	}
+	return std::chrono::system_clock::now() - begin;
+};
+void testAcqRelSpin()
+{
+	std::vector<futDura> vt;
+	vt.reserve(NUM_THREAD);
+	for (int i = 0; i < NUM_THREAD; ++i)
+	{
+		vt.emplace_back(std::async(std::launch::async, getTimeAcqRelSpin));
+	}
+
+	chronoDura total(0);
+	for (int i = 0; i < NUM_THREAD; ++i)
+	{
+		total += vt[i].get();
+	}
+	std::cout << total.count();
 }
 
 //*************** Spin lock *****************
@@ -234,31 +208,28 @@ std::chrono::duration<double> getTimeSpin()
 	auto begin = std::chrono::system_clock::now();
 	for (size_t i = 0; i <= tenMill; ++i)
 	{
-		tvp::spinlock::Singleton::getInstance();
+		tvp::spinlock::Singleton::getInstance().test();
 	}
 	return std::chrono::system_clock::now() - begin;
 };
 void testSpinlock()
 {
-	auto fut1 = std::async(std::launch::async, getTimeSpin);
-	auto fut2 = std::async(std::launch::async, getTimeSpin);
-	auto fut3 = std::async(std::launch::async, getTimeSpin);
-	auto fut4 = std::async(std::launch::async, getTimeSpin);
-	auto fut5 = std::async(std::launch::async, getTimeSpin);
-	auto fut6 = std::async(std::launch::async, getTimeSpin);
-	auto fut7 = std::async(std::launch::async, getTimeSpin);
-	auto fut8 = std::async(std::launch::async, getTimeSpin);
-	auto fut9 = std::async(std::launch::async, getTimeSpin);
-	auto fut10 = std::async(std::launch::async, getTimeSpin);
-	auto fut11 = std::async(std::launch::async, getTimeSpin);
-	auto fut12 = std::async(std::launch::async, getTimeSpin);
+	std::vector<futDura> vt;
+	vt.reserve(NUM_THREAD);
+	for (int i = 0; i < NUM_THREAD; ++i)
+	{
+		vt.emplace_back(std::async(std::launch::async, getTimeSpin));
+	}
 
-	auto total = fut1.get() + fut2.get() + fut3.get() + fut4.get() +
-		fut5.get() + fut6.get() + fut7.get() + fut8.get() +
-		fut9.get() + fut10.get() + fut11.get() + fut12.get();
-
-	std::cout << total.count() << std::endl;
+	chronoDura total(0);
+	for (int i = 0; i < NUM_THREAD; ++i)
+	{
+		total += vt[i].get();
+	}
+	std::cout << total.count();
 }
+
+
 int main()
 {
 	std::cout << std::fixed;
@@ -271,58 +242,55 @@ int main()
 			gLogger.debug("************\n\
 				1:\tsingle thread Singleton\n\
 				2:\tScott Mayer Singleton\n\
-				3:\tRelax Singleton\n\
-				4:\tAcquire release Singleton\n\
-				5:\tSequential consistency Singleton\n\
-				6:\ttonce_flag Singleton\n\
-				7:\tSpin lock Singleton\n\
-				8:\tLock mutex Singleton\n\
+				3:\tAcquire release(spin) Singleton\n\
+				4:\tSequential consistency Singleton\n\
+				5:\ttonce_flag Singleton\n\
+				6:\tSpin lock Singleton\n\
+				7:\tLock mutex Singleton\n\
 				q:\tQuit\n\
 				Choose: ", true, true);
 			std::string s;
 			std::cin >> s;
 			if (s == "1")
 			{
-				testSingleThread();
+				testSingleThread(); std::cout << std::endl;
 			}
 			else if (s == "2")
 			{
-				testScottMayer();
+				testScottMayer(); std::cout << std::endl;
 			}
 			else if (s == "3")
 			{
-				testRelax();
+				testAcqRelSpin(); std::cout << std::endl;
+				testAcqRel(); std::cout << std::endl;
 			}
 			else if (s == "4")
 			{
-				testAcqRel();
+				tesSeqCst(); std::cout << std::endl;
 			}
 			else if (s == "5")
 			{
-				tesSeqCst();
+				testOnceFlag(); std::cout << std::endl;
 			}
 			else if (s == "6")
 			{
-				testOnceFlag();
+				testSpinlock(); std::cout << std::endl;
 			}
 			else if (s == "7")
 			{
-				testSpinlock();
-			}
-			else if (s == "8")
-			{
-				testLock();
+				testLock(); std::cout << std::endl;
 			}
 			else if (s == "a")
 			{
-				std::cout << "Single thread:\t\t\t\t"; testSingleThread(); std::cout << std::endl;
-				std::cout << "Scott Mayer:\t\t\t\t"; testScottMayer(); std::cout << std::endl;
-				std::cout << "memory order relaxed:\t\t\t"; testRelax(); std::cout << std::endl;
-				std::cout << "memory order acquire-release:\t\t"; testAcqRel(); std::cout << std::endl;
-				std::cout << "Memory order Sequential consistency:\t"; tesSeqCst(); std::cout << std::endl;
-				std::cout << "Function onceflag:\t\t\t"; testOnceFlag(); std::cout << std::endl;
-				std::cout << "Spin lock:\t\t\t\t"; testSpinlock(); std::cout << std::endl;
-				std::cout << "Mutex lock:\t\t\t\t"; testLock(); std::cout << std::endl;
+				testSingleThread(); std::cout << "\tSingle thread"; std::cout << std::endl;
+				testScottMayer(); std::cout << "\tScott Mayer"; std::cout << std::endl;
+				testAcqRelSpin(); std::cout << "\tmemory order acquire-release with Spin lock"; std::cout << std::endl;
+				testAcqRel(); std::cout << "\tmemory order acquire-release with mutex lock"; std::cout << std::endl;
+				tesSeqCst(); std::cout << "\tMemory order Sequential consistency"; std::cout << std::endl;
+				testOnceFlag(); std::cout << "\tFunction onceflag"; std::cout << std::endl;
+				testSpinlock(); std::cout << "\tSpin lock"; std::cout << std::endl;
+				testLock(); std::cout << "\tMutex lock"; std::cout << std::endl;				
+				std::cout << std::endl;
 			}
 			else if (s == "q" || s == "Q")
 			{

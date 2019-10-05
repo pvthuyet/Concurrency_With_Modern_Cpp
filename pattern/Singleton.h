@@ -35,6 +35,11 @@ namespace tvp
 				//volatile int dummy{}; // for without optimization
 				return instance;
 			}
+
+			bool test() const
+			{
+				return true;
+			}
 		};
 	}
 
@@ -65,53 +70,12 @@ namespace tvp
 				static Singleton instance(2);
 				return instance;
 			}
-		};
-	}
 
-	namespace relax
-	{
-		class Singleton
-		{
-		private:
-			static std::atomic<Singleton*> mInstance;
-			static std::mutex mMutex;
-
-			unsigned int mId;
-
-			explicit Singleton(unsigned int id) noexcept :
-				mId(id)
+			bool test() const
 			{
-				std::cout << "Relax Singleton(id = " << id << ")\t";
-			}
-
-		public:
-			~Singleton() noexcept
-			{
-				std::cout << "Relax ~Singleton\n";
-			}
-
-			Singleton(const Singleton&) = delete;
-			Singleton& operator=(const Singleton&) = delete;
-
-			static Singleton* getInstance()
-			{
-				Singleton* sin = mInstance.load(std::memory_order_relaxed);
-				if (!sin)
-				{
-					std::lock_guard<std::mutex> lk(mMutex);
-					sin = mInstance.load(std::memory_order_relaxed); //double - checked locking pattern.
-					if (!sin)
-					{
-						sin = new Singleton(3);
-						mInstance.store(sin, std::memory_order_relaxed);
-					}
-
-				}
-				return sin;
+				return true;
 			}
 		};
-		std::atomic<Singleton*> Singleton::mInstance(nullptr);
-		std::mutex Singleton::mMutex;
 	}
 
 	namespace acqrel
@@ -155,9 +119,64 @@ namespace tvp
 				}
 				return sin;
 			}
+
+			bool test() const
+			{
+				return true;
+			}
 		};
 		std::atomic<Singleton*> Singleton::mInstance(nullptr);
 		std::mutex Singleton::mMutex;
+	}
+
+	namespace acqrelspin
+	{
+		class Singleton
+		{
+		private:
+			static std::atomic<Singleton*> mInstance;
+			static tvp::lockfree::Spinlock mSpin;
+
+			unsigned int mId;
+
+			explicit Singleton(unsigned int id) noexcept :
+				mId(id)
+			{
+				std::cout << "Acquire release Spin Singleton(id = " << id << ")\t";
+			}
+
+		public:
+			~Singleton() noexcept
+			{
+				std::cout << "Acquire release ~Singleton\n";
+			}
+
+			Singleton(const Singleton&) = delete;
+			Singleton& operator=(const Singleton&) = delete;
+
+			static Singleton* getInstance()
+			{
+				Singleton* sin = mInstance.load(std::memory_order_acquire);
+				if (!sin)
+				{
+					tvp::lockfree::LockGuard lk(mSpin);
+					sin = mInstance.load(std::memory_order_relaxed); //double - checked locking pattern.
+					if (!sin)
+					{
+						sin = new Singleton(4);
+						mInstance.store(sin, std::memory_order_release);
+					}
+				}
+				return sin;
+			}
+
+			bool test() const
+			{
+				return true;
+			}
+		};
+		std::atomic<Singleton*> Singleton::mInstance(nullptr);
+		tvp::lockfree::Spinlock Singleton::mSpin;
 	}
 
 	namespace seqcst
@@ -200,6 +219,11 @@ namespace tvp
 
 				}
 				return sin;
+			}
+
+			bool test() const
+			{
+				return true;
 			}
 		};
 		std::atomic<Singleton*> Singleton::mInstance(nullptr);
@@ -245,6 +269,11 @@ namespace tvp
 			{
 				return mId;
 			}
+
+			bool test() const
+			{
+				return true;
+			}
 		};
 
 		// Initialize for static data members
@@ -286,6 +315,11 @@ namespace tvp
 				}
 				return *mInstance;
 			}
+
+			bool test() const
+			{
+				return true;
+			}
 		};
 		Singleton* Singleton::mInstance = nullptr;
 		tvp::lockfree::Spinlock Singleton::mSpin;
@@ -324,6 +358,11 @@ namespace tvp
 					mInstance = new Singleton(7);
 				}
 				return *mInstance;
+			}
+
+			bool test() const
+			{
+				return true;
 			}
 		};
 		Singleton* Singleton::mInstance = nullptr;

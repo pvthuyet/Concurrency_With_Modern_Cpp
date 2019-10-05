@@ -11,6 +11,7 @@ namespace tvp
 		{
 		private:
 			std::atomic_flag mFlag = ATOMIC_FLAG_INIT;
+
 		public:
 			Spinlock() = default;
 			~Spinlock() = default;
