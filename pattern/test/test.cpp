@@ -7,12 +7,12 @@
 #include <chrono>
 #include "../Singleton.h"
 #include "../../thread/JThread.h"
+#include "../../logger/Logger.h"
 
 constexpr auto tenMill = 10000000;
-tvp::Logger gLogger;
 constexpr int NUM_THREAD = 12;
-using chronoDura = std::chrono::duration<double>;
-using futDura = std::future<chronoDura>;
+using ChronoDura = std::chrono::duration<double>;
+using FutDura = std::future<ChronoDura>;
 
 void terminal(int signal)
 {
@@ -22,6 +22,7 @@ void terminal(int signal)
 	delete (&tvp::onceflag::Singleton::getInstance());
 	delete (&tvp::spinlock::Singleton::getInstance());
 	delete (&tvp::lock::Singleton::getInstance());	
+	delete (tvp::Logger::getInstance());
 }
 
 //*************** Single thread *****************
@@ -36,7 +37,8 @@ void testSingleThread()
 
 	auto end = std::chrono::system_clock::now() - begin;
 
-	std::cout << std::chrono::duration<double>(end).count();
+	auto total = std::chrono::duration<double>(end).count();
+	tvp::Logger::getInstance()->debug(std::to_string(total), true, true);
 }
 
 //*************** Scott Mayer *****************
@@ -52,19 +54,19 @@ std::chrono::duration<double> getTimeScottMayer()
 
 void testScottMayer()
 {
-	std::vector<futDura> vt;
+	std::vector<FutDura> vt;
 	vt.reserve(NUM_THREAD);
 	for (int i = 0; i < NUM_THREAD; ++i)
 	{
 		vt.emplace_back(std::async(std::launch::async, getTimeScottMayer));
 	}	
 
-	chronoDura total(0);
+	ChronoDura total(0);
 	for (int i = 0; i < NUM_THREAD; ++i)
 	{	
 		total += vt[i].get();
 	}
-	std::cout << total.count();
+	tvp::Logger::getInstance()->debug(std::to_string(total.count()), true, true);
 }
 
 //*************** Once Flag *****************
@@ -79,19 +81,19 @@ std::chrono::duration<double> getTime()
 };
 void testOnceFlag()
 {
-	std::vector<futDura> vt;
+	std::vector<FutDura> vt;
 	vt.reserve(NUM_THREAD);
 	for (int i = 0; i < NUM_THREAD; ++i)
 	{
 		vt.emplace_back(std::async(std::launch::async, getTime));
 	}
 
-	chronoDura total(0);
+	ChronoDura total(0);
 	for (int i = 0; i < NUM_THREAD; ++i)
 	{
 		total += vt[i].get();
 	}
-	std::cout << total.count();
+	tvp::Logger::getInstance()->debug(std::to_string(total.count()), true, true);
 }
 
 //*************** Lock *****************
@@ -106,19 +108,19 @@ std::chrono::duration<double> getTimeLock()
 };
 void testLock()
 {
-	std::vector<futDura> vt;
+	std::vector<FutDura> vt;
 	vt.reserve(NUM_THREAD);
 	for (int i = 0; i < NUM_THREAD; ++i)
 	{
 		vt.emplace_back(std::async(std::launch::async, getTimeLock));
 	}
 
-	chronoDura total(0);
+	ChronoDura total(0);
 	for (int i = 0; i < NUM_THREAD; ++i)
 	{
 		total += vt[i].get();
 	}
-	std::cout << total.count();
+	tvp::Logger::getInstance()->debug(std::to_string(total.count()), true, true);
 }
 
 //*************** Sequential consistency *****************
@@ -133,19 +135,19 @@ std::chrono::duration<double> getTimeSeqCst()
 };
 void tesSeqCst()
 {
-	std::vector<futDura> vt;
+	std::vector<FutDura> vt;
 	vt.reserve(NUM_THREAD);
 	for (int i = 0; i < NUM_THREAD; ++i)
 	{
 		vt.emplace_back(std::async(std::launch::async, getTimeSeqCst));
 	}
 
-	chronoDura total(0);
+	ChronoDura total(0);
 	for (int i = 0; i < NUM_THREAD; ++i)
 	{
 		total += vt[i].get();
 	}
-	std::cout << total.count();
+	tvp::Logger::getInstance()->debug(std::to_string(total.count()), true, true);
 }
 
 //*************** Acquire release *****************
@@ -160,19 +162,19 @@ std::chrono::duration<double> getTimeAcqRel()
 };
 void testAcqRel()
 {
-	std::vector<futDura> vt;
+	std::vector<FutDura> vt;
 	vt.reserve(NUM_THREAD);
 	for (int i = 0; i < NUM_THREAD; ++i)
 	{
 		vt.emplace_back(std::async(std::launch::async, getTimeAcqRel));
 	}
 
-	chronoDura total(0);
+	ChronoDura total(0);
 	for (int i = 0; i < NUM_THREAD; ++i)
 	{
 		total += vt[i].get();
 	}
-	std::cout << total.count();
+	tvp::Logger::getInstance()->debug(std::to_string(total.count()), true, true);
 }
 
 //*************** Acquire release spin *****************
@@ -187,19 +189,19 @@ std::chrono::duration<double> getTimeAcqRelSpin()
 };
 void testAcqRelSpin()
 {
-	std::vector<futDura> vt;
+	std::vector<FutDura> vt;
 	vt.reserve(NUM_THREAD);
 	for (int i = 0; i < NUM_THREAD; ++i)
 	{
 		vt.emplace_back(std::async(std::launch::async, getTimeAcqRelSpin));
 	}
 
-	chronoDura total(0);
+	ChronoDura total(0);
 	for (int i = 0; i < NUM_THREAD; ++i)
 	{
 		total += vt[i].get();
 	}
-	std::cout << total.count();
+	tvp::Logger::getInstance()->debug(std::to_string(total.count()), true, true);
 }
 
 //*************** Spin lock *****************
@@ -214,24 +216,25 @@ std::chrono::duration<double> getTimeSpin()
 };
 void testSpinlock()
 {
-	std::vector<futDura> vt;
+	std::vector<FutDura> vt;
 	vt.reserve(NUM_THREAD);
 	for (int i = 0; i < NUM_THREAD; ++i)
 	{
 		vt.emplace_back(std::async(std::launch::async, getTimeSpin));
 	}
 
-	chronoDura total(0);
+	ChronoDura total(0);
 	for (int i = 0; i < NUM_THREAD; ++i)
 	{
 		total += vt[i].get();
 	}
-	std::cout << total.count();
+	tvp::Logger::getInstance()->debug(std::to_string(total.count()), true, true);
 }
 
 
 int main()
 {
+	tvp::Logger* gLogger = tvp::Logger::getInstance();
 	std::cout << std::fixed;
 	std::cout.precision(9);
 	try
@@ -239,7 +242,7 @@ int main()
 		std::signal(SIGTERM, terminal);
 		while (true)
 		{
-			gLogger.debug("************\n\
+			gLogger->debug("************\n\
 				1:\tsingle thread Singleton\n\
 				2:\tScott Mayer Singleton\n\
 				3:\tAcquire release(spin) Singleton\n\
@@ -253,44 +256,66 @@ int main()
 			std::cin >> s;
 			if (s == "1")
 			{
-				testSingleThread(); std::cout << std::endl;
+				testSingleThread(); 
+				gLogger->debug("\n", true, true);
 			}
 			else if (s == "2")
 			{
-				testScottMayer(); std::cout << std::endl;
+				testScottMayer(); 
+				gLogger->debug("\n", true, true);
 			}
 			else if (s == "3")
 			{
-				testAcqRelSpin(); std::cout << std::endl;
-				testAcqRel(); std::cout << std::endl;
+				testAcqRelSpin(); 
+				gLogger->debug("\n", true, true);
+				testAcqRel(); 
+				gLogger->debug("\n", true, true);
 			}
 			else if (s == "4")
 			{
-				tesSeqCst(); std::cout << std::endl;
+				tesSeqCst(); 
+				gLogger->debug("\n", true, true);
 			}
 			else if (s == "5")
 			{
-				testOnceFlag(); std::cout << std::endl;
+				testOnceFlag(); 
+				gLogger->debug("\n", true, true);
 			}
 			else if (s == "6")
 			{
-				testSpinlock(); std::cout << std::endl;
+				testSpinlock(); 
+				gLogger->debug("\n", true, true);
 			}
 			else if (s == "7")
 			{
-				testLock(); std::cout << std::endl;
+				testLock(); 
+				gLogger->debug("\n", true, true);
 			}
 			else if (s == "a")
 			{
-				testSingleThread(); std::cout << "\tSingle thread"; std::cout << std::endl;
-				testScottMayer(); std::cout << "\tScott Mayer"; std::cout << std::endl;
-				testAcqRelSpin(); std::cout << "\tmemory order acquire-release with Spin lock"; std::cout << std::endl;
-				testAcqRel(); std::cout << "\tmemory order acquire-release with mutex lock"; std::cout << std::endl;
-				tesSeqCst(); std::cout << "\tMemory order Sequential consistency"; std::cout << std::endl;
-				testOnceFlag(); std::cout << "\tFunction onceflag"; std::cout << std::endl;
-				testSpinlock(); std::cout << "\tSpin lock"; std::cout << std::endl;
-				testLock(); std::cout << "\tMutex lock"; std::cout << std::endl;				
-				std::cout << std::endl;
+				testSingleThread();
+				gLogger->debug("\tSingle thread\n", true, true);
+				
+				testScottMayer();
+				gLogger->debug("\tScott Mayer\n", true, true);
+
+				testAcqRelSpin(); 
+				gLogger->debug("\tmemory order acquire-release with Spin lock\n", true, true);
+				
+				testAcqRel(); 
+				gLogger->debug("\tmemory order acquire-release with mutex lock\n", true, true);
+
+				tesSeqCst(); 
+				gLogger->debug("\tMemory order Sequential consistency\n", true, true);
+
+				testOnceFlag();
+				gLogger->debug("\tFunction onceflag\n", true, true);
+
+				testSpinlock(); 
+				gLogger->debug("\tSpin lock\n", true, true);
+
+				testLock(); 
+				gLogger->debug("\tMutex lock\n\n", true, true);
 			}
 			else if (s == "q" || s == "Q")
 			{
@@ -302,7 +327,7 @@ int main()
 	}
 	catch (...)
 	{
-		gLogger.debug("Unknow exception!\n");
+		gLogger->debug("Unknow exception!\n");
 	}
 
 	return 0;
