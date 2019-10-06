@@ -25,3 +25,7 @@ Release/test.iobj
 Release/test.ipdb
 *.ipdb
 Release/test.ipdb
+*.iobj
+*.ipdb
+Release/test.ipdb
+Release/test.iobj
