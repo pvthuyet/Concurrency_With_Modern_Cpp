@@ -1,4 +1,4 @@
-## C++11 Features
+## I. C++11 Features
 ##### 1. Smart Pointers
 - `std::unique_ptr`, `std::make_unique`
 - `std::shared_ptr`, `std::make_shared`
@@ -50,12 +50,58 @@
   
 ![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/timeline.png)
   
-  ##### 9. Some issues
-  * C++’s most vexing parse
+## II. Memory Model
+Before C++11, there was only one contract. The C++ language specification did not include multithreading or atomics. There was no memory model.  
+With C++11 everything has changed. C++11 is the first standard aware of multiple threads. The reason for the well-defined behaviour of threads is the C++ memory model that was heavily inspired by the [Java memory model](https://en.wikipedia.org/wiki/Java_memory_model)  
+```
+enum memory_order{
+memory_order_relaxed,
+memory_order_consume,
+memory_order_acquire,
+memory_order_release,
+memory_order_acq_rel,
+memory_order_seq_cst
+}
+```
+* Read operation: `memory_order_acquire` and `memory_order_consume`
+* Write operation: `memory_order_release`
+* Read-modify-write operation: `memory_order_acq_rel` and `memory_order_seq_cst`
+* Relaxed operation: `memory_order_relaxed`, there are no synchronization or ordering constraints imposed on other reads or writes, only this operation's atomicity is guaranteed.  
+
+![1](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/memorymodel.png)  
+![2](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/expertlevel.png)  
+#### Atomics
+...
+
+## II. Challenges
+#### ABA Problem
+ABA means you read a value twice and each time it returns the same value A.  
+Therefore you conclude that nothing changed in between.  
+However, you missed the fact that the value was updated to B somewhere in between.
+...
+#### Blocking Issues
+...
+#### Breaking of Program Invariants
+...
+#### Data Race
+...
+#### Deadlocks
+...
+#### False Sharing
+...
+#### Lifetime Issues of Variables
+...
+#### Moving Threads
+...
+#### Moving Threads
+....
   
-  ## C++11 Books:
-![1](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/C-Concurrency-in-Action-2nd-Edition.jpg)  
+  
+## C++11 Books:
+![1](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/ConcurrencyCoverFrame.png)  
   
 ![2](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/effectivec%2B%2B.jpg)  
   
-![3](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/ConcurrencyCoverFrame.png)  
+![3](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/C-Concurrency-in-Action-2nd-Edition.jpg)    
+  
+
