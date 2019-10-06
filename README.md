@@ -54,6 +54,7 @@
 Before C++11, there was only one contract. The C++ language specification did not include multithreading or atomics. There was no memory model.  
 With C++11 everything has changed. C++11 is the first standard aware of multiple threads. The reason for the well-defined behaviour of threads is the C++ memory model that was heavily inspired by the [Java memory model](https://en.wikipedia.org/wiki/Java_memory_model)  
   
+#### The Contract
 ![1](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/memorymodel.png)  
 ![2](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/expertlevel.png)  
 
