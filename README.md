@@ -50,7 +50,13 @@
   
 ![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/timeline.png)
   
+## II. Memory Model
+Before C++11, there was only one contract. The C++ language specification did not include multithreading or atomics. There was no memory model.  
+With C++11 everything has changed. C++11 is the first standard aware of multiple threads. The reason for the well-defined behaviour of threads is the C++ memory model that was heavily inspired by the [Java memory model](https://en.wikipedia.org/wiki/Java_memory_model)  
   
+![1](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/memorymodel.png)  
+![2](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/expertlevel.png)  
+
 ## II. Challenges
 #### ABA Problem
 ABA means you read a value twice and each time it returns the same value A.  
@@ -76,10 +82,10 @@ However, you missed the fact that the value was updated to B somewhere in betwee
   
   
 ## C++11 Books:
-![3](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/ConcurrencyCoverFrame.png)  
+![1](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/ConcurrencyCoverFrame.png)  
   
-![1](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/effectivec%2B%2B.jpg)  
+![2](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/effectivec%2B%2B.jpg)  
   
-![2](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/C-Concurrency-in-Action-2nd-Edition.jpg)    
+![3](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/C-Concurrency-in-Action-2nd-Edition.jpg)    
   
 
