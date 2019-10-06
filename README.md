@@ -63,8 +63,9 @@ memory_order_acq_rel,
 memory_order_seq_cst
 }
 ```
-#### The Contract
-There are three contract levels in C++11
+* Read operation: `memory_order_acquire` and `memory_order_consume`
+* Read operation: `memory_order_acquire` and `memory_order_consume`
+* Read-modify-write operation: `memory_order_acq_rel` and `memory_order_seq_cst`
 ![1](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/memorymodel.png)  
 ![2](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/expertlevel.png)  
 #### Atomics
