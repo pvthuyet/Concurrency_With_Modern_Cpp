@@ -66,6 +66,8 @@ memory_order_seq_cst
 * Read operation: `memory_order_acquire` and `memory_order_consume`
 * Write operation: `memory_order_release`
 * Read-modify-write operation: `memory_order_acq_rel` and `memory_order_seq_cst`
+* Relaxed operation: `memory_order_relaxed`, there are no synchronization or ordering constraints imposed on other reads or writes, only this operation's atomicity is guaranteed.  
+
 ![1](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/memorymodel.png)  
 ![2](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/expertlevel.png)  
 #### Atomics
