@@ -1,4 +1,4 @@
-## C++11 Features
+## I. C++11 Features
 ##### 1. Smart Pointers
 - `std::unique_ptr`, `std::make_unique`
 - `std::shared_ptr`, `std::make_shared`
@@ -53,9 +53,34 @@
   ##### 9. Some issues
   * C++’s most vexing parse
   
-  ## C++11 Books:
-![1](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/C-Concurrency-in-Action-2nd-Edition.jpg)  
+  ## II. Challenges
+  #### ABA Problem
+  ABA means you read a value twice and each time it returns the same value A.  
+  Therefore you conclude that nothing changed in between.  
+  However, you missed the fact that the value was updated to B somewhere in between.
+  ...
+  #### Blocking Issues
+  ...
+  #### Breaking of Program Invariants
+  ...
+  #### Data Race
+  ...
+  #### Deadlocks
+  ...
+  #### False Sharing
+  ...
+  #### Lifetime Issues of Variables
+  ...
+  #### Moving Threads
+  ...
+  #### Moving Threads
+  ....
   
-![2](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/effectivec%2B%2B.jpg)  
+  
+  ## C++11 Books:
+![1](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/effectivec%2B%2B.jpg)  
+  
+![2](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/C-Concurrency-in-Action-2nd-Edition.jpg)    
   
 ![3](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/ConcurrencyCoverFrame.png)  
+
