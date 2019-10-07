@@ -90,8 +90,8 @@ This quite very very difficult to understand
 ## III. Multithreading
 #### 1. Threads
 #### 2. Shared Data
-* Mutexes
-* Locks
+* Mutexes: `std::mutex`, `std::shared_mutex`, `std::shared_timed_mutex`
+* Locks: `std::lock_guard`, `std::unique_lock`, `std::scoped_lock`, `std::shared_lock`
 #### 3. Thread-Local Data
 Thread-local data, also known as thread-local storage, is created for each thread separately. 
 #### 4. Condition Variables
@@ -99,6 +99,39 @@ Condition variables enable threads to be synchronised via messages.
 * The Predicate
 * Lost Wakeup
 * Spurious Wakeup
+* The Wait Workflow
+```
+std::unique_lock<std::mutex> lck(mutex_);
+condVar.wait(lck, []{ return dataReady; });
+```
+Equal
+```
+std::unique_lock<std::mutex> lck(mutex_);
+while ( ![]{ return dataReady; }() {
+condVar.wait(lck);
+}
+```
+Even if the shared variable is atomic, it must be modified under the mutex to publish the modification to the waiting thread correctly.  
+**Use a mutex to protect the shared variable**  
+Even if you make dataReady an atomic, it must be modified under the mutex;  
+if not the modification to the waiting thread may be published, but not correctly synchronised.  
+This race condition may cause a deadlock.  
+What does that mean: published, but not correctly synchronised.  
+Let’s have once more a closer look at the wait workflow and assume that `deadReady` is an atomic and is modified not protected by the mutex mutex_.  
+```
+std::unique_lock<std::mutex> lck(mutex_);
+while ( ![]{ return dataReady.load(); }() {
+// time window
+condVar.wait(lck);
+}
+```
+Let me assume the notification is send while the condition variable condVar is not in the waiting state.  
+This means execution of the thread is in the source snippet between line 2 and 4 (see the comment time window).  
+The result is that the notification is lost.  
+Afterwards the thread goes back in the waiting state and presumably sleeps forever.  
+This wouldn’t have happened if dataReady had been protected by a mutex. 
+Because of the synchronisation with the mutex, the notification would only be sent if the condition variable the notification would only be sent if the condition variable  
+  
 #### 5. Tasks
 ![1](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/task.png)  
   
