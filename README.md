@@ -80,9 +80,9 @@ Sequential consistency provides two guarantees:
   
 #### Weak Memory Model (refer to relaxed semantic `memory_order_relaxed`)
 * The counter-intuitive behaviour is that thread 1 can see the operations of thread 2 in a different orderr, so there is no view of a global clock.  
-Fro example, from the perspective of thread 1, it is possible that the operation res2= x.load() overtakes y.store(1).
+Fro example, from the perspective of thread 1, it is possible that the operation `res2= x.load()` overtakes `y.store(1)`.
 * It is even possible that thread 1 or thread 2 do not perform their operations in the order defined in the source code.  
-For example, thread 2 can first execute res2= x.load() and then y.store(1).
+For example, thread 2 can first execute `res2= x.load()` and then `y.store(1)`.
 
 ## II. Challenges
 #### ABA Problem
