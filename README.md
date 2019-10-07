@@ -68,32 +68,125 @@ memory_order_seq_cst
 * Read-modify-write operation: `memory_order_acq_rel` and `memory_order_seq_cst`
 * Relaxed operation: `memory_order_relaxed`, there are no synchronization or ordering constraints imposed on other reads or writes, only this operation's atomicity is guaranteed.  
 
-![1](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/memorymodel.png)  
-![2](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/expertlevel.png)  
-#### Atomics
-...
+![1](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/memorymodel_.png)  
+![2](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/expertlevel_.png)  
 
-## II. Challenges
-#### ABA Problem
+#### 1. Strong Memory Model (refer to  sequential consistency semantic `memory_order_seq_cst`)
+Sequential consistency provides two guarantees:  
+* The instructions of a program are executed in source code order.
+* There is a global order of all operations on all threads.
+  
+![1](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/strongmemorymodel.png) 
+  
+#### 2. Weak Memory Model (refer to relaxed semantic `memory_order_relaxed`)
+* The counter-intuitive behaviour is that thread 1 can see the operations of thread 2 in a different orderr, so there is no view of a global clock.  
+Fro example, from the perspective of thread 1, it is possible that the operation `res2= x.load()` overtakes `y.store(1)`.
+* It is even possible that thread 1 or thread 2 do not perform their operations in the order defined in the source code.  
+For example, thread 2 can first execute `res2= x.load()` and then `y.store(1)`.  
+This quite very very difficult to understand  
+[cppreference](https://en.cppreference.com/w/cpp/atomic/memory_order#Relaxed_ordering)  
+[disscus](https://stackoverflow.com/questions/35648936/reordering-and-memory-order-relaxed)
+  
+## III. Multithreading
+#### 1. Threads
+#### 2. Shared Data
+* Mutexes: `std::mutex`, `std::shared_mutex`, `std::shared_timed_mutex`, `std::recursive_mutex`
+* Locks: `std::lock_guard`, `std::unique_lock`, `std::scoped_lock`, `std::shared_lock`
+#### 3. Thread-Local Data
+Thread-local data, also known as thread-local storage, is created for each thread separately. 
+#### 4. Condition Variables
+Condition variables enable threads to be synchronised via messages. 
+* The Predicate
+* Lost Wakeup
+* Spurious Wakeup
+* The Wait Workflow
+```
+std::unique_lock<std::mutex> lck(mutex_);
+condVar.wait(lck, []{ return dataReady; });
+```
+Equal
+```
+std::unique_lock<std::mutex> lck(mutex_);
+while ( ![]{ return dataReady; }() {
+condVar.wait(lck);
+}
+```
+Even if the shared variable is atomic, it must be modified under the mutex to publish the modification to the waiting thread correctly.  
+**Use a mutex to protect the shared variable**  
+Even if you make dataReady an atomic, it must be modified under the mutex;  
+if not the modification to the waiting thread may be published, but not correctly synchronised.  
+This race condition may cause a deadlock.  
+What does that mean: published, but not correctly synchronised.  
+Let’s have once more a closer look at the wait workflow and assume that `deadReady` is an atomic and is modified not protected by the mutex mutex_.  
+```
+std::unique_lock<std::mutex> lck(mutex_);
+while ( ![]{ return dataReady.load(); }() {
+// time window
+condVar.wait(lck);
+}
+```
+Let me assume the notification is send while the condition variable condVar is not in the waiting state.  
+This means execution of the thread is in the source snippet between line 2 and 4 (see the comment time window).  
+The result is that the notification is lost.  
+Afterwards the thread goes back in the waiting state and presumably sleeps forever.  
+This wouldn’t have happened if dataReady had been protected by a mutex. 
+Because of the synchronisation with the mutex, the notification would only be sent if the condition variable the notification would only be sent if the condition variable  
+  
+#### 5. Tasks
+![1](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/task.png)  
+  
+* Tasks versus Threads
+* std::async
+* std::packaged_task
+* std::promise and std::future
+* std::shared_future
+* Exceptions
+* Notifications
+  
+## IV. Challenges
+### 1. ABA Problem
 ABA means you read a value twice and each time it returns the same value A.  
 Therefore you conclude that nothing changed in between.  
 However, you missed the fact that the value was updated to B somewhere in between.
 ...
-#### Blocking Issues
+### 2. Blocking Issues
 ...
-#### Breaking of Program Invariants
+### 3. Breaking of Program Invariants
 ...
-#### Data Race
+### 4. Data Race
 ...
-#### Deadlocks
+### 5. Deadlocks
+#### 1. Problem: Lock Mutexes in Different Order
+![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/deadlock.png)
+```
+void deadlock(std::mutex& a, std::mutex& b) {
+    std::lock_guard<std::mutex> g1(a);
+    std::lock_guard<std::mutex> g2(b);
+    // do something here.
+}
+int main() {
+    std::mutex m1, m2;
+    std::thread t1(deadlock, std::ref(m1), std::ref(m2));
+    std::thread t2(deadlock, std::ref(m2), std::ref(m1));
+    return 0;
+}
+```
+#### 2. Solution (Keep in mind only lock as soon as needed)
+* **Avoid nested blocks:**  
+Don’t acquire a lock if you already hold one.
+* **Avoid calling user-supplied code while holding a lock**  
+Because the code is user supplied, you have no idea what it could do; it could do anything, including acquiring a lock.  
+* **Aquire locks in a fixed order**  
+Using std::lock
+* **Use a lock hierarchy**  
+
+### 6. False Sharing
 ...
-#### False Sharing
+### 7. Lifetime Issues of Variables
 ...
-#### Lifetime Issues of Variables
+### 8. Moving Threads
 ...
-#### Moving Threads
-...
-#### Moving Threads
+### 9. Moving Threads
 ....
   
   
