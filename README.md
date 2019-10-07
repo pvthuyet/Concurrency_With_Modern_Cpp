@@ -96,6 +96,7 @@ This quite very very difficult to understand
 Thread-local data, also known as thread-local storage, is created for each thread separately. 
 #### 4. Condition Variables
 Condition variables enable threads to be synchronised via messages. 
+* The Predicate
 * Lost Wakeup
 * Spurious Wakeup
 #### 5. Tasks
