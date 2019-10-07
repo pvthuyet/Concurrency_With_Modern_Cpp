@@ -157,8 +157,7 @@ However, you missed the fact that the value was updated to B somewhere in betwee
 ...
 ### 5. Deadlocks
 #### 1. Problem: Lock Mutexes in Different Order
-![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/deadlock.png)  
-  
+![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/deadlock.png)
 ```
 void deadlock(std::mutex& a, std::mutex& b) {
     std::lock_guard<std::mutex> g1(a);
@@ -175,11 +174,11 @@ int main() {
 #### 2. Solution (Keep in mind only lock as soon as needed)
 * **Avoid nested blocks:**  
 Don’t acquire a lock if you already hold one.
-* **Avoid calling user-supplied code while holding a lock  
+* **Avoid calling user-supplied code while holding a lock**  
 Because the code is user supplied, you have no idea what it could do; it could do anything, including acquiring a lock.  
-* **Aquire locks in a fixed order  
+* **Aquire locks in a fixed order**  
 Using std::lock
-* **Use a lock hierarchy
+* **Use a lock hierarchy**  
 
 ### 6. False Sharing
 ...
