@@ -153,11 +153,15 @@ Because of the synchronisation with the mutex, the notification would only be se
 * **std::async**
 * **std::packaged_task**
 * **std::promise and std::future**  
-If a future fut asks for the result more than once, a std::future_error exception is thrown.  
+If the `promise` sets the value or the exception `more than once`, a `std::future_error` exception is thrown.  
+If you destroy the `std::promise` without calling the set-method or a `std::packaged_task` before invoking it, a `std::future_error` exception with an error code `std::future_errc::broken_promise` would be stored in the shared state.  
+If a future fut asks for the result `more than once`, a `std::future_error` exception is thrown.  
 There is a  `One-to-one` relationship between the promise and the future.
 * **std::shared_future**  
 `One-to-many` relationship between a promise and many futures.
-* **Exceptions**
+* **Exceptions**  
+If the callable used by `std::async` or by `std::packaged_task` throws an error, the exception is store in the shared state.  
+When the future fut then calls `fut.get()`, the exception is rethrown, and the future has to handle it.  
 * **Notifications**  
 `Condition variables` to synchronise threads multiple times.  
 A `promise` can send its notification only once.  
