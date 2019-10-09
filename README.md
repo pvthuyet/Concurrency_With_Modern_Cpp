@@ -93,8 +93,8 @@ This quite very very difficult to understand
 * **Mutexes**  
 `std::mutex`  
 `std::recursive_mutex`: allows the same thread to lock the mutex many times.  
-`timed_mutex`  
-`recursive_timed_mutex`  
+`std::timed_mutex`  
+`std::recursive_timed_mutex`  
 ![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/mutexes.png) 
 `shared_mutex`: Shared mutexes are usually used in situations when multiple readers can access the same resource at the same time without causing data races, but only one writer can do so.  
 `shared_timed_mutex`  
