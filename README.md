@@ -135,13 +135,16 @@ Because of the synchronisation with the mutex, the notification would only be se
 #### 5. Tasks
 ![1](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/task.png)  
   
-* Tasks versus Threads
-* std::async
-* std::packaged_task
-* std::promise and std::future
-* std::shared_future
-* Exceptions
-* Notifications
+* **Tasks versus Threads**
+* **std::async**
+* **std::packaged_task**
+* **std::promise and std::future**  
+If a future fut asks for the result more than once, a std::future_error exception is thrown.  
+There is a  `One-to-one` relationship between the promise and the future.
+* **std::shared_future**  
+`One-to-many` relationship between a promise and many futures.
+* **Exceptions**
+* **Notifications**
   
 ## IV. Challenges
 ### 1. ABA Problem
