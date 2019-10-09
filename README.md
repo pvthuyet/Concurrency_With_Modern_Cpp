@@ -144,7 +144,9 @@ There is a  `One-to-one` relationship between the promise and the future.
 * **std::shared_future**  
 `One-to-many` relationship between a promise and many futures.
 * **Exceptions**
-* **Notifications**
+* **Notifications**  
+`Condition variables` to synchronise threads multiple times.  
+A `promise` can send its notification only once. Think about using `promise`, `future` before `condition variable`.
   
 ## IV. Challenges
 ### 1. ABA Problem
