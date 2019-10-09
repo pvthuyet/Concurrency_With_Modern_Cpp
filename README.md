@@ -180,8 +180,33 @@ Don’t acquire a lock if you already hold one.
 Because the code is user supplied, you have no idea what it could do; it could do anything, including acquiring a lock.  
 * **Aquire locks in a fixed order**  
 Using std::lock
-* **Use a lock hierarchy**  
-
+* **Use a lock hierarchy**
+* **Fix deadlock using std::lock and std::scoped_lock**  
+Use std::unique_lock  
+```
+void fixDeadlock(std::mutex& a, std::mutex& b) {
+    std::unique_lock<std::mutex> g1(a, std::defer_lock);
+    std::unique_lock<std::mutex> g1(b, std::defer_lock);
+    std::lock(g1,g2);
+    // do something here.
+}
+```
+or use std::lock_guard  
+```
+void fixDeadlock(std::mutex& a, std::mutex& b) {
+    std::lock(a, b);
+    std::lock_guard<std::mutex> g1(a, std::adopted_lock); // to make sure a will be released
+    std::lock_guard<std::mutex> g1(b, std::adopted_lock); // to make sure b will be released
+    // do something here.
+}
+```
+or use std::scoped_lock
+```
+void fixDeadlock(std::mutex& a, std::mutex& b) {
+    std::scoped_lock scoLock(a, b);
+    // do something here.
+}
+```
 ### 6. False Sharing
 ...
 ### 7. Lifetime Issues of Variables
