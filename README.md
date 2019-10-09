@@ -90,8 +90,20 @@ This quite very very difficult to understand
 ## III. Multithreading
 #### 1. Threads
 #### 2. Shared Data
-* Mutexes: `std::mutex`, `std::shared_mutex`, `std::shared_timed_mutex`, `std::recursive_mutex`
-* Locks: `std::lock_guard`, `std::unique_lock`, `std::scoped_lock`, `std::shared_lock`
+* **Mutexes**  
+`std::mutex`  
+`std::recursive_mutex`: allows the same thread to lock the mutex many times.  
+`timed_mutex`  
+`recursive_timed_mutex`  
+![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/mutexes.png) 
+`shared_mutex`: Shared mutexes are usually used in situations when multiple readers can access the same resource at the same time without causing data races, but only one writer can do so.  
+`shared_timed_mutex`  
+* **Locks**  
+`std::lock_guard`  
+`std::unique_lock`  
+`std::scoped_lock`  
+`std::shared_lock`  
+
 #### 3. Thread-Local Data
 Thread-local data, also known as thread-local storage, is created for each thread separately. 
 #### 4. Condition Variables
@@ -135,13 +147,44 @@ Because of the synchronisation with the mutex, the notification would only be se
 #### 5. Tasks
 ![1](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/task.png)  
   
-* Tasks versus Threads
-* std::async
-* std::packaged_task
-* std::promise and std::future
-* std::shared_future
-* Exceptions
-* Notifications
+* **Tasks versus Threads**
+* **std::async**
+* **std::packaged_task**
+* **std::promise and std::future**  
+If a future fut asks for the result more than once, a std::future_error exception is thrown.  
+There is a  `One-to-one` relationship between the promise and the future.
+* **std::shared_future**  
+`One-to-many` relationship between a promise and many futures.
+* **Exceptions**
+* **Notifications**  
+`Condition variables` to synchronise threads multiple times.  
+A `promise` can send its notification only once.  
+`promise` and `future` is the first choice  
+![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/condvstask.png)  
+```
+	void waitForWork(std::future<void> && fut)
+	{
+		std::cout << "Worker: Waiting for work." << std::endl;
+		fut.wait();
+		std::cout << "work done\n";
+	}
+	void setReady(std::promise<void> &&pro)
+	{
+		std::cout << "Send data is ready.\n";
+		pro.set_value();
+	}
+	void test()
+	{
+		using namespace std::chrono_literals;
+		std::promise<void> pro;
+		std::future<void> fut = pro.get_future();
+		std::thread t1(waitForWork, std::move(fut));
+		std::this_thread::sleep_for(2s);
+		std::thread t2(setReady, std::move(pro));
+		t1.join();
+		t2.join();
+	}
+```
   
 ## IV. Challenges
 ### 1. ABA Problem
@@ -171,15 +214,42 @@ int main() {
     return 0;
 }
 ```
-#### 2. Solution (Keep in mind only lock as soon as needed)
+#### 2. Solution
+* **Keep in mind only lock as soon as needed**
+* **Avoid necked Mutex**
 * **Avoid nested blocks:**  
 Don’t acquire a lock if you already hold one.
 * **Avoid calling user-supplied code while holding a lock**  
 Because the code is user supplied, you have no idea what it could do; it could do anything, including acquiring a lock.  
 * **Aquire locks in a fixed order**  
 Using std::lock
-* **Use a lock hierarchy**  
-
+* **Use a lock hierarchy**
+* **Fix deadlock using std::lock and std::scoped_lock**  
+Use std::unique_lock  
+```
+void fixDeadlock(std::mutex& a, std::mutex& b) {
+    std::unique_lock<std::mutex> g1(a, std::defer_lock);
+    std::unique_lock<std::mutex> g1(b, std::defer_lock);
+    std::lock(g1,g2);
+    // do something here.
+}
+```
+or use std::lock_guard  
+```
+void fixDeadlock(std::mutex& a, std::mutex& b) {
+    std::lock(a, b);
+    std::lock_guard<std::mutex> g1(a, std::adopt_lock); // to make sure a will be released
+    std::lock_guard<std::mutex> g1(b, std::adopt_lock); // to make sure b will be released
+    // do something here.
+}
+```
+or use std::scoped_lock
+```
+void fixDeadlock(std::mutex& a, std::mutex& b) {
+    std::scoped_lock scoLock(a, b);
+    // do something here.
+}
+```
 ### 6. False Sharing
 ...
 ### 7. Lifetime Issues of Variables
