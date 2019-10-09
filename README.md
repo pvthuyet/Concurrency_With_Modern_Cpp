@@ -146,7 +146,32 @@ There is a  `One-to-one` relationship between the promise and the future.
 * **Exceptions**
 * **Notifications**  
 `Condition variables` to synchronise threads multiple times.  
-A `promise` can send its notification only once. Think about using `promise`, `future` before `condition variable`.
+A `promise` can send its notification only once.  
+`promise` and `future` is the first choice
+```
+	void waitForWork(std::future<void> && fut)
+	{
+		std::cout << "Worker: Waiting for work." << std::endl;
+		fut.wait();
+		std::cout << "work done\n";
+	}
+	void setReady(std::promise<void> &&pro)
+	{
+		std::cout << "Send data is ready.\n";
+		pro.set_value();
+	}
+	void test()
+	{
+		using namespace std::chrono_literals;
+		std::promise<void> pro;
+		std::future<void> fut = pro.get_future();
+		std::thread t1(waitForWork, std::move(fut));
+		std::this_thread::sleep_for(2s);
+		std::thread t2(setReady, std::move(pro));
+		t1.join();
+		t2.join();
+	}
+```
   
 ## IV. Challenges
 ### 1. ABA Problem
