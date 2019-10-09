@@ -101,8 +101,8 @@ This quite very very difficult to understand
 * **Locks**  
 `std::lock_guard`  
 `std::unique_lock`  
-`std::scoped_lock`  
-`std::shared_lock`  
+`std::scoped_lock` : lock many mutexes  
+`std::shared_lock` : many threads can read but only one thread can write  
 
 #### 3. Thread-Local Data
 Thread-local data, also known as thread-local storage, is created for each thread separately. 
