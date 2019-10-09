@@ -171,7 +171,9 @@ int main() {
     return 0;
 }
 ```
-#### 2. Solution (Keep in mind only lock as soon as needed)
+#### 2. Solution
+* **Keep in mind only lock as soon as needed**
+* **Avoid necked Mutex
 * **Avoid nested blocks:**  
 Don’t acquire a lock if you already hold one.
 * **Avoid calling user-supplied code while holding a lock**  
