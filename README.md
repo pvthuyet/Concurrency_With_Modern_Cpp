@@ -90,8 +90,20 @@ This quite very very difficult to understand
 ## III. Multithreading
 #### 1. Threads
 #### 2. Shared Data
-* Mutexes: `std::mutex`, `std::shared_mutex`, `std::shared_timed_mutex`, `std::recursive_mutex`
-* Locks: `std::lock_guard`, `std::unique_lock`, `std::scoped_lock`, `std::shared_lock`
+* **Mutexes**  
+`std::mutex`  
+`std::recursive_mutex`: allows the same thread to lock the mutex many times.  
+`timed_mutex`  
+`recursive_timed_mutex`  
+![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/mutexes.png) 
+`shared_mutex`: Shared mutexes are usually used in situations when multiple readers can access the same resource at the same time without causing data races, but only one writer can do so.  
+`shared_timed_mutex`  
+* **Locks**  
+`std::lock_guard`  
+`std::unique_lock`  
+`std::scoped_lock`  
+`std::shared_lock`  
+
 #### 3. Thread-Local Data
 Thread-local data, also known as thread-local storage, is created for each thread separately. 
 #### 4. Condition Variables
@@ -147,7 +159,8 @@ There is a  `One-to-one` relationship between the promise and the future.
 * **Notifications**  
 `Condition variables` to synchronise threads multiple times.  
 A `promise` can send its notification only once.  
-`promise` and `future` is the first choice
+`promise` and `future` is the first choice  
+![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/condvstask.png)  
 ```
 	void waitForWork(std::future<void> && fut)
 	{
