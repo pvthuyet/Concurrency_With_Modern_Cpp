@@ -195,8 +195,8 @@ or use std::lock_guard
 ```
 void fixDeadlock(std::mutex& a, std::mutex& b) {
     std::lock(a, b);
-    std::lock_guard<std::mutex> g1(a, std::adopted_lock); // to make sure a will be released
-    std::lock_guard<std::mutex> g1(b, std::adopted_lock); // to make sure b will be released
+    std::lock_guard<std::mutex> g1(a, std::adopt_lock); // to make sure a will be released
+    std::lock_guard<std::mutex> g1(b, std::adopt_lock); // to make sure b will be released
     // do something here.
 }
 ```
