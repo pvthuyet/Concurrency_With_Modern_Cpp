@@ -107,6 +107,8 @@ This quite very very difficult to understand
 #### 3. Thread-Local Data
 Thread-local data, also known as thread-local storage, is created for each thread separately. 
 #### 4. Condition Variables
+`std::condition_variable`: only wait on object of type `std::unique_lock<std::mutex>`  
+`std::condition_variable_any`: can wait on an user-supplied lock type that meet the concept of `BasicLockable`.  
 Condition variables enable threads to be synchronised via messages. 
 * The Predicate
 * Lost Wakeup
