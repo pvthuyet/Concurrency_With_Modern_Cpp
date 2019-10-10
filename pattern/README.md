@@ -29,6 +29,7 @@
 * Strategy
 * Template method
 * Visitor
+* double-check 
 ### 1. Singleton
 The performace some ways to implement singleton pattern:  
 * Visual studio 2017
