@@ -30,6 +30,10 @@
 * Template method
 * Visitor
 * double-check 
+### 1. Thread-safe Interface
+* All interface methods (public) should use a lock
+* All implementation methods (protected and private) must not use a lock.
+* The interface methods call only protected or private methods but no public methods.
 ### 1. Singleton
 The performace some ways to implement singleton pattern:  
 * Visual studio 2017
