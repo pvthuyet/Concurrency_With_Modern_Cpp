@@ -205,6 +205,9 @@ However, you missed the fact that the value was updated to B somewhere in betwee
 ### 4. Data Race
 ...
 ### 5. Deadlocks
+There are two main reasons for deadlocks:  
+* A mutex has not been unlocked.  
+* You lock your mutexes in a different order.  
 #### 1. Problem: Lock Mutexes in Different Order
 ![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/deadlock.png)
 ```
