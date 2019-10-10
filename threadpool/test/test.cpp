@@ -12,16 +12,16 @@
 #include "TestThreadPool.h"
 #include "Accumulate.h"
 
-tvp::Logger gLogger;
 
 // ****************************************
 int main()
 {
+	tvp::Logger* gLogger = tvp::Logger::getInstance();
 	try
 	{
 		while (true)
 		{
-			gLogger.debug("************\n\
+			gLogger->debug("************\n\
 				1:\tQuicksort\n\
 				2:\tParallel accumulate\n\
 				3:\tTest ThreadPool\n\
@@ -49,8 +49,9 @@ int main()
 	}
 	catch (...)
 	{
-		gLogger.debug("Unknow exception!\n");
+		gLogger->debug("Unknow exception!\n");
 	}
+	delete (tvp::Logger::getInstance());
 	return 0;
 }
 

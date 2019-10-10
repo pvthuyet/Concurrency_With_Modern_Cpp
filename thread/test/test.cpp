@@ -10,11 +10,10 @@
 #include "../../logger/logger.h"
 #include "../../utils/utils.h"
 
-static tvp::Logger gLogger;
-
 void worker_wait_cv(std::string const& msg)
 {
-	gLogger.debug(msg);
+	tvp::Logger* gLogger = tvp::Logger::getInstance();
+	gLogger->debug(msg);
 	std::mutex mut;
 	std::condition_variable cv;
 	std::unique_lock<std::mutex> lk(mut);
@@ -22,7 +21,7 @@ void worker_wait_cv(std::string const& msg)
 	while (true)
 	{
 		tvp::interruptibleWait(cv, lk);
-		gLogger.debug(tvp::Utils::getThreadId() + " running...\n");
+		gLogger->debug(tvp::Utils::getThreadId() + " running...\n");
 		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 	}
 }
@@ -44,7 +43,8 @@ void worker_wait_cv(std::string const& msg)
 
 void worker_wait_future(std::string const& msg)
 {
-	gLogger.debug(msg);
+	tvp::Logger* gLogger = tvp::Logger::getInstance();
+	gLogger->debug(msg);
 	std::future<int> future = std::async(std::launch::async, []() {
 		std::this_thread::sleep_for(std::chrono::seconds(3));
 		return 8;
@@ -53,7 +53,7 @@ void worker_wait_future(std::string const& msg)
 	while (true)
 	{
 		tvp::interruptibleWait(future);
-		gLogger.debug(tvp::Utils::getThreadId() + " running...\n");
+		gLogger->debug(tvp::Utils::getThreadId() + " running...\n");
 		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 	}
 }
@@ -103,7 +103,8 @@ int main()
 	}
 	catch (...)
 	{
-		gLogger.debug("Unknow exception!\n");
+		tvp::Logger* gLogger = tvp::Logger::getInstance();
+		gLogger->debug("Unknow exception!\n");
 	}
 	return 0;
 }

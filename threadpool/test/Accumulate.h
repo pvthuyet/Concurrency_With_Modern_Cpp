@@ -5,8 +5,7 @@
 #include <utility>
 #include <numeric>
 #include "../JThreadPool.h"
-
-extern tvp::Logger gLogger;
+#include "../../logger/Logger.h"
 
 namespace tvp
 {
@@ -22,8 +21,9 @@ namespace tvp
 
 		void print(Iterator first, Iterator last)
 		{
+			tvp::Logger* gLogger = tvp::Logger::getInstance();
 			T val = std::accumulate(first, last, T());
-			gLogger.debug(tvp::Utils::getThreadId() +
+			gLogger->debug(tvp::Utils::getThreadId() +
 				"\t" +
 				std::to_string(*first) +
 				" + ... + " +
@@ -46,7 +46,7 @@ namespace tvp
 		std::size_t const numThreads = 4;// std::thread::hardware_concurrency();
 		std::size_t const numBlocks = (length + blockSize - 1) / (blockSize);
 		std::vector<std::future<T> > futures(numBlocks - 1);
-		JThreadPool pool(gLogger, numThreads);
+		JThreadPool pool(numThreads);
 
 		Iterator blockStart = first;
 		for (std::size_t i = 0; i < (numBlocks - 1); ++i) 
@@ -64,7 +64,8 @@ namespace tvp
 				}
 				catch (JException const& e)
 				{
-					gLogger.debug(e.what());
+					tvp::Logger* gLogger = tvp::Logger::getInstance();
+					gLogger->debug(e.what());
 				}
 			}
 			blockStart = blockEnd;
@@ -82,12 +83,13 @@ namespace tvp
 
 	void parallelAccumulate()
 	{
+		tvp::Logger* gLogger = tvp::Logger::getInstance();
 		constexpr int N = 1000;
 		std::vector<int> vt(N);
 		std::iota(std::begin(vt), std::end(vt), 1);
 		int init = 0;
 		int result = parallelAccumulate<std::vector<int>::iterator, int>(std::begin(vt), std::end(vt), init);
-		gLogger.debug("Parallel accumulate : " + 
+		gLogger->debug("Parallel accumulate : " + 
 			std::to_string(vt[0]) + 
 			" + ... + " + 
 			std::to_string(vt[N-1]) + 

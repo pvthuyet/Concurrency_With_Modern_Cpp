@@ -7,31 +7,109 @@
 #include <queue>
 #include "../queue/JQueue.h"
 #include "../thread/JThread.h"
+#include "../../logger/Logger.h"
 
 namespace tvp
 {
+	using Callable = std::function<void()>;
+	class JWorkStealingQueue
+	{
+	private:
+		std::deque<Callable> mQueue;
+		mutable std::mutex mMutex;
+
+	public:
+		JWorkStealingQueue()
+		{}
+
+		JWorkStealingQueue(const JWorkStealingQueue&) = delete;
+		JWorkStealingQueue& operator=(const JWorkStealingQueue&) = delete;
+
+		void push(Callable data)
+		{
+			std::lock_guard<std::mutex> lk(mMutex);
+			mQueue.push_front(std::move(data));
+		}
+
+		bool empty() const noexcept
+		{
+			std::lock_guard<std::mutex> lk(mMutex);
+			return mQueue.empty();
+		}
+
+		bool tryPop(Callable& res)
+		{
+			std::lock_guard<std::mutex> lk(mMutex);
+			if (mQueue.empty())
+			{
+				return false;
+			}
+			res = std::move(mQueue.front());
+			mQueue.pop_front();
+			return true;
+		}
+
+		bool trySteal(Callable& res)
+		{
+			std::lock_guard<std::mutex> lk(mMutex);
+			if (mQueue.empty())
+			{
+				return false;
+			}
+			res = std::move(mQueue.back());
+			mQueue.pop_back();
+			return true;
+		}
+	};
+
 	class JThreadPool
 	{
-	public:
-		using Callable = std::function<void()>;
+	public:		
 		using LocalQueueType = std::queue<Callable>;
 		using UniqueThread = std::unique_ptr<tvp::JThread>;
 
 	private:
-		// data members
-		tvp::Logger& mLogger;
+		// data members		
 		std::atomic_bool mShutdown;
 		tvp::JQueue<Callable> mPoolWorkQueue;
-		static thread_local std::unique_ptr<LocalQueueType> mLocalWorkQueue;
+		std::vector<std::unique_ptr<JWorkStealingQueue> > mQueues;
+		static thread_local JWorkStealingQueue* mLocalWorkQueue;
+		static thread_local unsigned mIndex;
 
 		// mThreads
 		std::vector<UniqueThread> mThreads;
 
-		// private method.
-		void workerThread() 
+		//
+		bool popTaskFromLocalQueue(Callable& task)
 		{
-			mLogger.debug(Utils::getThreadId() + " initialized\n");
-			mLocalWorkQueue.reset(new LocalQueueType());
+			return mLocalWorkQueue && mLocalWorkQueue->tryPop(task);
+		}
+		//
+		bool popTaskFromPoolQueue(Callable& task)
+		{
+			return mPoolWorkQueue.tryPop(task);
+		}
+		//
+		bool popTaskOtherThreadQueue(Callable& task)
+		{
+			for (std::size_t i = 0; i < mQueues.size(); ++i)
+			{
+				const int idx = (mIndex + i + 1) % mQueues.size();
+				if (mQueues[idx]->trySteal(task))
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
+		// private method.
+		void workerThread(unsigned idx) 
+		{
+			tvp::Logger* gLogger = tvp::Logger::getInstance();
+			gLogger->debug(Utils::getThreadId() + " initialized\n");
+			mIndex = idx;
+			mLocalWorkQueue = mQueues[mIndex].get();
 			while (!mShutdown.load(std::memory_order_relaxed))
 			{
 				try
@@ -40,27 +118,35 @@ namespace tvp
 				}
 				catch (...)
 				{
-					mLogger.debug(tvp::Utils::getThreadId() + " throw exception!\n");
+					gLogger->debug(tvp::Utils::getThreadId() + " throw exception!\n");
 				}
 			}
-			mLogger.debug(tvp::Utils::getThreadId() + " workerThread() threadPool was shutdown!\n");
+			gLogger->debug(tvp::Utils::getThreadId() + " workerThread() threadPool was shutdown!\n");
 		}
 
 	public:
-		explicit JThreadPool(tvp::Logger& logger, std::size_t numThread = std::thread::hardware_concurrency()) :
-			mShutdown(false), mLogger(logger)
+		explicit JThreadPool(std::size_t numThread = std::thread::hardware_concurrency()) :
+			mShutdown(false)
 		{
 			try 
 			{
+				mQueues.reserve(numThread);
+				// Create queue first
+				for (std::size_t i = 0; i < numThread; ++i)
+				{
+					mQueues.emplace_back(std::make_unique<JWorkStealingQueue>());
+				}
+
+				// create thread
 				for (std::size_t i = 0; i < numThread; ++i) 
 				{
-					mThreads.emplace_back(std::make_unique<tvp::JThread>(&JThreadPool::workerThread, this));
+					mThreads.emplace_back(std::make_unique<tvp::JThread>(&JThreadPool::workerThread, this, i));
 				}
 			}
 			catch (...) 
 			{
 				mShutdown.store(true, std::memory_order_relaxed);
-				throw;
+				throw std::current_exception();
 			}
 		}
 		
@@ -84,16 +170,13 @@ namespace tvp
 
 		void runPendingTask() 
 		{
+			tvp::Logger* gLogger = tvp::Logger::getInstance();
 			Callable task;
-			if (mLocalWorkQueue && !mLocalWorkQueue->empty()) 
+			if (popTaskFromLocalQueue(task) ||
+				popTaskFromPoolQueue(task) ||
+				popTaskOtherThreadQueue(task))
 			{
-				mLogger.debug(Utils::getThreadId() + " pop local work queue\n");
-				task = std::move(mLocalWorkQueue->front());
-				mLocalWorkQueue->pop();
-				task();
-			}
-			else if (mPoolWorkQueue.tryPop(task)) 
-			{
+				gLogger->debug(Utils::getThreadId() + " pop local work queue\n");
 				task();
 			}
 			else 
@@ -120,7 +203,8 @@ namespace tvp
 			std::future<return_type> res = task->get_future();
 			if (mLocalWorkQueue) 
 			{
-				mLogger.debug(Utils::getThreadId() + " push local work queue\n");
+				tvp::Logger* gLogger = tvp::Logger::getInstance();
+				gLogger->debug(Utils::getThreadId() + " push local work queue\n");
 				mLocalWorkQueue->push([task]() {
 					(*task)();
 				});
@@ -136,5 +220,6 @@ namespace tvp
 		}
 	};
 	// Must initialize for thread_local variable.
-	thread_local std::unique_ptr<JThreadPool::LocalQueueType> JThreadPool::mLocalWorkQueue = nullptr;
+	thread_local JWorkStealingQueue* JThreadPool::mLocalWorkQueue = nullptr;
+	thread_local unsigned JThreadPool::mIndex = 0;
 }

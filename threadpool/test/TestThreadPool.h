@@ -2,17 +2,18 @@
 #include "../../logger/Logger.h"
 #include "../../threadpool/JThreadPool.h"
 
-extern tvp::Logger gLogger;
 
 namespace tvp
 {
 	void testThreadPool()
 	{
-		gLogger.debug("******* ThreadPool is nonstop(Press `q` to stop) *****\n", true, true);
-		tvp::JThreadPool pool(gLogger, 4U);
+		tvp::Logger* gLogger = tvp::Logger::getInstance();
+		gLogger->debug("******* ThreadPool is nonstop(Press `q` to stop) *****\n", true, true);
+		tvp::JThreadPool pool(4U);
 
 		auto fun = [](int i) {
-			gLogger.debug(tvp::Utils::getThreadId() + " processing " + std::to_string(i) + "\n");
+			tvp::Logger* gLogger = tvp::Logger::getInstance();
+			gLogger->debug(tvp::Utils::getThreadId() + " processing " + std::to_string(i) + "\n");
 			std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 		};
 		auto push = [&fun, &pool]() {
@@ -26,7 +27,8 @@ namespace tvp
 				}
 				catch (tvp::JException const& e)
 				{
-					gLogger.debug(e.what());
+					tvp::Logger* gLogger = tvp::Logger::getInstance();
+					gLogger->debug(e.what());
 					switch (e.getCode())
 					{
 					case tvp::ExceptionCode::QUEUE_LIMIT:
@@ -47,7 +49,8 @@ namespace tvp
 			std::string s;
 			while (!pool.isShutdown())
 			{
-				gLogger.debug("Press 'q' to exit: \n", false, true);
+				tvp::Logger* gLogger = tvp::Logger::getInstance();
+				gLogger->debug("Press 'q' to exit: \n", false, true);
 				std::cin >> s;
 				if (s == "q" || s == "q")
 				{

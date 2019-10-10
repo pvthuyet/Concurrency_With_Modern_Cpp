@@ -5,8 +5,6 @@
 #include "../../logger/logger.h"
 #include "../../utils/JExeption.h"
 
-extern tvp::Logger gLogger;
-
 namespace tvp
 {
 	template<typename T>
@@ -14,7 +12,7 @@ namespace tvp
 	{
 		std::unique_ptr<tvp::JThreadPool> mPool;
 		sorter() :
-			mPool(std::make_unique<tvp::JThreadPool>(gLogger))
+			mPool(std::make_unique<tvp::JThreadPool>(4U))
 		{
 		}
 		void shutdown()
@@ -53,7 +51,8 @@ namespace tvp
 				}
 				catch (tvp::JException const& e)
 				{
-					gLogger.debug(e.what());
+					tvp::Logger* gLogger = tvp::Logger::getInstance();
+					gLogger->debug(e.what());
 				}
 			}
 			// processing higher partition
@@ -87,17 +86,19 @@ namespace tvp
 	template<typename T>
 	void print(std::list<T> const& list, std::string const& msg = "")
 	{
-		gLogger.debug(msg);
+		tvp::Logger* gLogger = tvp::Logger::getInstance();
+		gLogger->debug(msg);
 		for (T v : list)
 		{
-			gLogger.debug(std::to_string(v) + " ", true);
+			gLogger->debug(std::to_string(v) + " ", true);
 		}
-		gLogger.debug("\n", true);
+		gLogger->debug("\n", true);
 	}
 
 	void parallelQuickSort()
 	{
-		gLogger.debug("*******Quicksort*****\n", true, true);
+		tvp::Logger* gLogger = tvp::Logger::getInstance();
+		gLogger->debug("*******Quicksort*****\n", true, true);
 		int sz = 50;
 		std::list<int> v = tvp::Utils::random(sz, -100, 100);
 		print(v, "Input data: ");

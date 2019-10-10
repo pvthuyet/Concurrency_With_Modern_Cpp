@@ -9,8 +9,6 @@
 #include "../../thread/JThread.h"
 #include "../../utils/JExeption.h"
 
-static tvp::Logger gLogger;
-
 void testQueue()
 {
 	tvp::JQueue<int> que;

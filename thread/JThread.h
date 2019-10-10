@@ -6,8 +6,6 @@
 #include "../utils/utils.h"
 #include "../utils/JExeption.h"
 
-extern tvp::Logger gLogger;
-
 namespace tvp
 {
 	thread_local InterruptFlagLockFree gInterruptedFlag;
@@ -99,7 +97,8 @@ namespace tvp
 				}
 				catch (const tvp::JException& e)
 				{
-					gLogger.debug(e.what());
+					tvp::Logger* gLogger = tvp::Logger::getInstance();
+					gLogger->debug(e.what());
 				}
 			});
 			mFlag = p.get_future().get();
