@@ -1,4 +1,40 @@
-## 1. Singleton
+## [Pattern](https://sourcemaking.com/)
+"Each pattern is a three-part rule, which express a relation between a certain context, a problem, and a solution.” Christopher Alexander  
+#### Creational
+* Abstract Factory
+* Builder
+* Factory Method
+* Object Pool
+* Prototype
+* Singleton
+#### Structural
+* Adapter
+* Bridge
+* Composite
+* Decorator
+* Facade
+* Flyweight
+* Private Class Data
+* Proxy
+#### Behavioural
+* Chain of responsibility
+* Command
+* Interpreter
+* Iterator
+* Mediator
+* Memento
+* Null Object
+* Observer
+* State
+* Strategy
+* Template method
+* Visitor
+* double-check 
+### 1. Thread-safe Interface
+* All interface methods (public) should use a lock
+* All implementation methods (protected and private) must not use a lock.
+* The interface methods call only protected or private methods but no public methods.
+### 1. Singleton
 The performace some ways to implement singleton pattern:  
 * Visual studio 2017
 * Run 12 threads

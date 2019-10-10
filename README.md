@@ -93,20 +93,22 @@ This quite very very difficult to understand
 * **Mutexes**  
 `std::mutex`  
 `std::recursive_mutex`: allows the same thread to lock the mutex many times.  
-`timed_mutex`  
-`recursive_timed_mutex`  
+`std::timed_mutex`  
+`std::recursive_timed_mutex`  
 ![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/mutexes.png) 
 `shared_mutex`: Shared mutexes are usually used in situations when multiple readers can access the same resource at the same time without causing data races, but only one writer can do so.  
 `shared_timed_mutex`  
 * **Locks**  
 `std::lock_guard`  
 `std::unique_lock`  
-`std::scoped_lock`  
-`std::shared_lock`  
+`std::scoped_lock` : lock many mutexes  
+`std::shared_lock` : many threads can read but only one thread can write  
 
 #### 3. Thread-Local Data
 Thread-local data, also known as thread-local storage, is created for each thread separately. 
 #### 4. Condition Variables
+`std::condition_variable`: only wait on object of type `std::unique_lock<std::mutex>`  
+`std::condition_variable_any`: can wait on an user-supplied lock type that meet the concept of `BasicLockable`.  
 Condition variables enable threads to be synchronised via messages. 
 * The Predicate
 * Lost Wakeup
@@ -151,11 +153,15 @@ Because of the synchronisation with the mutex, the notification would only be se
 * **std::async**
 * **std::packaged_task**
 * **std::promise and std::future**  
-If a future fut asks for the result more than once, a std::future_error exception is thrown.  
+If the `promise` sets the value or the exception `more than once`, a `std::future_error` exception is thrown.  
+If you destroy the `std::promise` without calling the set-method or a `std::packaged_task` before invoking it, a `std::future_error` exception with an error code `std::future_errc::broken_promise` would be stored in the shared state.  
+If a future fut asks for the result `more than once`, a `std::future_error` exception is thrown.  
 There is a  `One-to-one` relationship between the promise and the future.
 * **std::shared_future**  
 `One-to-many` relationship between a promise and many futures.
-* **Exceptions**
+* **Exceptions**  
+If the callable used by `std::async` or by `std::packaged_task` throws an error, the exception is store in the shared state.  
+When the future fut then calls `fut.get()`, the exception is rethrown, and the future has to handle it.  
 * **Notifications**  
 `Condition variables` to synchronise threads multiple times.  
 A `promise` can send its notification only once.  
@@ -199,6 +205,9 @@ However, you missed the fact that the value was updated to B somewhere in betwee
 ### 4. Data Race
 ...
 ### 5. Deadlocks
+There are two main reasons for deadlocks:  
+* A mutex has not been unlocked.  
+* You lock your mutexes in a different order.  
 #### 1. Problem: Lock Mutexes in Different Order
 ![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/deadlock.png)
 ```
