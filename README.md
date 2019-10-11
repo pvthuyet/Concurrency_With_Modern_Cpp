@@ -197,18 +197,20 @@ A `promise` can send its notification only once.
 ABA means you read a value twice and each time it returns the same value A.  
 Therefore you conclude that nothing changed in between.  
 However, you missed the fact that the value was updated to B somewhere in between.
-...
 ### 2. Blocking Issues
-...
+It is a victim of a spurious wakeup or lost wakeup.
 ### 3. Breaking of Program Invariants
 ...
 ### 4. Data Race
 ...
-### 5. Deadlocks
+### 5. Livelock
+The thread is wating a notification never fire or fired.
+### 6. Deadlocks
 There are two main reasons for deadlocks:  
-* A mutex has not been unlocked.  
-* You lock your mutexes in a different order.  
-#### 1. Problem: Lock Mutexes in Different Order
+* **A mutex has not been unlocked.**  
+* **You lock your mutexes in a different order.**
+#### 1. Locking a non-recursive mutex more than once
+#### 2. Lock Mutexes in Different Order
 ![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/deadlock.png)
 ```
 void deadlock(std::mutex& a, std::mutex& b) {
@@ -223,7 +225,7 @@ int main() {
     return 0;
 }
 ```
-#### 2. Solution
+#### 3. Solution
 * **Keep in mind only lock as soon as needed**
 * **Avoid necked Mutex**
 * **Avoid nested blocks:**  
@@ -259,13 +261,27 @@ void fixDeadlock(std::mutex& a, std::mutex& b) {
     // do something here.
 }
 ```
-### 6. False Sharing
-...
-### 7. Lifetime Issues of Variables
-...
-### 8. Moving Threads
+### 7. False Sharing
+`False sharing` occurs if two threads read at the same time different variables a and b that are located on the same `cache line`.  
+* `std::hardware_destructive_interference_size`:  returns the minimum offset between two objects to avoid false sharing.  
+* `std::hardware_constructive_interference_size`: returns the maximum size of contiguous memory to promote true sharing.  
+```
+struct Sum{
+alignas(std::hardware_destructive_interference_size) long long a{0};
+alignas(std::hardware_destructive_interference_size) long long b{0};
+};
+```
+### 8. Lifetime Issues of Variables
 ...
 ### 9. Moving Threads
+```
+std::thread t([]{std::cout << std::this_thread::get_id();});  
+std::thread t2([]{std::cout << std::this_thread::get_id();});  
+t = std::move(t2);// Issues: t must be call join() before move  
+t.join();  
+t2.join();  
+```
+### 10. Race Conditions
 ....
   
   
