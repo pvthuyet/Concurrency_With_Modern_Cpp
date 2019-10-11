@@ -17,10 +17,9 @@ Acquisition Is Initialization (RAII) idiom
 		}
 ```
 #### 2.Interruptiable:
-* `thread_local InterruptFlag gInterruptedFlag` : Each thread has its own instance of `InterruptFlag` object
-* Support wait on std::condition_variable
-* Support wait on std::condition_variable_any
-* Support wait on std::future<T>
+* How to stop thread?
+* How to stop thread while it's waiting on std::condition_variable ?
+* How to stop thread while it's waiting on std::future ?
 ```
   		template<typename Callable, typename... Args>
 		explicit JThread(Callable&& func, Args&&... args)
@@ -58,13 +57,9 @@ Acquisition Is Initialization (RAII) idiom
 #include "JThread.h"
 void run(std::string const& msg)
 {
-	std::mutex mut;
-	std::condition_variable cv;
-	std::unique_lock<std::mutex> lk(mut);
-
 	while (true)
 	{
-		tvp::interruptibleWait(cv, lk);
+		tvp::interruptiblePoint();
 		std::cout << msg + ": running...\n";
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	}
