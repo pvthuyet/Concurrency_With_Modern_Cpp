@@ -44,20 +44,28 @@ void testQueue()
 		tvp::Logger* gLogger = tvp::Logger::getInstance();
 		while (true)
 		{
-			int v;
-			que.waitAndPop(v);
-			gLogger->debug(tvp::Utils::getThreadId()
-				+ " pop "
-				+ std::to_string(v)
-				+ " out queue ("
-				+ std::to_string(que.size()) + ")\n");
-			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+			tvp::interruptionPoint();
+			try
+			{
+				int v;
+				que.waitAndPop(v);
+				gLogger->debug(tvp::Utils::getThreadId()
+					+ " pop "
+					+ std::to_string(v)
+					+ " out queue ("
+					+ std::to_string(que.size()) + ")\n");
+			}
+			catch (const tvp::JException& e)
+			{
+				gLogger->debug(e.what());
+			}
+			std::this_thread::sleep_for(std::chrono::milliseconds(500));
 		}
 	};
 
 	// All threads must destroy befor queue
 	{		
-		constexpr std::size_t N = 33;
+		constexpr std::size_t N = 34;
 		constexpr std::size_t div = 2;
 		std::vector<std::unique_ptr<tvp::JThread> > threads;
 		for (std::size_t i = 0; i < N; ++i)

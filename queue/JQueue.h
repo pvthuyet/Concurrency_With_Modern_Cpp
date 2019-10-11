@@ -54,7 +54,12 @@ namespace tvp
 		std::unique_lock<std::mutex> waitForData() 
 		{
 			std::unique_lock<std::mutex> lock(mHeadMux);
-			tvp::interruptibleWait(mCV, lock, [&]() { return size() > 0; });
+			tvp::interruptibleWait(mCV, lock, [&]() { return (size() > 0 || isShutdown()); });
+			if (isShutdown())
+			{
+				throw JException(tvp::ExceptionCode::QUEUE_SHUTDOWN,
+					tvp::Utils::getThreadId() + " Queue was shutdown!\n");
+			}
 			return std::move(lock);
 		}
 
