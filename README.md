@@ -208,7 +208,7 @@ There are two main reasons for deadlocks:
 * **A mutex has not been unlocked.**  
 * **You lock your mutexes in a different order.**
 #### 1. Locking a non-recursive mutex more than once
-#### 2. Problem: Lock Mutexes in Different Order
+#### 2. Lock Mutexes in Different Order
 ![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/deadlock.png)
 ```
 void deadlock(std::mutex& a, std::mutex& b) {
@@ -223,7 +223,7 @@ int main() {
     return 0;
 }
 ```
-#### 2. Solution
+#### 3. Solution
 * **Keep in mind only lock as soon as needed**
 * **Avoid necked Mutex**
 * **Avoid nested blocks:**  
