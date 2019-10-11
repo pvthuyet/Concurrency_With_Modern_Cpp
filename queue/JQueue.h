@@ -54,20 +54,8 @@ namespace tvp
 		std::unique_lock<std::mutex> waitForData() 
 		{
 			std::unique_lock<std::mutex> lock(mHeadMux);
-			while (true)
-			{
-				bool res = mCV.wait_for(lock, std::chrono::milliseconds(10), [&] { return size() > 0; });
-				if (isShutdown())
-				{
-					throw JException(tvp::ExceptionCode::QUEUE_SHUTDOWN,
-						tvp::Utils::getThreadId() + " ThreadPool was shutdown!\n");
-				}
-
-				if (res || (size() > 0))
-				{
-					return std::move(lock);
-				}
-			}
+			tvp::interruptibleWait(mCV, lock, [&]() { return size() > 0; });
+			return std::move(lock);
 		}
 
 		std::unique_ptr<node> tryPopHead() 
@@ -103,7 +91,7 @@ namespace tvp
 		}
 
 	public:
-		explicit JQueue(std::size_t limit = 100U) :
+		explicit JQueue(std::size_t limit = 1000000U) :
 			mLimit(limit),
 			mHeadNode(std::make_unique<node>()), 
 			mTailNode(mHeadNode.get()), 

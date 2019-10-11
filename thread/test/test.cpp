@@ -10,38 +10,38 @@
 #include "../../logger/logger.h"
 #include "../../utils/utils.h"
 
-void worker_wait_cv(std::string const& msg)
+void workerWait(std::string const& msg)
 {
 	tvp::Logger* gLogger = tvp::Logger::getInstance();
 	gLogger->debug(msg);
-	std::mutex mut;
-	std::condition_variable cv;
-	std::unique_lock<std::mutex> lk(mut);
 
 	while (true)
 	{
-		tvp::interruptibleWait(cv, lk);
+		tvp::interruptionPoint();
 		gLogger->debug(tvp::Utils::getThreadId() + " running...\n");
 		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 	}
 }
 
-//void worker_wait_cv_any(std::string const& msg)
-//{
-//	gLogger.debug(msg);
-//	std::mutex mut;
-//	std::condition_variable_any cv;
-//	std::unique_lock<std::mutex> lk(mut);
-//	while (true)
-//	{
-//		tvp::interruptibleWait(cv, lk);
-//		gLogger.debug(tvp::Utils::getThreadId() + " running...\n");
-//		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-//	}
-//}
+void workerWaitCV(std::string const& msg)
+{
+	std::atomic_bool ready(false);
+	tvp::Logger* gLogger = tvp::Logger::getInstance();
+	gLogger->debug(msg);
+	
+	std::condition_variable cv;
+	std::mutex mux;
+	std::unique_lock<std::mutex> lk(mux);	
 
+	while (true)
+	{
+		tvp::interruptibleWait(cv, lk, [&ready] { return ready.load(std::memory_order_relaxed); });
+		gLogger->debug(tvp::Utils::getThreadId() + " running...\n");
+		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+	}
+}
 
-void worker_wait_future(std::string const& msg)
+void workerWaitFuture(std::string const& msg)
 {
 	tvp::Logger* gLogger = tvp::Logger::getInstance();
 	gLogger->debug(msg);
@@ -60,7 +60,7 @@ void worker_wait_future(std::string const& msg)
 
 void testInterruptedThread()
 {
-	constexpr unsigned int N = 10;
+	constexpr unsigned int N = 1000;
 	std::vector<std::unique_ptr<tvp::JThread> > threads;
 
 	for (unsigned int i = 0; i < N; ++i)
@@ -68,14 +68,13 @@ void testInterruptedThread()
 		switch (i % 3)
 		{
 		case 0:
-			threads.emplace_back(std::make_unique<tvp::JThread>(worker_wait_cv, "worker_wait_cv: Starting\n"));
+			threads.emplace_back(std::make_unique<tvp::JThread>(workerWait, "worker wait: Starting\n"));
 			break;
 		case 1:
-			//threads.emplace_back(std::make_unique<tvp::JThread>(worker_wait_cv_any, "worker_wait_cv_any: Starting\n"));
-			threads.emplace_back(std::make_unique<tvp::JThread>(worker_wait_cv, "worker_wait_cv: Starting\n"));
+			threads.emplace_back(std::make_unique<tvp::JThread>(workerWaitCV, "worker wait cv: Starting\n"));
 			break;
 		case 2:
-			threads.emplace_back(std::make_unique<tvp::JThread>(worker_wait_future, "worker_wait_future: Starting\n"));
+			threads.emplace_back(std::make_unique<tvp::JThread>(workerWaitFuture, "worker_wait_future: Starting\n"));
 			break;
 		default:
 			break;
@@ -83,11 +82,12 @@ void testInterruptedThread()
 	}
 
 	auto fstop = [&threads]() {
+		tvp::Logger* gLogger = tvp::Logger::getInstance();
 		std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 		for (unsigned int i = 0; i < threads.size(); ++i)
 		{
 			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-			gLogger.debug(tvp::Utils::getThreadId() + " STOP THREAD " + std::to_string(i) + "\n");
+			gLogger->debug(tvp::Utils::getThreadId() + " STOP THREAD " + std::to_string(i) + "\n");
 			threads[i]->interrupt();
 		}
 	};
@@ -106,6 +106,7 @@ int main()
 		tvp::Logger* gLogger = tvp::Logger::getInstance();
 		gLogger->debug("Unknow exception!\n");
 	}
+	delete (tvp::Logger::getInstance());
 	return 0;
 }
 

@@ -1,13 +1,51 @@
 #pragma once
 #include <future>
-//#include "InterruptFlag.h"
-#include "InterruptFlagLockFree.h"
 #include "../logger/logger.h"
 #include "../utils/utils.h"
 #include "../utils/JExeption.h"
 
 namespace tvp
 {
+	class InterruptFlagLockFree
+	{
+	private:
+		std::atomic<bool> mFlag;
+		std::condition_variable* mThreadCond;
+		tvp::lockfree::Spinlock mSpin;
+
+	public:
+		InterruptFlagLockFree() noexcept : mThreadCond(nullptr), mFlag(false)
+		{}
+
+		void set()
+		{
+			mFlag.store(true, std::memory_order_relaxed);
+			tvp::lockfree::LockGuard lk(mSpin);
+			if (mThreadCond)
+			{
+				mThreadCond->notify_all();
+			}
+		}
+
+		bool isSet() const noexcept
+		{
+			return mFlag.load(std::memory_order_relaxed);
+		}
+
+		void setCV(std::condition_variable& cv)
+		{
+			tvp::lockfree::LockGuard lk(mSpin);
+			mThreadCond = &cv;
+		}
+
+		void clearCV()
+		{
+			tvp::lockfree::LockGuard lk(mSpin);
+			mThreadCond = nullptr;
+		}
+	};
+	
+	// Create interrupted flag
 	thread_local InterruptFlagLockFree gInterruptedFlag;
 
 	struct FlagGuard
@@ -27,34 +65,18 @@ namespace tvp
 		}
 	}
 
-	void interruptibleWait(std::condition_variable& cv, std::unique_lock<std::mutex>& lk)
-	{
-		interruptionPoint();
-		gInterruptedFlag.setCV(cv);
-		FlagGuard guard;
-		interruptionPoint();
-		cv.wait_for(lk, std::chrono::milliseconds(1));
-		interruptionPoint();
-	}
-
 	template<typename Predicate>
 	void interruptibleWait(std::condition_variable& cv, std::unique_lock<std::mutex>& lk, Predicate pred)
 	{
 		interruptionPoint();
 		gInterruptedFlag.setCV(cv);
 		FlagGuard guard;
-		while (!gInterruptedFlag.isSet() && !pred())
+		while (!pred() && !gInterruptedFlag.isSet())
 		{
 			cv.wait_for(lk, std::chrono::milliseconds(1));
 		}
 		interruptionPoint();
 	}
-
-	//template<typename Lockable>
-	//void interruptibleWait(std::condition_variable_any& cv, Lockable& lk)
-	//{
-	//	gInterruptedFlag.wait(cv, lk);
-	//}
 
 	template<typename T>
 	void interruptibleWait(std::future<T>& uf)

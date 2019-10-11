@@ -13,20 +13,16 @@ void testQueue()
 {
 	tvp::JQueue<int> que;
 	auto pushF = [&que](int s) {
-		std::mutex mut;
-		std::condition_variable cv;
-		std::unique_lock<std::mutex> lk(mut);
-
+		tvp::Logger* gLogger = tvp::Logger::getInstance();
 		int i = s;
 		while (true)
 		{
 			// Only quit loop by this function.
-			tvp::interruptibleWait(cv, lk);
-
+			tvp::interruptionPoint();
 			try
 			{
 				que.push(i);				
-				gLogger.debug(tvp::Utils::getThreadId() 
+				gLogger->debug(tvp::Utils::getThreadId() 
 					+ " push " 
 					+ std::to_string(i) 
 					+ " into queue (" 
@@ -37,7 +33,7 @@ void testQueue()
 			{
 				// Throw exeption but must not stop thread.
 				// Becuase of only stop when call interrupt
-				gLogger.debug(e.what());
+				gLogger->debug(e.what());
 			}
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(500));
@@ -45,38 +41,22 @@ void testQueue()
 	};
 
 	auto popF = [&que]() {
-		std::mutex mut;
-		std::condition_variable cv;
-		std::unique_lock<std::mutex> lk(mut);
-
+		tvp::Logger* gLogger = tvp::Logger::getInstance();
 		while (true)
 		{
-			// Only quit loop by this function.
-			tvp::interruptibleWait(cv, lk);
-
 			int v;
-			try
-			{
-				que.waitAndPop(v);
-				gLogger.debug(tvp::Utils::getThreadId()
-					+ " pop "
-					+ std::to_string(v)
-					+ " out of queue ("
-					+ std::to_string(que.size()) + ")\n");
-			}
-			catch (const tvp::JException& e)
-			{
-				// Throw exeption but must not stop thread.
-				// Becuase of only stop when call interrupt
-				gLogger.debug(e.what());
-			}
-
+			que.waitAndPop(v);
+			gLogger->debug(tvp::Utils::getThreadId()
+				+ " pop "
+				+ std::to_string(v)
+				+ " out queue ("
+				+ std::to_string(que.size()) + ")\n");
 			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		}
 	};
 
 	// All threads must destroy befor queue
-	{
+	{		
 		constexpr std::size_t N = 33;
 		constexpr std::size_t div = 2;
 		std::vector<std::unique_ptr<tvp::JThread> > threads;
@@ -90,12 +70,13 @@ void testQueue()
 		}
 
 		auto fstop = [&threads, &que]() {
+			tvp::Logger* gLogger = tvp::Logger::getInstance();
 			std::this_thread::sleep_for(std::chrono::milliseconds(30000));
 			que.shutdown();
 			for (unsigned int i = 0; i < threads.size(); ++i)
 			{
 				std::this_thread::sleep_for(std::chrono::milliseconds(100));
-				gLogger.debug(tvp::Utils::getThreadId() + " STOP THREAD " + std::to_string(i) + "\n");
+				gLogger->debug(tvp::Utils::getThreadId() + " STOP THREAD " + std::to_string(i) + "\n");
 				threads[i]->interrupt();
 			}
 			// Queue must be shutdown after all thread join			
@@ -108,14 +89,17 @@ void testQueue()
 
 int main()
 {
+	tvp::Logger* gLogger = tvp::Logger::getInstance();
 	try
 	{
 		testQueue();
 	}
 	catch (...)
 	{
-		gLogger.debug("Unknow exception!\n");
+		gLogger->debug("Unknow exception!\n");
 	}
+
+	delete (tvp::Logger::getInstance());
 	return 0;
 }
 
