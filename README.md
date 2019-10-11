@@ -203,7 +203,9 @@ It is a victim of a spurious wakeup or lost wakeup.
 ...
 ### 4. Data Race
 ...
-### 5. Deadlocks
+### 5. Livelock
+The thread is wating a notification never fire or fired.
+### 6. Deadlocks
 There are two main reasons for deadlocks:  
 * **A mutex has not been unlocked.**  
 * **You lock your mutexes in a different order.**
@@ -259,7 +261,7 @@ void fixDeadlock(std::mutex& a, std::mutex& b) {
     // do something here.
 }
 ```
-### 6. False Sharing
+### 7. False Sharing
 `False sharing` occurs if two threads read at the same time different variables a and b that are located on the same `cache line`.  
 * `std::hardware_destructive_interference_size`:  returns the minimum offset between two objects to avoid false sharing.  
 * `std::hardware_constructive_interference_size`: returns the maximum size of contiguous memory to promote true sharing.  
@@ -269,9 +271,9 @@ alignas(std::hardware_destructive_interference_size) long long a{0};
 alignas(std::hardware_destructive_interference_size) long long b{0};
 };
 ```
-### 7. Lifetime Issues of Variables
+### 8. Lifetime Issues of Variables
 ...
-### 8. Moving Threads
+### 9. Moving Threads
 ```
 std::thread t([]{std::cout << std::this_thread::get_id();});  
 std::thread t2([]{std::cout << std::this_thread::get_id();});  
@@ -279,7 +281,7 @@ t = std::move(t2);// Issues: t must be call join() before move
 t.join();  
 t2.join();  
 ```
-### 9. Race Conditions
+### 10. Race Conditions
 ....
   
   
