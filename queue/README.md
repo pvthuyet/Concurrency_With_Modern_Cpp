@@ -6,6 +6,7 @@ Books:
 ### Features: ###
 * Thread safe
 * Bounded
+* Stop push/pop threads if queue was shutdown
 * concurrent data structure: queue is single linked list with head and tail  
 ![1](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/queue/06_01.png)
   
