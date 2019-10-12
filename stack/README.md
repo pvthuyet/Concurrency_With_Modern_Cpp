@@ -1,3 +1,3 @@
 ## Stack
-* lock-fre
+* lock-free
 * Reclaim hazard pointer
