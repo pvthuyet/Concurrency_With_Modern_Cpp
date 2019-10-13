@@ -1,5 +1,6 @@
 #pragma once
 #include <future>
+#include <type_traits>
 #include "../logger/logger.h"
 #include "../utils/utils.h"
 #include "../utils/JExeption.h"
@@ -104,7 +105,7 @@ namespace tvp
 		template<typename Callable, typename... Args>
 		explicit JThread(Callable&& func, Args&&... args)
 		{
-			using return_type = std::result_of_t<Callable(Args...)>;
+			//using return_type = std::invoke_result_t<Callable, Args...>;
 			// TODO: can't catch if using std::packaged_task
 			//auto task = std::make_shared<std::packaged_task<return_type()> >(std::bind(std::forward<Callable>(func), std::forward<Args>(args)...));
 			auto f = std::bind(std::forward<Callable>(func), std::forward<Args>(args)...);

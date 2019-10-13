@@ -6,54 +6,188 @@
 #include "../Stack.h"
 #include "../../thread/JThread.h"
 
-void testStack();
+constexpr int N = 100000;
+void testPending();
+void testHazard();
+void testSharedPtr();
+void testRefCount();
+
 int main()
 {
-	testStack();
+	tvp::Logger* gLogger = tvp::Logger::getInstance();
+	while (true)
+	{
+		gLogger->debug("************\n\
+				1:\tPending deleted nodes\n\
+				2:\tHazard nodes\n\
+				3:\tShared pointer nodes\n\
+				4:\tReference counting nodes\n\
+				q:\tQuit\n\
+				Choose: ", true, true);
+		std::string s;
+		std::cin >> s;
+		if (s == "1")
+		{
+			testPending();
+		}
+		else if (s == "2")
+		{
+			testHazard();
+		}
+		else if (s == "3")
+		{
+			testSharedPtr();
+		}
+		else if (s == "4")
+		{
+			testRefCount();
+		}
+		else if (s == "q" || s == "Q")
+		{
+			break;
+		}
+	}
+
+	delete (tvp::Logger::getInstance());
 	return 0;
 }
 
-template<typename T>
-void push(tvp::lockfree::hazard::Stack<T>& stack, int start)
+void testPending()
 {
 	using namespace std::chrono_literals;
-	constexpr int N = 100000;
-	for (int i = start; i < (N + start); ++i)
+	tvp::lockfree::pending::Stack<int> stack;
+	auto push = [&stack](int start) {
+		for (int i = start; i < (N + start); ++i)
+		{
+			stack.push(i);
+		}
+	};
+	auto pop = [&stack]() {
+		while (stack.pop());
+	};
+
+
+	int st = 0;
 	{
-		stack.push(i);
+		tvp::JThread t1(push, 0);
+		tvp::JThread t2(push, 101);
+		tvp::JThread t3(push, 201);
+		tvp::JThread t4(push, 301);
+		tvp::JThread t5(push, 401);
+		std::this_thread::sleep_for(1s);
+		tvp::JThread t6(pop);
+		tvp::JThread t7(pop);
+		tvp::JThread t8(pop);
+		tvp::JThread t9(pop);
+		tvp::JThread t10(pop);
+		tvp::JThread t11(pop);
+		tvp::JThread t12(pop);
+		tvp::JThread t13(pop);
 	}
 }
 
-template<typename T>
-void pop(tvp::lockfree::hazard::Stack<T>& stack)
-{
-	using namespace std::chrono_literals;
-	while(stack.pop())
-	{ 
-	}
-}
-
-void testStack()
+void testHazard()
 {
 	using namespace std::chrono_literals;
 	tvp::lockfree::hazard::Stack<int> stack;
+	auto push = [&stack](int start) {
+		for (int i = start; i < (N + start); ++i)
+		{
+			stack.push(i);
+		}
+	};
+	auto pop = [&stack]() {
+		while (stack.pop());
+	};
+
+
 	int st = 0;
 	{
-		tvp::JThread t1(push<int>, std::ref(stack), 0);
-		tvp::JThread t2(push<int>, std::ref(stack), 101);
-		tvp::JThread t3(push<int>, std::ref(stack), 201);
-		tvp::JThread t4(push<int>, std::ref(stack), 301);
-		tvp::JThread t5(push<int>, std::ref(stack), 401);
-		tvp::JThread t6(pop<int>, std::ref(stack));
-		tvp::JThread t7(pop<int>, std::ref(stack));
-		tvp::JThread t8(pop<int>, std::ref(stack));
-		tvp::JThread t9(pop<int>, std::ref(stack));
-		tvp::JThread t10(pop<int>, std::ref(stack));
-		tvp::JThread t11(pop<int>, std::ref(stack));
-		tvp::JThread t12(pop<int>, std::ref(stack));
-		tvp::JThread t13(pop<int>, std::ref(stack));
+		tvp::JThread t1(push,0);
+		tvp::JThread t2(push,101);
+		tvp::JThread t3(push,201);
+		tvp::JThread t4(push, 301);
+		tvp::JThread t5(push, 401);
+		std::this_thread::sleep_for(1s);
+		tvp::JThread t6(pop);
+		tvp::JThread t7(pop);
+		tvp::JThread t8(pop);
+		tvp::JThread t9(pop);
+		tvp::JThread t10(pop);
+		tvp::JThread t11(pop);
+		tvp::JThread t12(pop);
+		tvp::JThread t13(pop);
 	}	
 }
+
+void testSharedPtr()
+{
+	using namespace std::chrono_literals;
+	tvp::lockfree::sharedptr::Stack<int> stack;
+	auto push = [&stack](int start) {
+		for (int i = start; i < (N + start); ++i)
+		{
+			stack.push(i);
+		}
+	};
+	auto pop = [&stack]() {
+		while (stack.pop());
+	};
+
+
+	int st = 0;
+	{
+		tvp::JThread t1(push, 0);
+		tvp::JThread t2(push, 101);
+		tvp::JThread t3(push, 201);
+		tvp::JThread t4(push, 301);
+		tvp::JThread t5(push, 401);
+		std::this_thread::sleep_for(1s);
+		tvp::JThread t6(pop);
+		tvp::JThread t7(pop);
+		tvp::JThread t8(pop);
+		tvp::JThread t9(pop);
+		tvp::JThread t10(pop);
+		tvp::JThread t11(pop);
+		tvp::JThread t12(pop);
+		tvp::JThread t13(pop);
+	}
+}
+
+void testRefCount()
+{
+	using namespace std::chrono_literals;
+	tvp::lockfree::referencecount::Stack<int> stack;
+	auto push = [&stack](int start) {
+		for (int i = start; i < (N + start); ++i)
+		{
+			stack.push(i);
+		}
+	};
+	auto pop = [&stack]() {
+		while (stack.pop());
+	};
+
+
+	int st = 0;
+	{
+		tvp::JThread t1(push, 0);
+		tvp::JThread t2(push, 101);
+		tvp::JThread t3(push, 201);
+		tvp::JThread t4(push, 301);
+		tvp::JThread t5(push, 401);
+		std::this_thread::sleep_for(1s);
+		tvp::JThread t6(pop);
+		tvp::JThread t7(pop);
+		tvp::JThread t8(pop);
+		tvp::JThread t9(pop);
+		tvp::JThread t10(pop);
+		tvp::JThread t11(pop);
+		tvp::JThread t12(pop);
+		tvp::JThread t13(pop);
+	}
+}
+
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
 // Debug program: F5 or Debug > Start Debugging menu
 

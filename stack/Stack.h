@@ -7,7 +7,7 @@ namespace tvp
 {
 	namespace lockfree
 	{
-		namespace counting
+		namespace pending
 		{
 			template<typename T>
 			class Stack
@@ -86,14 +86,7 @@ namespace tvp
 
 				~Stack()
 				{
-					//clean();
-				}
-
-				void clean()
-				{
-					while (pop())
-					{
-					}
+					while (pop());
 					deleteNodes(mTobeDeleted.load());
 				}
 
@@ -269,12 +262,7 @@ namespace tvp
 
 				~Stack()
 				{
-				}
-
-				void clean()
-				{
-					while (pop())
-					{}
+					while (pop());
 				}
 
 				void push(T const& data)
@@ -323,6 +311,140 @@ namespace tvp
 					}
 
 					return res;
+				}
+			};
+		}
+
+		namespace sharedptr
+		{
+			template<typename T>
+			class Stack
+			{
+			private:
+				struct Node
+				{
+					std::shared_ptr<T> mData;
+					std::shared_ptr<Node> mNext;
+					Node(T const& data) : 
+						mData(std::make_shared<T>(data)),
+						mNext(nullptr)
+					{}
+				};
+				std::shared_ptr<Node> mHead;
+
+			public:
+				~Stack()
+				{
+					while (pop());
+				}
+
+				void push(T const& data)
+				{
+					std::shared_ptr<Node> const newNode = std::make_shared<Node>(data);
+					newNode->mNext = std::atomic_load(&mHead);
+					while (!std::atomic_compare_exchange_weak(&mHead, &newNode->mNext, newNode));
+				}
+
+				std::shared_ptr<T> pop()
+				{
+					std::shared_ptr<Node> oldHead = std::atomic_load(&mHead);
+					while (oldHead && !std::atomic_compare_exchange_weak(&mHead, &oldHead, std::atomic_load(&oldHead->mNext)));
+					if (oldHead)
+					{
+						std::atomic_store(&oldHead->mNext, std::shared_ptr<Node>());
+						return oldHead->mData;
+					}
+
+					return std::shared_ptr<T>();
+				}
+			};
+		}
+
+		namespace referencecount
+		{
+			template<typename T>
+			class Stack
+			{
+			private:
+				struct Node;
+				struct CountedNodePtr
+				{
+					int mExternalCount;
+					Node* mPtr;
+					CountedNodePtr() noexcept : 
+						mExternalCount(0),
+						mPtr(nullptr)
+					{}
+				};
+
+				struct Node
+				{
+					std::shared_ptr<T> mData;
+					std::atomic_int mInternalCount;
+					CountedNodePtr mNext;
+					Node(T const& data) :
+						mData(std::make_shared<T>(data)),
+						mInternalCount(0)
+					{}
+				};
+				std::atomic<CountedNodePtr> mHead;
+
+			private:
+				void increaseHeadCount(CountedNodePtr& oldCounter)
+				{
+					CountedNodePtr newCounter;
+					do
+					{
+						newCounter = oldCounter;
+						++(newCounter.mExternalCount);
+					} while (!mHead.compare_exchange_strong(oldCounter, newCounter, std::memory_order_acquire, std::memory_order_relaxed));
+					oldCounter.mExternalCount = newCounter.mExternalCount;
+				}
+
+			public:
+				~Stack()
+				{
+					while (pop());
+				}
+
+				void push(T const& data)
+				{
+					CountedNodePtr newNode;
+					newNode.mPtr = new Node(data);
+					newNode.mExternalCount = 1;
+					newNode.mPtr->mNext = mHead.load(std::memory_order_relaxed);
+					while (!mHead.compare_exchange_weak(newNode.mPtr->mNext, newNode, std::memory_order_release, std::memory_order_relaxed));
+				}
+
+				std::shared_ptr<T> pop()
+				{
+					CountedNodePtr oldHead = mHead.load(std::memory_order_relaxed);
+					for (;;)
+					{
+						increaseHeadCount(oldHead);
+						Node* const ptr = oldHead.mPtr;
+						if (!ptr)
+							return std::shared_ptr<T>();
+
+						if (mHead.compare_exchange_strong(oldHead, ptr->mNext, std::memory_order_relaxed))
+						{
+							std::shared_ptr<T> res;
+							res.swap(ptr->mData);
+							int const countIncrease = oldHead.mExternalCount - 2;
+							if (ptr->mInternalCount.fetch_add(countIncrease, std::memory_order_release) == -countIncrease)
+							{
+								delete ptr;
+							}
+							return res;
+						}
+						else if(ptr->mInternalCount.fetch_add(-1, std::memory_order_relaxed) == 1)
+						{
+							ptr->mInternalCount.load(std::memory_order_acquire);
+							delete ptr;
+						}
+					}
+					
+					return nullptr;
 				}
 			};
 		}
