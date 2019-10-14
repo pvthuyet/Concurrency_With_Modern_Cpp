@@ -76,10 +76,21 @@ void sink(std::unique_ptr<GeoObj>&& up){} // Ok, pass rvalue only accept move `S
 ...  
 auto up(std::make_unique<GeoObj>());
 sink(std::move(up));
-`up.release()` // Remember destroy if use std::move
+`up.release()` // Remember destroy up after using std::move
 ```
 * Custome Deleter
-
+```
+	auto deleter = [](std::FILE* fp) {
+		std::fclose(fp);
+		fp = nullptr;
+	};
+	std::FILE* fp = nullptr;
+	fopen_s(&fp, "test.txt", "w+");
+	std::unique_ptr<std::FILE, decltype(deleter)> up(fp, deleter);
+	//std::unique_ptr<std::FILE, decltype(deleter)> up(fp); // C++20 OK
+	const char str[] = "hello world!\n";
+	fwrite(str, sizeof(char), sizeof(str), up.get());
+```
 ## III. Atomic
 * std::atomic is neither copyable nor movable.
 * The primary std::atomic template may be instantiated with any `TriviallyCopyable` type T satisfying both `CopyConstructible` and `CopyAssignable`.
