@@ -99,12 +99,12 @@ sink(std::move(up));
 * Increments and decrements of the reference count must be atomic
 #### Custom deleter
 ```
-auto deleter = [](Widget* pw) {
-	delete pw;
-	pw = nullptr;
-};
-**std::unique_ptr**<Widget, decltype(deleter)> upw(new Widget, deleter); // deleter as type and argument
-**std::shared_ptr**<Widget> spw(new Widget, deleter); // deleter is only at arg
+	auto deleter = [](Widget* pw) {
+		delete pw;
+		pw = nullptr;
+	};
+	std::unique_ptr<Widget, decltype(deleter)> upw(new Widget, deleter); // deleter as type and argument
+	std::shared_ptr<Widget> spw(new Widget, deleter); // deleter is only at arg
 ```
 ### 3. std::weak_ptr
 ## III. Atomic
