@@ -169,6 +169,7 @@ Apply the `factory function` template
 	}
 ```
 **OK so far so good, the issue was sorted**  
+
 ### 3. std::weak_ptr
 ## III. Atomic
 * std::atomic is neither copyable nor movable.
@@ -187,6 +188,12 @@ struct A { int a[100]; };
 std::atomic<A> a;
 assert(std::atomic_is_lock_free(&a)); // false: a is not lock-free
 ```
+#### e. std::shared_ptr overhead
+...
+#### f. std::shared_ptr doesn't thread-safe
+...
+#### g. Leak memory
+...
 
 ## IV. Memory Model
 Before C++11, there was only one contract. The C++ language specification did not include multithreading or atomics. There was no memory model.  
