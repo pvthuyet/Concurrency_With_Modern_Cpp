@@ -168,7 +168,7 @@ Apply the `factory function` template
 		spw->process(processedWidgets);
 	}
 ```
-**OK the issue was sorted**  
+**OK so far so good, the issue was sorted**  
 ### 3. std::weak_ptr
 ## III. Atomic
 * std::atomic is neither copyable nor movable.
