@@ -49,8 +49,23 @@
 
   
 ![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/timeline.png)
-  
-## II. Memory Model
+
+## II. Smart Pointer
+## III. Atomic
+* std::atomic is neither copyable nor movable.
+* The primary std::atomic template may be instantiated with any `TriviallyCopyable` type T satisfying both `CopyConstructible` and `CopyAssignable`.
+* The size of primaty std::atomic template must be less than cpu bit. (32bit -> template class size 4byte, 64bit -> template class size 8byte)  
+```
+struct Data { // user-defined trivially-copyable type
+	int x; // 4 byte
+	void* ptr; // 4 byte
+	Data() noexcept : x(0), ptr(nullptr)
+	{}
+};
+std::atomic<Data> atm; // this must run on 64bit 
+```
+
+## IV. Memory Model
 Before C++11, there was only one contract. The C++ language specification did not include multithreading or atomics. There was no memory model.  
 With C++11 everything has changed. C++11 is the first standard aware of multiple threads. The reason for the well-defined behaviour of threads is the C++ memory model that was heavily inspired by the [Java memory model](https://en.wikipedia.org/wiki/Java_memory_model)  
 ```
@@ -192,7 +207,7 @@ A `promise` can send its notification only once.
 	}
 ```
   
-## IV. Challenges
+## V. Challenges
 ### 1. ABA Problem
 ABA means you read a value twice and each time it returns the same value A.  
 Therefore you conclude that nothing changed in between.  
@@ -285,7 +300,7 @@ t2.join();
 ....
   
   
-## C++11 Books:
+## VI. C++11 Books:
 ![1](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/ConcurrencyCoverFrame.png)  
   
 ![2](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/effectivec%2B%2B.jpg)  
