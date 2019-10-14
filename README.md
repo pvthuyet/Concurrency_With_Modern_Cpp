@@ -51,6 +51,35 @@
 ![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/timeline.png)
 
 ## II. Smart Pointer
+Refer to [C++ Smart Pointers - Usage and Secrets - Nicolai Josuttis](https://www.youtube.com/watch?v=XH4xIyS9B2I&t=1336s)
+### 1. std::unique_ptr
+* Use std::unique_ptr for exclusive-ownership resource management
+* Downcasts do not work for unique pointers
+```
+class GeoObj {};
+class Circle : public GeoObj {};
+std::vector<`std::unique_ptr<GeoObj>`> geoObjs;
+geoObjs.emplace_back(`std::make_unique<Circle>(...)`); // Ok, insert circle into collection
+const auto& p = geoObjs[0]; // p is unique_ptr<GeoObj>;
+std::unique_ptr<Circle> cp{p}; // Compile-time Error
+auto cp(dynamic_cast<std::unique_ptr<Circle>>(p); // Compile-time Error
+if (auto cp = dynamic_cast<Circle*>(p.get())) // Ok, use in `if` because of restrict life time
+{
+	// use cp as Circle*
+}
+```
+* Pass std::unique_ptr to function
+```
+void sink(std::unique_ptr<GeoObj> const& up){} // Ok as normal, reference to unique pointer
+void sink(std::unique_ptr<GeoObj> up){} // Ok, pass value only accept move `Herb Sutter` style
+void sink(std::unique_ptr<GeoObj>&& up){} // Ok, pass rvalue only accept move `Scott Meyers` style
+...  
+auto up(std::make_unique<GeoObj>());
+sink(std::move(up));
+`up.release()` // Remember destroy if use std::move
+```
+* Custome Deleter
+
 ## III. Atomic
 * std::atomic is neither copyable nor movable.
 * The primary std::atomic template may be instantiated with any `TriviallyCopyable` type T satisfying both `CopyConstructible` and `CopyAssignable`.
