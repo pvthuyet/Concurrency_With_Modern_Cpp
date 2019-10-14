@@ -92,6 +92,11 @@ sink(std::move(up));
 	fwrite(str, sizeof(char), sizeof(str), up.get());
 ```
 ### 2. std::shared_ptr
+![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/sharedptr.png)
+##### Use std::shared_ptr for shared-owenership resource management
+* std::shared_ptrs are twice the size of a raw pointer
+* Memory for the reference count must be dynamically allocated
+* Increments and decrements of the reference count must be atomic
 ### 3. std::weak_ptr
 ## III. Atomic
 * std::atomic is neither copyable nor movable.
