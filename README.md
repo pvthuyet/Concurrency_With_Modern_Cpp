@@ -169,8 +169,14 @@ Apply the `factory function` template
 	}
 ```
 **OK so far so good, the issue was sorted**  
-
+#### e. std::shared_ptr overhead
+...
+#### f. std::shared_ptr doesn't thread-safe
+...
+#### g. Leak memory
+...
 ### 3. std::weak_ptr
+...
 ## III. Atomic
 * std::atomic is neither copyable nor movable.
 * The primary std::atomic template may be instantiated with any `TriviallyCopyable` type T satisfying both `CopyConstructible` and `CopyAssignable`.
@@ -188,13 +194,6 @@ struct A { int a[100]; };
 std::atomic<A> a;
 assert(std::atomic_is_lock_free(&a)); // false: a is not lock-free
 ```
-#### e. std::shared_ptr overhead
-...
-#### f. std::shared_ptr doesn't thread-safe
-...
-#### g. Leak memory
-...
-
 ## IV. Memory Model
 Before C++11, there was only one contract. The C++ language specification did not include multithreading or atomics. There was no memory model.  
 With C++11 everything has changed. C++11 is the first standard aware of multiple threads. The reason for the well-defined behaviour of threads is the C++ memory model that was heavily inspired by the [Java memory model](https://en.wikipedia.org/wiki/Java_memory_model)  
