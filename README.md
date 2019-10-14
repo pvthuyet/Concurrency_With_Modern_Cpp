@@ -129,7 +129,7 @@ Suppose our program uses `std::shared_ptrs` to manage Widget objects, and we hav
 The output of progam  
 ![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/sharedptrdup.png)
 * The problem is there is 2 control-blocks point to the same Widget object. Hence, the Widget object was destroyed 2 times-> Crash application.
-##### **Solution**
+##### **Solution** by [Scott Meyers](https://www.oreilly.com/library/view/effective-modern-c/9781491908419/)
 * Use `std::enable_shared_from_this`
 * This is [The Curiously Recurring Template Pattern(CRTP)](https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern)
 ```
