@@ -91,6 +91,8 @@ sink(std::move(up));
 	const char str[] = "hello world!\n";
 	fwrite(str, sizeof(char), sizeof(str), up.get());
 ```
+### 2. std::shared_ptr
+### 3. std::weak_ptr
 ## III. Atomic
 * std::atomic is neither copyable nor movable.
 * The primary std::atomic template may be instantiated with any `TriviallyCopyable` type T satisfying both `CopyConstructible` and `CopyAssignable`.
