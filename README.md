@@ -86,8 +86,8 @@ sink(std::move(up));
 	};
 	std::FILE* fp = nullptr;
 	fopen_s(&fp, "test.txt", "w+");
-	std::unique_ptr<std::FILE, decltype(deleter)> up(fp, deleter);
-	//std::unique_ptr<std::FILE, decltype(deleter)> up(fp); // C++20 OK
+	std::unique_ptr<std::FILE, decltype(deleter)> up(fp, deleter); // deleter as type and argument
+	//std::unique_ptr<std::FILE, decltype(deleter)> up(fp); // OK with c++20
 	const char str[] = "hello world!\n";
 	fwrite(str, sizeof(char), sizeof(str), up.get());
 ```
