@@ -54,7 +54,7 @@
 ## III. Atomic
 * std::atomic is neither copyable nor movable.
 * The primary std::atomic template may be instantiated with any `TriviallyCopyable` type T satisfying both `CopyConstructible` and `CopyAssignable`.
-* The size of primaty std::atomic template must be less than cpu bit. (32bit -> template class size 4byte, 64bit -> template class size 8byte)  
+* On MSVC: If not define `_ENABLE_ATOMIC_ALIGNMENT_FIX`, the compiler will complain: `std::atomic<T>` with sizeof(T) equal to 2/4/8 and `alignof(T)` < `sizeof(T)`
 ```
 struct Data { // user-defined trivially-copyable type
 	int x; // 4 byte
@@ -62,7 +62,11 @@ struct Data { // user-defined trivially-copyable type
 	Data() noexcept : x(0), ptr(nullptr)
 	{}
 };
-std::atomic<Data> atm; // this must run on 64bit 
+std::atomic<Data> atm;
+...  
+struct A { int a[100]; };
+std::atomic<A> a;
+assert(std::atomic_is_lock_free(&a)); // false: a is not lock-free
 ```
 
 ## IV. Memory Model
