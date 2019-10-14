@@ -106,6 +106,12 @@ sink(std::move(up));
 	std::unique_ptr<Widget, decltype(deleter)> upw(new Widget, deleter); // deleter as type and argument
 	std::shared_ptr<Widget> spw(new Widget, deleter); // deleter is only at arg
 ```
+#### c. [Cast APIs for std::shared_ptr](https://en.cppreference.com/w/cpp/memory/shared_ptr/pointer_cast)
+* std::static_pointer_cast
+* std::dynamic_pointer_cast
+* std::const_pointer_cast
+* std::reinterpret_pointer_cast
+
 ### 3. std::weak_ptr
 ## III. Atomic
 * std::atomic is neither copyable nor movable.
