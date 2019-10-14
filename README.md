@@ -93,11 +93,11 @@ sink(std::move(up));
 ```
 ### 2. std::shared_ptr
 ![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/sharedptr.png)
-#### Use std::shared_ptr for shared-owenership resource management
+#### a. Use std::shared_ptr for shared-owenership resource management
 * std::shared_ptrs are twice the size of a raw pointer
 * Memory for the reference count must be dynamically allocated
 * Increments and decrements of the reference count must be atomic
-#### Custom deleter
+#### b. Custom deleter
 ```
 	auto deleter = [](Widget* pw) {
 		delete pw;
