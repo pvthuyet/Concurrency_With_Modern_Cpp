@@ -182,9 +182,9 @@ Apply the `factory function` template
 * The primary std::atomic template may be instantiated with any `TriviallyCopyable` type T satisfying both `CopyConstructible` and `CopyAssignable`.  
 What is trivially copyable?  
 ```
-	Continuous chunk of memory
-	Copying the object means copying all bits (memcpy)
-	No virtual function, noexcept constructor
+	1. Continuous chunk of memory
+	2. Copying the object means copying all bits (memcpy)
+	3. No virtual function, noexcept constructor
 ```
 * On MSVC: If not define `_ENABLE_ATOMIC_ALIGNMENT_FIX`, the compiler will complain: `std::atomic<T>` with sizeof(T) equal to 2/4/8 and `alignof(T)` < `sizeof(T)`
 ```
