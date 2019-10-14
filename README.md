@@ -56,17 +56,17 @@ Refer to [C++ Smart Pointers - Usage and Secrets - Nicolai Josuttis](https://www
 * Use std::unique_ptr for exclusive-ownership resource management
 * Downcasts do not work for unique pointers
 ```
-class GeoObj {};
-class Circle : public GeoObj {};
-std::vector<`std::unique_ptr<GeoObj>`> geoObjs;
-geoObjs.emplace_back(`std::make_unique<Circle>(...)`); // Ok, insert circle into collection
-const auto& p = geoObjs[0]; // p is unique_ptr<GeoObj>;
-std::unique_ptr<Circle> cp{p}; // Compile-time Error
-auto cp(dynamic_cast<std::unique_ptr<Circle>>(p); // Compile-time Error
-if (auto cp = dynamic_cast<Circle*>(p.get())) // Ok, use in `if` because of restrict life time
-{
-	// use cp as Circle*
-}
+	class GeoObj {};
+	class Circle : public GeoObj {};
+	std::vector< std::unique_ptr<GeoObj> > geoObjs;
+	geoObjs.emplace_back( std::make_unique<Circle>(...) ); // Ok, insert circle into collection
+	const auto& p = geoObjs[0]; // p is unique_ptr<GeoObj>;
+	std::unique_ptr<Circle> cp{p}; // Compile-time Error
+	auto cp(dynamic_cast<std::unique_ptr<Circle>>(p); // Compile-time Error
+	if (auto cp = dynamic_cast<Circle*>(p.get())) // Ok, use in `if` because of restrict life time
+	{
+		// use cp as Circle*
+	}
 ```
 * Pass std::unique_ptr to function
 ```
@@ -76,7 +76,7 @@ void sink(std::unique_ptr<GeoObj>&& up){} // Ok, pass rvalue only accept move `S
 ...  
 auto up(std::make_unique<GeoObj>());
 sink(std::move(up));
-`up.release()` // Remember destroy up after using std::move
+up.release(); // Remember destroy up after using std::move
 ```
 * Custome Deleter
 ```
@@ -111,7 +111,63 @@ sink(std::move(up));
 * std::dynamic_pointer_cast
 * std::const_pointer_cast
 * std::reinterpret_pointer_cast
-
+#### d. Duplicate `Control block` Issue
+Suppose our program uses `std::shared_ptrs` to manage Widget objects, and we have a data structure that keeps track of Widgets that have been processed.
+```
+	class Widget {
+	public:
+		void process(std::vector< std::shared_ptr<Widget> > &widgets) {
+			widgets.emplace_back(this); // Create new control-block and point to the same Widget object.
+		}
+	}
+	int main() {
+		std::vector< std::shared_ptr<Widget> > processedWidgets;
+		auto spw = std::make_shared<Widget>(); // Create a control-block and point to new Widget object
+		spw->process(processedWidgets);
+	}
+```
+The output of progam  
+![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/sharedptrdup.png)
+* The problem is there is 2 control-blocks point to the same Widget object. Hence, the Widget object was destroyed 2 times-> Crash application.
+##### **Solution**
+* Use `std::enable_shared_from_this`
+* This is [The Curiously Recurring Template Pattern(CRTP)](https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern)
+```
+	class Widget : public std::enable_shared_from_this<Widget> {
+	public:
+		void process(std::vector< std::shared_ptr<Widget> > &widgets) {
+			widgets.emplace_back(shared_from_this()); // Look-up control-block
+		}
+	}
+	int main() {
+		std::vector< std::shared_ptr<Widget> > processedWidgets;
+		auto spw = std::make_shared<Widget>();
+		spw->process(processedWidgets);
+	}
+```
+Ok, so far so good, `shared_from_this` looks up the control block for the current object, and it creates a new std::shared_ptr tha refers to that control block.  
+But in case the control block has not existed, `shared_from_this` will throw exception. For example if change `auto spw = std::make_shared<Widget>();` -> `Widget* spw = new Widget();`  
+Therefore, we must make sure the `std::shared_ptr` already existed before call `process()`  
+Apply the `factory function` template  
+```
+	class Widget : public std::enable_shared_from_this<Widget> {
+	private:
+		Widget() = default; // Invisiable constructor
+	public:
+		template<typename... Args>
+		static std::shared_ptr<Widget> create(Args&&... params) {
+			return std::shared_ptr<Widget>(new Widget(std::forward<Args>(params)...));
+		}
+		void process(std::vector< std::shared_ptr<Widget> > &widgets) {
+			widgets.emplace_back(shared_from_this()); // Look-up control-block
+		}
+	}
+	int main() {
+		std::vector< std::shared_ptr<Widget> > processedWidgets;
+		auto spw = Widget::create();
+		spw->process(processedWidgets);
+	}
+```
 ### 3. std::weak_ptr
 ## III. Atomic
 * std::atomic is neither copyable nor movable.
