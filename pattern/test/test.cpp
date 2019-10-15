@@ -20,7 +20,7 @@ void terminal(int signal)
 	delete (tvp::acqrelspin::Singleton::getInstance());
 	delete (tvp::seqcst::Singleton::getInstance());	
 	delete (&tvp::onceflag::Singleton::getInstance());
-	delete (&tvp::spinlock::Singleton::getInstance());
+	delete (&tvp::smtsgl::Singleton::getInstance());
 	delete (&tvp::lock::Singleton::getInstance());	
 	delete (tvp::Logger::getInstance());
 }
@@ -210,11 +210,11 @@ std::chrono::duration<double> getTimeSpin()
 	auto begin = std::chrono::system_clock::now();
 	for (size_t i = 0; i <= tenMill; ++i)
 	{
-		tvp::spinlock::Singleton::getInstance().test();
+		tvp::smtsgl::Singleton::getInstance().test();
 	}
 	return std::chrono::system_clock::now() - begin;
 };
-void testSpinlock()
+void testSpinMutex()
 {
 	std::vector<FutDura> vt;
 	vt.reserve(NUM_THREAD);
@@ -284,7 +284,7 @@ int main()
 			}
 			else if (s == "6")
 			{
-				testSpinlock(); 
+				testSpinMutex(); 
 				gLogger->debug("\n", true, true);
 			}
 			else if (s == "7")
@@ -312,7 +312,7 @@ int main()
 				testOnceFlag();
 				gLogger->debug("\tFunction onceflag\n", true, true);
 
-				testSpinlock(); 
+				testSpinMutex(); 
 				gLogger->debug("\tSpin lock\n", true, true);
 
 				testLock(); 

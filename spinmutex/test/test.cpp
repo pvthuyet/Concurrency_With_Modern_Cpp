@@ -3,10 +3,11 @@
 
 #include "pch.h"
 #include <iostream>
-#include "../Spinlock.h"
+#include "../SpinMutex.h"
 #include <thread>
+#include <mutex>
 
-tvp::lockfree::Spinlock spin;
+tvp::SpinMutex spin;
 int data = 0;
 
 void workOnResource(int v)
@@ -14,7 +15,7 @@ void workOnResource(int v)
 	for (int i = 0; i < 10; ++i)
 	{
 		{
-			//tvp::lockfree::LockGuard lk(spin);
+			//std::lock_guard<tvp::SpinMutex> lk(spin);
 			data += v;
 			std::cout << data << std::endl;
 		}
@@ -27,7 +28,7 @@ void print()
 	while (data > 0)
 	{
 		{
-			tvp::lockfree::LockGuard lk(spin);
+			std::lock_guard<tvp::SpinMutex> lk(spin);
 			std::cout << data << std::endl;
 			--data;
 		}

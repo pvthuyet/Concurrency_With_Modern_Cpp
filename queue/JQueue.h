@@ -7,7 +7,7 @@
 #include <chrono>
 #include <limits>
 #include "../utils/JExeption.h"
-#include "../spinlock/Spinlock.h"
+#include "../SpinMutex/SpinMutex.h"
 
 namespace tvp 
 {
@@ -26,7 +26,7 @@ namespace tvp
 		std::unique_ptr<node> mHeadNode;
 
 		//std::mutex mTailMux;
-		tvp::lockfree::Spinlock mTailMux; // Using lock-free
+		tvp::SpinMutex mTailMux; // Using lock-free
 		node* mTailNode;
 
 		// Number of elements
@@ -39,7 +39,7 @@ namespace tvp
 		JQueue<T>::node* getTail() 
 		{
 			//std::lock_guard<std::mutex> lock(mTailMux);
-			tvp::lockfree::LockGuard lock(mTailMux); // Using lock-free
+			std::lock_guard<tvp::SpinMutex> lock(mTailMux); // Using lock-free
 			return mTailNode;
 		}
 
@@ -155,7 +155,7 @@ namespace tvp
 			node* const newTail = p.get();
 			{
 				//std::lock_guard<std::mutex> lock(mTailMux);
-				tvp::lockfree::LockGuard lock(mTailMux); // Using lock-free
+				std::lock_guard<tvp::SpinMutex> lock(mTailMux); // Using lock-free
 				mTailNode->data = newData;
 				mTailNode->next = std::move(p);
 				mTailNode = newTail;
@@ -196,4 +196,69 @@ namespace tvp
 			return mSize.load(std::memory_order_relaxed);
 		}
 	};
+
+	namespace lookfree
+	{
+		template<typename T>
+		class JQueue
+		{
+		private:
+			struct Node
+			{
+				std::shared_ptr<T> mData;
+				Node* mNext;
+				Node() noexcept : 					
+					mNext(nullptr)
+				{}
+			};
+			std::atomic<Node*> mHead;
+			std::atomic<Node*> mTail;
+
+			Node* popHead()
+			{
+				Node* const oldHead = mHead.load();
+				if (oldHead == mTail.load())
+					return nullptr;
+				mHead.store(oldHead->mNext);
+				return oldHead;
+			}
+
+		public:
+			JQueue() :
+				mHead(new Node),	//create a draf node
+				mTail(mHead.load)
+			{}
+
+			JQueue(const JQueue& other) = delete;
+			JQueue& operator=(const JQueue& other) = delete;
+			~JQueue()
+			{
+				while (Node* const oldHead = mHead.load()) 
+				{
+					mHead.store(oldHead->mNext);
+					delete oldHead;
+				}
+			}
+
+			std::shared_ptr<T> pop()
+			{
+				Node* oldHead = popHead();
+				if (!oldHead)
+					return std::shared_ptr<T>();
+				std::shared_ptr<T> const res(oldHead->mData);
+				delete oldHead;
+				return res;
+			}
+
+			void push(T const& val)
+			{
+				auto newVal(std::make_shared<T>(val));
+				Node* p = new Node;
+				Node* const oldTail = mTail.load();
+				oldTail->mData.swap(newVal);
+				oldTail->mNext = p;
+				mTail.store(p);
+			}
+		};
+	}
 }

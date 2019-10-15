@@ -4,7 +4,7 @@
 #include <atomic>
 #include "../utils/Utils.h"
 #include "../logger/Logger.h"
-#include "../spinlock/Spinlock.h"
+#include "../spinmutex/SpinMutex.h"
 
 namespace tvp
 {
@@ -135,7 +135,7 @@ namespace tvp
 		{
 		private:
 			static std::atomic<Singleton*> mInstance;
-			static tvp::lockfree::Spinlock mSpin;
+			static tvp::SpinMutex mSpin;
 
 			unsigned int mId;
 
@@ -159,7 +159,7 @@ namespace tvp
 				Singleton* sin = mInstance.load(std::memory_order_acquire);
 				if (!sin)
 				{
-					tvp::lockfree::LockGuard lk(mSpin);
+					std::lock_guard<tvp::SpinMutex> lk(mSpin);
 					sin = mInstance.load(std::memory_order_relaxed); //double - checked locking pattern.
 					if (!sin)
 					{
@@ -176,7 +176,7 @@ namespace tvp
 			}
 		};
 		std::atomic<Singleton*> Singleton::mInstance(nullptr);
-		tvp::lockfree::Spinlock Singleton::mSpin;
+		tvp::SpinMutex Singleton::mSpin;
 	}
 
 	namespace seqcst
@@ -281,14 +281,14 @@ namespace tvp
 		std::once_flag Singleton::mOnceFlag;
 	}
 
-	namespace spinlock
+	namespace smtsgl
 	{
 		class Singleton
 		{
 		private:
 			static Singleton* mInstance;
 			unsigned int mId;
-			static tvp::lockfree::Spinlock mSpin;
+			static tvp::SpinMutex mSpin;
 
 		private:
 			explicit Singleton(unsigned int id) noexcept :
@@ -308,7 +308,7 @@ namespace tvp
 
 			static Singleton& getInstance()
 			{
-				tvp::lockfree::LockGuard lk(mSpin);
+				std::lock_guard<tvp::SpinMutex> lk(mSpin);
 				if (!mInstance)
 				{
 					mInstance = new Singleton(8);
@@ -322,7 +322,7 @@ namespace tvp
 			}
 		};
 		Singleton* Singleton::mInstance = nullptr;
-		tvp::lockfree::Spinlock Singleton::mSpin;
+		tvp::SpinMutex Singleton::mSpin;
 	}
 
 	namespace lock

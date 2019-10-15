@@ -65,12 +65,12 @@ void testQueue()
 
 	// All threads must destroy befor queue
 	{		
-		constexpr std::size_t N = 34;
-		constexpr std::size_t div = 2;
+		constexpr int N = 34;
+		constexpr int div = 2;
 		std::vector<std::unique_ptr<tvp::JThread> > threads;
-		for (std::size_t i = 0; i < N; ++i)
+		for (int i = 0; i < N; ++i)
 		{
-			std::size_t r = tvp::Utils::randomNum(0, 10);
+			int r = tvp::Utils::randomNum(0, 10);
 			if (r % div == 0)
 				threads.emplace_back(std::make_unique<tvp::JThread>(popF));
 			else
@@ -81,7 +81,7 @@ void testQueue()
 			tvp::Logger* gLogger = tvp::Logger::getInstance();
 			std::this_thread::sleep_for(std::chrono::milliseconds(30000));
 			que.shutdown();
-			for (unsigned int i = 0; i < threads.size(); ++i)
+			for (int i = 0; i < threads.size(); ++i)
 			{
 				std::this_thread::sleep_for(std::chrono::milliseconds(100));
 				gLogger->debug(tvp::Utils::getThreadId() + " STOP THREAD " + std::to_string(i) + "\n");

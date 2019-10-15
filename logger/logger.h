@@ -4,7 +4,7 @@
 #include <iostream>
 #include <atomic>
 #include "../utils/utils.h"
-#include "../spinlock/Spinlock.h"
+#include "../SpinMutex/SpinMutex.h"
 
 namespace tvp
 {
@@ -17,11 +17,11 @@ namespace tvp
 	{
 	private:
 		// Sync for writing
-		tvp::lockfree::Spinlock mFileSpin;
+		tvp::SpinMutex mFileSpin;
 		std::ofstream mFile;
 
 		// Singleton class
-		static tvp::lockfree::Spinlock mInitSpin;
+		static tvp::SpinMutex mInitSpin;
 		static std::atomic< tvp::Logger* > mInst;
 
 		explicit Logger(std::string const& fileName)
@@ -43,7 +43,7 @@ namespace tvp
 			tvp::Logger* log = mInst.load(std::memory_order_acquire);
 			if (!log)
 			{
-				tvp::lockfree::LockGuard lock(mInitSpin);
+				std::lock_guard<tvp::SpinMutex> lock(mInitSpin);
 				log = mInst.load(std::memory_order_relaxed);
 				if (!log)
 				{
@@ -60,7 +60,7 @@ namespace tvp
 			std::string str;
 			str = msgOnly ? msg : (tvp::Utils::getDateTime() + "\t" + DEBUG_LEVEL + "\t" + msg);
 			{
-				tvp::lockfree::LockGuard lock(mFileSpin);
+				std::lock_guard<tvp::SpinMutex> lock(mFileSpin);
 				mFile.write(str.c_str(), str.size());
 				mFile.flush();
 				if (console)
@@ -71,6 +71,6 @@ namespace tvp
 		}
 	};
 
-	tvp::lockfree::Spinlock tvp::Logger::mInitSpin;
+	tvp::SpinMutex tvp::Logger::mInitSpin;
 	std::atomic<tvp::Logger*> tvp::Logger::mInst(nullptr);
 }
