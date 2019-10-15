@@ -199,66 +199,73 @@ namespace tvp
 
 	namespace lookfree
 	{
-		template<typename T>
-		class JQueue
+		namespace referencecount
 		{
-		private:
-			struct Node
+			template<typename T>
+			class JQueue
 			{
-				std::shared_ptr<T> mData;
-				Node* mNext;
-				Node() noexcept : 					
-					mNext(nullptr)
-				{}
-			};
-			std::atomic<Node*> mHead;
-			std::atomic<Node*> mTail;
-
-			Node* popHead()
-			{
-				Node* const oldHead = mHead.load();
-				if (oldHead == mTail.load())
-					return nullptr;
-				mHead.store(oldHead->mNext);
-				return oldHead;
-			}
-
-		public:
-			JQueue() :
-				mHead(new Node),	//create a draf node
-				mTail(mHead.load)
-			{}
-
-			JQueue(const JQueue& other) = delete;
-			JQueue& operator=(const JQueue& other) = delete;
-			~JQueue()
-			{
-				while (Node* const oldHead = mHead.load()) 
+			private:
+				struct Node;
+				struct CountedNodePtr
 				{
-					mHead.store(oldHead->mNext);
-					delete oldHead;
+					int mExternalCount;
+					Node* mPtr;
+					CountedNodePtr() noexcept :
+						mExternalCount(0),
+						mPtr(nullptr)
+					{}
+				};
+
+				std::atomic<CountedNodePtr> mHead;
+				std::atomic<CountedNodePtr> mTail;
+
+				struct NodeCounter
+				{
+					unsigned mInternalCount : 30;
+					unsigned mExternalCounters : 2;
+				};
+
+				struct Node
+				{
+					std::atomic<T*> mData;
+					std::atomic<NodeCounter> mCount;
+					CountedNodePtr mNext;
+					Node()
+					{
+						NodeCounter newCounter;
+						newCounter.mInternalCount = 0;
+						newCounter.mExternalCounters = 2;
+						mCount.store(newCounter);
+
+						mNext.mPtr = nullptr;
+						mNext.mExternalCount = 0;
+					}
+				};
+
+			public:
+				void push(T newVal)
+				{
+					auto newData = std::make_unique<T>(newVal);
+					CountedNodePtr newNext;
+					newNext.mPtr = new Node;
+					newNext.mExternalCount = 1;
+					CountedNodePtr oldTail = mTail.load();
+					for (;;)
+					{
+						increaseExternalCount(mTail, oldTail);
+						T* oldData = nullptr;
+						if (oldTail.mPtr->mData.compare_exchange_strong(oldData, newData.get()))
+						{
+							oldTail.mPtr->mNext = newNext;
+							oldTail = mTail.exchange(newNext);
+							freeExternalCounter(oldTail);
+							newData.release();
+							break;
+						}
+						oldTail.mPtr->releaseRef();
+					}
 				}
-			}
-
-			std::shared_ptr<T> pop()
-			{
-				Node* oldHead = popHead();
-				if (!oldHead)
-					return std::shared_ptr<T>();
-				std::shared_ptr<T> const res(oldHead->mData);
-				delete oldHead;
-				return res;
-			}
-
-			void push(T const& val)
-			{
-				auto newVal(std::make_shared<T>(val));
-				Node* p = new Node;
-				Node* const oldTail = mTail.load();
-				oldTail->mData.swap(newVal);
-				oldTail->mNext = p;
-				mTail.store(p);
-			}
-		};
+			};
+		}
 	}
 }
