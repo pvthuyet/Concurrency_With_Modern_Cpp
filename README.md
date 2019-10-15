@@ -112,6 +112,7 @@ up.release(); // Remember destroy up after using std::move
 * std::const_pointer_cast
 * std::reinterpret_pointer_cast
 #### d. Duplicate `Control block` Issue
+![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/sharedptrerr1.png)  
 Suppose our program uses `std::shared_ptrs` to manage Widget objects, and we have a data structure that keeps track of Widgets that have been processed.
 ```
 	class Widget {
@@ -174,12 +175,21 @@ Apply the `factory function` template
 #### f. std::shared_ptr doesn't thread-safe
 ...
 #### g. Leak memory
+![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/sharedptrleak.png)
+
 ...
 ### 3. std::weak_ptr
+![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/sharedptrleakfix_.png)
 ...
 ## III. Atomic
 * std::atomic is neither copyable nor movable.
-* The primary std::atomic template may be instantiated with any `TriviallyCopyable` type T satisfying both `CopyConstructible` and `CopyAssignable`.
+* The primary std::atomic template may be instantiated with any `TriviallyCopyable` type T satisfying both `CopyConstructible` and `CopyAssignable`.  
+What is trivially copyable?  
+```
+	1. Continuous chunk of memory
+	2. Copying the object means copying all bits (memcpy)
+	3. No virtual function, noexcept constructor
+```
 * On MSVC: If not define `_ENABLE_ATOMIC_ALIGNMENT_FIX`, the compiler will complain: `std::atomic<T>` with sizeof(T) equal to 2/4/8 and `alignof(T)` < `sizeof(T)`
 ```
 struct Data { // user-defined trivially-copyable type
@@ -430,6 +440,7 @@ t2.join();
   
   
 ## VI. C++11 Books:
+[ModernesCpp by Rainer Grimm](http://www.modernescpp.com/index.php)  
 ![1](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/ConcurrencyCoverFrame.png)  
   
 ![2](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/effectivec%2B%2B.jpg)  
