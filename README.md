@@ -175,11 +175,11 @@ Apply the `factory function` template
 #### f. std::shared_ptr doesn't thread-safe
 ...
 #### g. Leak memory
-![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/sharedptrleak.png)
+![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/sharedptrleak_.png)
 
 ...
 ### 3. std::weak_ptr
-![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/sharedptrleakfix_.png)
+![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/sharedptrleakfix.png)
 ...
 ## III. Atomic
 * std::atomic is neither copyable nor movable.
