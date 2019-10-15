@@ -176,9 +176,10 @@ Apply the `factory function` template
 ...
 #### g. Leak memory
 ![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/sharedptrleak.png)
-![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/sharedptrleakfix_.png)
+
 ...
 ### 3. std::weak_ptr
+![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/sharedptrleakfix_.png)
 ...
 ## III. Atomic
 * std::atomic is neither copyable nor movable.
