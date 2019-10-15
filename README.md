@@ -112,6 +112,7 @@ up.release(); // Remember destroy up after using std::move
 * std::const_pointer_cast
 * std::reinterpret_pointer_cast
 #### d. Duplicate `Control block` Issue
+![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/sharedptrerr1.png)
 Suppose our program uses `std::shared_ptrs` to manage Widget objects, and we have a data structure that keeps track of Widgets that have been processed.
 ```
 	class Widget {
