@@ -440,6 +440,7 @@ t2.join();
   
   
 ## VI. C++11 Books:
+[ModernesCpp by Rainer Grimm](http://www.modernescpp.com/index.php)  
 ![1](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/ConcurrencyCoverFrame.png)  
   
 ![2](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/effectivec%2B%2B.jpg)  
