@@ -181,8 +181,11 @@ Apply the `factory function` template
 #### e. std::shared_ptr overhead
 There is overhead if sending std::shared_ptr value to much (pass by argument value of function)  
 *Should pass by reference of std::shared_ptr*
-#### f. std::shared_ptr doesn't thread-safe
-...
+#### f. Are std::shared_ptr, std::weak_ptr thread-safe??
+[Refer to Rainer Grimm](https://www.modernescpp.com/index.php/atomic-smart-pointers)  
+A `std::shared_ptr` consists of a control block and its resource:
+* The control block is thread-safe: That means, modifying the reference counter is an atomic operation and you have the guarantee that the resource will be deleted exactly once.
+* The access to the resource is not thread-safe.
 #### g. Leak memory
 * This is circlic references issue of std::shared_ptr  
 ![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/sharedptrleak_.png)  
