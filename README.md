@@ -179,7 +179,7 @@ Apply the `factory function` template
 ```
 **OK so far so good, the issue was sorted**  
 #### e. std::shared_ptr overhead
-...
+There is overhead if sending std::shared_ptr value to much (pass by argument value of function)
 #### f. std::shared_ptr doesn't thread-safe
 ...
 #### g. Leak memory
