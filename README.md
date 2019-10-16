@@ -175,11 +175,25 @@ Apply the `factory function` template
 #### f. std::shared_ptr doesn't thread-safe
 ...
 #### g. Leak memory
-![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/sharedptrleak_.png)
-
-...
+* This is circlic references issue of std::shared_ptr
+![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/sharedptrleak_.png)  
+In this case, we cannot use raw pointer because if A is destroyed, B will contain a pointer to A that will dangle.  
+B won't be able to detect that, so B may in advertently dereference the dangling pointers.  
+Thank to `std::weak_ptr`
 ### 3. std::weak_ptr
-![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/sharedptrleakfix.png)
+* Allow to share but not own an object or resource
+* `Pointer that knows when it dangles`(Scott Meyers)
+* Resolve the circlic reference issue of `std::shared_ptr` and `raw pointer`
+![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/sharedptrleakfix.png)  
+* Potential use cases for std::weak_ptr include caching, observer lists.
+* Using a std::weak_ptr
+```
+	1. No pointer interface
+	2. Access to the resource through a temporary shared pointer
+		std::weak_ptr<R> wp;
+		if (auto p = wp.lock())
+			p->callMember()
+```
 ...
 ## III. Atomic
 * std::atomic is neither copyable nor movable.
