@@ -194,7 +194,7 @@ Thank to `std::weak_ptr`
 		if (auto p = wp.lock())
 			p->callMember()
 ```
-...
+* But be aware that `std::weak_ptr` might hold memory if use with `std::make_shared<R>` to create `td::shared_ptr`
 ## III. Atomic
 * std::atomic is neither copyable nor movable.
 * The primary std::atomic template may be instantiated with any `TriviallyCopyable` type T satisfying both `CopyConstructible` and `CopyAssignable`.  
