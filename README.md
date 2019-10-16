@@ -119,7 +119,7 @@ up.release(); // Remember destroy up after using std::move
 	std::shared_ptr<int> sp1(p);
 	std::shared_ptr<int> sp2(p);
 ```
-**Create a std::shared_ptr from raw pointer is bad idea**  
+**(*)Node**Create a std::shared_ptr from raw pointer is bad idea**  
 * Second exmaple:  
 Suppose our program uses `std::shared_ptrs` to manage Widget objects, and we have a data structure that keeps track of Widgets that have been processed.
 ```
