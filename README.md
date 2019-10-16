@@ -175,7 +175,7 @@ Apply the `factory function` template
 #### f. std::shared_ptr doesn't thread-safe
 ...
 #### g. Leak memory
-* This is circlic references issue of std::shared_ptr
+* This is circlic references issue of std::shared_ptr  
 ![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/sharedptrleak_.png)  
 In this case, we cannot use raw pointer because if A is destroyed, B will contain a pointer to A that will dangle.  
 B won't be able to detect that, so B may in advertently dereference the dangling pointers.  
