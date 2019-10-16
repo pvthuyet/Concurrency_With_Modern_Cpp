@@ -185,7 +185,8 @@ There is overhead if sending std::shared_ptr value to much (pass by argument val
 [Refer to Rainer Grimm](https://www.modernescpp.com/index.php/atomic-smart-pointers)  
 A `std::shared_ptr` consists of a control block and its resource:
 * The control block is thread-safe: That means, modifying the reference counter is an atomic operation and you have the guarantee that the resource will be deleted exactly once.
-* The access to the resource is not thread-safe.
+* The access to the resource is not thread-safe.  
+* [Atomic smart pointers support by C++20](https://en.cppreference.com/w/cpp/experimental/atomic_shared_ptr)
 #### g. Leak memory
 * This is circlic references issue of std::shared_ptr  
 ![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/sharedptrleak_.png)  
