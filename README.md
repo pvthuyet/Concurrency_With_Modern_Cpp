@@ -196,7 +196,7 @@ Thank to `std::weak_ptr`
 ### 3. std::weak_ptr
 * Allow to share but not own an object or resource
 * `Pointer that knows when it dangles`(Scott Meyers)
-* Resolve the circlic reference issue of `std::shared_ptr` and `raw pointer`
+* Resolve the circlic reference issue of `std::shared_ptr` and `raw pointer`  
 ![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/sharedptrleakfix.png)  
 * Potential use cases for std::weak_ptr include caching, observer lists.
 * Using a std::weak_ptr
