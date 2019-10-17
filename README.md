@@ -4,8 +4,10 @@
 - `std::shared_ptr`, `std::make_shared`
 - `std::weak_ptr`
 ##### 2. Rvalue references, Move Semantics, and Perfect Forwarding
-- `std::move`
-- `std::forward`
+- `lvalue`: correspond to objects you can refer to, either by name or by following a pointer or lvalue reference.
+- `rvalue`: correspond to temporary objects returned from functions.
+- `std::move`: performs an unconditionally casts its input into an rvalue reference. It doesn't move anything.
+- `std::forward`: casts its argument to an rvalue only if that argument is bound to an rvalue. It doesn't forward anything.
 ##### 3. Lambda Expressions
 ##### 4. Concurrency API
 - `std::thread`
