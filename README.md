@@ -7,7 +7,9 @@
 - `lvalue`: correspond to objects you can refer to, either by name or by following a pointer or lvalue reference.
 - `rvalue`: correspond to temporary objects returned from functions.
 - `std::move`: performs an unconditionally casts its input into an rvalue reference. It doesn't move anything.
-- `std::forward`: casts its argument to an rvalue only if that argument is bound to an rvalue. It doesn't forward anything.
+- `std::forward`: casts its argument to an rvalue only if that argument is bound to an rvalue. It doesn't forward anything.  
+[The Nightmare of Move Semantics for Trivial Classes](https://www.youtube.com/watch?v=PNRju6_yn3o&list=PLKtBMOPB5ra9DeN_N6jEDg0eY07_sgTtk&index=7&t=10s)  
+[Code example](https://github.com/pvthuyet/Concurrency_With_Modern_Cpp/blob/master/universalreference/Customer.h)
 ##### 3. Lambda Expressions
 ##### 4. Concurrency API
 - `std::thread`
