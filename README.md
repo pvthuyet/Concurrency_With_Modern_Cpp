@@ -4,8 +4,12 @@
 - `std::shared_ptr`, `std::make_shared`
 - `std::weak_ptr`
 ##### 2. Rvalue references, Move Semantics, and Perfect Forwarding
-- `std::move`
-- `std::forward`
+- `lvalue`: correspond to objects you can refer to, either by name or by following a pointer or lvalue reference.
+- `rvalue`: correspond to temporary objects returned from functions.
+- `std::move`: performs an unconditionally casts its input into an rvalue reference. It doesn't move anything.
+- `std::forward`: casts its argument to an rvalue only if that argument is bound to an rvalue. It doesn't forward anything.  
+[The Nightmare of Move Semantics for Trivial Classes](https://www.youtube.com/watch?v=PNRju6_yn3o&list=PLKtBMOPB5ra9DeN_N6jEDg0eY07_sgTtk&index=7&t=10s)  
+[Code example](https://github.com/pvthuyet/Concurrency_With_Modern_Cpp/blob/master/universalreference/Customer.h)
 ##### 3. Lambda Expressions
 ##### 4. Concurrency API
 - `std::thread`
@@ -113,6 +117,14 @@ up.release(); // Remember destroy up after using std::move
 * std::reinterpret_pointer_cast
 #### d. Duplicate `Control block` Issue
 ![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/sharedptrerr1.png)  
+* First exmaple:  
+```
+	int* p = new int;
+	std::shared_ptr<int> sp1(p);
+	std::shared_ptr<int> sp2(p);
+```
+**(*)Node** : *create a std::shared_ptr from raw pointer is bad idea*  
+* Second exmaple:  
 Suppose our program uses `std::shared_ptrs` to manage Widget objects, and we have a data structure that keeps track of Widgets that have been processed.
 ```
 	class Widget {
@@ -171,17 +183,37 @@ Apply the `factory function` template
 ```
 **OK so far so good, the issue was sorted**  
 #### e. std::shared_ptr overhead
-...
-#### f. std::shared_ptr doesn't thread-safe
-...
+There is overhead if sending std::shared_ptr value to much (pass by argument value of function)  
+*Should pass by reference of std::shared_ptr*
+#### f. Are std::shared_ptr, std::weak_ptr thread-safe??
+[Refer to Rainer Grimm](https://www.modernescpp.com/index.php/atomic-smart-pointers)  
+A `std::shared_ptr` consists of a control block and its resource:
+* The control block is thread-safe: That means, modifying the reference counter is an atomic operation and you have the guarantee that the resource will be deleted exactly once.
+* The access to the resource is not thread-safe.  
+* [Atomic smart pointers support by C++20](https://en.cppreference.com/w/cpp/experimental/atomic_shared_ptr)
 #### g. Leak memory
-![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/sharedptrleak.png)
-
-...
+* This is circlic references issue of std::shared_ptr  
+![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/sharedptrleak_.png)  
+In this case, we cannot use raw pointer because if A is destroyed, B will contain a pointer to A that will dangle.  
+B won't be able to detect that, so B may in advertently dereference the dangling pointers.  
+Thank to `std::weak_ptr`
 ### 3. std::weak_ptr
-![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/sharedptrleakfix_.png)
-...
+* Allow to share but not own an object or resource
+* `Pointer that knows when it dangles`(Scott Meyers)
+* Resolve the circlic reference issue of `std::shared_ptr` and `raw pointer`  
+![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/sharedptrleakfix.png)  
+* Potential use cases for std::weak_ptr include caching, observer lists.
+* Using a std::weak_ptr
+```
+	1. No pointer interface
+	2. Access to the resource through a temporary shared pointer
+		std::weak_ptr<R> wp;
+		if (auto p = wp.lock())
+			p->callMember()
+```
+* But be aware that `std::weak_ptr` might hold memory if use with `std::make_shared<R>` to create `td::shared_ptr`
 ## III. Atomic
+Refer [Fedor Pikus talked](https://www.youtube.com/watch?v=ZQFzMfHIxng&list=PLKtBMOPB5ra9DeN_N6jEDg0eY07_sgTtk&index=6&t=3143s)
 * std::atomic is neither copyable nor movable.
 * The primary std::atomic template may be instantiated with any `TriviallyCopyable` type T satisfying both `CopyConstructible` and `CopyAssignable`.  
 What is trivially copyable?  
@@ -204,6 +236,8 @@ struct A { int a[100]; };
 std::atomic<A> a;
 assert(std::atomic_is_lock_free(&a)); // false: a is not lock-free
 ```
+![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/atomic.png)  
+(*) **Note that doesn't full support for `std::atomic<float>`, `std::atomic<double>` until C++20**
 ## IV. Memory Model
 Before C++11, there was only one contract. The C++ language specification did not include multithreading or atomics. There was no memory model.  
 With C++11 everything has changed. C++11 is the first standard aware of multiple threads. The reason for the well-defined behaviour of threads is the C++ memory model that was heavily inspired by the [Java memory model](https://en.wikipedia.org/wiki/Java_memory_model)  
