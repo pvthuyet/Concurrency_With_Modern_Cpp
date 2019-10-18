@@ -95,12 +95,18 @@ void testQueue()
 	}
 }
 
+void testFreelockQueue()
+{
+	tvp::lookfree::referencecount::JQueue<int> que;
+}
+
 int main()
 {
 	tvp::Logger* gLogger = tvp::Logger::getInstance();
 	try
 	{
-		testQueue();
+		//testQueue();
+		testFreelockQueue();
 	}
 	catch (...)
 	{

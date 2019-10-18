@@ -240,7 +240,54 @@ namespace tvp
 						mNext.mPtr = nullptr;
 						mNext.mExternalCount = 0;
 					}
+
+					void releaseRef()
+					{
+						NodeCounter oldCounter = mCount.load(std::memory_order_relaxed);
+						NodeCounter newCounter;
+						do
+						{
+							newCounter = oldCounter;
+							--(newCounter.mInternalCount);
+						} while (!mCount.compare_exchange_strong(oldCounter, newCounter, std::memory_order_acquire, std::memory_order_relaxed));
+						
+						if (!newCounter.mInternalCount && !newCounter.mExternalCounters)
+						{
+							delete this;
+						}
+					}
 				};
+
+				static void increaseExternalCount(std::atomic<CountedNodePtr>& counter, CountedNodePtr& oldCounter)
+				{
+					CountedNodePtr newCounter;
+					do
+					{
+						newCounter = oldCounter;
+						++(newCounter.mExternalCount);
+					} while (!counter.compare_exchange_strong(oldCounter, newCounter, std::memory_order_acquire, std::memory_order_relaxed));
+
+					oldCounter.mExternalCount = newCounter.mExternalCount;
+				}
+
+				static void freeExternalCounter(CountedNodePtr& oldNodePtr)
+				{
+					Node* const ptr = oldNodePtr.ptr;
+					int const countIncrease = oldNodePtr.mExternalCount - 2;
+					NodeCounter oldCounter = ptr->mCount.load(std::memory_order_relaxed);
+					NodeCounter newCounter;
+					do
+					{
+						newCounter = oldCounter;
+						--(newCounter.mExternalCounters);
+						newCounter.mInternalCount += countIncrease;
+					} while (!ptr->count.compare_exchange_strong(oldCounter, newCounter, std::memory_order_acquire, std::memory_order_relaxed));
+					
+					if (!newCounter.mInternalCount && !newCounter.mExternalCounters)
+					{
+						delete ptr;
+					}
+				}
 
 			public:
 				void push(T newVal)

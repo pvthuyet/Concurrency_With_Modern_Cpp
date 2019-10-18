@@ -63,11 +63,18 @@ void testDuplicateOwnership()
 	spw->process(processedWidget);
 }
 
+void testDuplicateOwnership2()
+{
+	int* p = new int;
+	std::shared_ptr<int> sp1(p);
+	std::shared_ptr<int> sp2(p);
+	std::cout << *sp1 << std::endl;
+}
 int main()
 {
 	//testDeleter();
-	testDuplicateOwnership();
-    //std::cout << "Hello World!\n"; 
+	//testDuplicateOwnership();
+	testDuplicateOwnership2();    
 	return 0;
 }
 
