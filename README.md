@@ -11,6 +11,18 @@
 [The Nightmare of Move Semantics for Trivial Classes](https://www.youtube.com/watch?v=PNRju6_yn3o&list=PLKtBMOPB5ra9DeN_N6jEDg0eY07_sgTtk&index=7&t=10s)  
 [Code example](https://github.com/pvthuyet/Concurrency_With_Modern_Cpp/blob/master/universalreference/Customer.h)
 ##### 3. Lambda Expressions
+* Caputure local variable only, no member variables, no static variables.
+* Avoid default capture modes  
+There are two default capture modes in C++11: by-reference `[&]`, and by-value `[=]`  
+Default by-reference capture can lead to dangling reference  
+Default by-value capture is susceptible to dangling pointers(especially this), and it misleadingly suggests that lambdas are self-contained.  
+* C++14 supported caputure by moving the object (C++11 can use std::bind but a litle complicated)
+```
+	std::vector<double> data;
+	auto func = [data = std::move(data)]{
+		// do something
+	};
+```
 ##### 4. Concurrency API
 - `std::thread`
 - `std::async`
