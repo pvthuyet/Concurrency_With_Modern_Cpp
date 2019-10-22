@@ -64,13 +64,29 @@ Default by-value capture is susceptible to dangling pointers(especially this), a
 | `enum class`    |                             |
   
 ![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/timeline.png)  
-##### 9. Distinguish between `()` and `{}` when creating objects
+## II. Moving to Modern C++ [by Scott Meyers](http://shop.oreilly.com/product/0636920033707.do?cmp=af-code-books-video-product_cj_0636920033707_7708709)
+#### 1. Distinguish between `()` and `{}` when creating objects
 * Braced `{}` initialization is the most widely usable initialization syntax, it prevents narrowing conversions, and it’s immune to C++’s most vexing parse.
 * During constructor overload resolution, braced initializers are matched to `std::initializer_list` parameters if at all possible, even if other constructors offer seemingly better matches.
 * An example of where the choice between parentheses and braces can make a significant difference is creating a `std::vector<numeric type>` with two arguments.
 * Choosing between parentheses and braces for object creation inside templates can be challenging.
+#### 2. Prefer `nullptr` to `0` and `NULL`.
+#### 3. Prefer `alias declarations` to `typedefs`.
+#### 4. Prefer scoped enums to unscoped enums.
+#### 5. Prefer deleted functions to private undefined ones
+#### 6. Declare overriding functions override.
+#### 7. Prefer const_iterators to iterators.
+#### 8. Declare functions noexcept if they won’t emit exceptions
+#### 9. Use constexpr whenever possible.
+#### 10. Make const member functions thread safe.
+#### 11. Understand special member function generation
+* Default constructor
+* Destructor
+* Copy constructor
+* Copy assignment operator
+* Move constructor and move assignment operator
 
-## II. Smart Pointer
+## III. Smart Pointer
 Refer to [C++ Smart Pointers - Usage and Secrets - Nicolai Josuttis](https://www.youtube.com/watch?v=XH4xIyS9B2I&t=1336s)
 ### 1. std::unique_ptr
 * Use std::unique_ptr for exclusive-ownership resource management
@@ -228,7 +244,7 @@ Thank to `std::weak_ptr`
 			p->callMember()
 ```
 * But be aware that `std::weak_ptr` might hold memory if use with `std::make_shared<R>` to create `td::shared_ptr`
-## III. Atomic
+## IV. Atomic
 Refer [Fedor Pikus talked](https://www.youtube.com/watch?v=ZQFzMfHIxng&list=PLKtBMOPB5ra9DeN_N6jEDg0eY07_sgTtk&index=6&t=3143s)
 * std::atomic is neither copyable nor movable.
 * The primary std::atomic template may be instantiated with any `TriviallyCopyable` type T satisfying both `CopyConstructible` and `CopyAssignable`.  
@@ -291,7 +307,7 @@ This quite very very difficult to understand
 [cppreference](https://en.cppreference.com/w/cpp/atomic/memory_order#Relaxed_ordering)  
 [disscus](https://stackoverflow.com/questions/35648936/reordering-and-memory-order-relaxed)
   
-## III. Multithreading
+## V. Multithreading
 #### 1. Threads
 #### 2. Shared Data
 * **Mutexes**  
@@ -396,7 +412,7 @@ A `promise` can send its notification only once.
 	}
 ```
   
-## V. Challenges
+## VI. Challenges
 ### 1. ABA Problem
 ABA means you read a value twice and each time it returns the same value A.  
 Therefore you conclude that nothing changed in between.  
@@ -489,7 +505,7 @@ t2.join();
 ....
   
   
-## VI. C++11 Books:
+## VII. C++11 Books:
 [ModernesCpp by Rainer Grimm](http://www.modernescpp.com/index.php)  
 ![1](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/ConcurrencyCoverFrame.png)  
   
