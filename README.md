@@ -62,9 +62,13 @@ Default by-value capture is susceptible to dangling pointers(especially this), a
 | `using` alias   |                             |
 | `decltype`      |                             |
 | `enum class`    |                             |
-
   
-![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/timeline.png)
+![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/timeline.png)  
+##### 9. Distinguish between `()` and `{}` when creating objects
+* Braced `{}` initialization is the most widely usable initialization syntax, it prevents narrowing conversions, and it’s immune to C++’s most vexing parse.
+* During constructor overload resolution, braced initializers are matched to `std::initializer_list` parameters if at all possible, even if other constructors offer seemingly better matches.
+* An example of where the choice between parentheses and braces can make a significant difference is creating a `std::vector<numeric type>` with two arguments.
+* Choosing between parentheses and braces for object creation inside templates can be challenging.
 
 ## II. Smart Pointer
 Refer to [C++ Smart Pointers - Usage and Secrets - Nicolai Josuttis](https://www.youtube.com/watch?v=XH4xIyS9B2I&t=1336s)
