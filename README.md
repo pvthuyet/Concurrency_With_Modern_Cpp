@@ -72,13 +72,13 @@ Default by-value capture is susceptible to dangling pointers(especially this), a
 * Choosing between parentheses and braces for object creation inside templates can be challenging.
 #### 2. Prefer `nullptr` to `0` and `NULL`.
 #### 3. Prefer `alias declarations` to `typedefs`.
-#### 4. Prefer scoped enums to unscoped enums.
-#### 5. Prefer deleted functions to private undefined ones
-#### 6. Declare overriding functions override.
-#### 7. Prefer const_iterators to iterators.
-#### 8. Declare functions noexcept if they won’t emit exceptions
-#### 9. Use constexpr whenever possible.
-#### 10. Make const member functions thread safe.
+#### 4. Prefer `scoped enums` to `unscoped enums`.
+#### 5. Prefer `deleted` functions to `private` undefined ones
+#### 6. Declare `overriding` functions `override`.
+#### 7. Prefer `const_iterators` to `iterators`.
+#### 8. Declare functions `noexcept` if they won’t emit exceptions
+#### 9. Use `constexpr` whenever possible.
+#### 10. Make `const` member functions thread safe.
 #### 11. Understand special member function generation
 * Default constructor
 * Destructor
