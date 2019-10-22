@@ -85,6 +85,14 @@ Default by-value capture is susceptible to dangling pointers(especially this), a
 * Copy constructor
 * Copy assignment operator
 * Move constructor and move assignment operator
+#### 12. Prefer `task-based` programming to `thread-based`
+#### 13. Specify `std::launch::async` if asynchronicity is essential
+#### 14. Make `std::threads` unjoinable on all paths
+#### 15. Be aware of varying thread handle destructor behavior
+#### 16. Consider void `futures` for one-shot event communication
+#### 17. Use `std::atomic` for concurrency, `volatile` for special memory.
+#### 18. Consider pass by value for copyable parameters that are cheap to move and always copied
+#### 19. Consider `emplacement` instead of `insertion`
 
 ## III. Smart Pointer
 Refer to [C++ Smart Pointers - Usage and Secrets - Nicolai Josuttis](https://www.youtube.com/watch?v=XH4xIyS9B2I&t=1336s)
