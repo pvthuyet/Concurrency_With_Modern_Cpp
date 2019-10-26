@@ -229,16 +229,13 @@ namespace tvp
 				{
 					std::atomic<T*> mData;
 					std::atomic<NodeCounter> mCount;
-					CountedNodePtr mNext;
+					std::atomic<CountedNodePtr> mNext;
 					Node()
 					{
 						NodeCounter newCounter;
 						newCounter.mInternalCount = 0;
 						newCounter.mExternalCounters = 2;
 						mCount.store(newCounter);
-
-						mNext.mPtr = nullptr;
-						mNext.mExternalCount = 0;
 					}
 
 					void releaseRef()
@@ -272,7 +269,7 @@ namespace tvp
 
 				static void freeExternalCounter(CountedNodePtr& oldNodePtr)
 				{
-					Node* const ptr = oldNodePtr.ptr;
+					Node* const ptr = oldNodePtr.mPtr;
 					int const countIncrease = oldNodePtr.mExternalCount - 2;
 					NodeCounter oldCounter = ptr->mCount.load(std::memory_order_relaxed);
 					NodeCounter newCounter;
@@ -281,7 +278,7 @@ namespace tvp
 						newCounter = oldCounter;
 						--(newCounter.mExternalCounters);
 						newCounter.mInternalCount += countIncrease;
-					} while (!ptr->count.compare_exchange_strong(oldCounter, newCounter, std::memory_order_acquire, std::memory_order_relaxed));
+					} while (!ptr->mCount.compare_exchange_strong(oldCounter, newCounter, std::memory_order_acquire, std::memory_order_relaxed));
 					
 					if (!newCounter.mInternalCount && !newCounter.mExternalCounters)
 					{
@@ -289,7 +286,31 @@ namespace tvp
 					}
 				}
 
+				void setNewTail(CountedNodePtr &oldTail, CountedNodePtr const &newTail)
+				{
+					Node* const currentTailPtr = oldTail.mPtr;
+					while (!mTail.compare_exchange_weak(oldTail, newTail) && oldTail.mPtr == currentTailPtr);
+
+					if (oldTail.mPtr == currentTailPtr)
+					{
+						freeExternalCounter(oldTail);
+					}
+					else
+					{
+						currentTailPtr->releaseRef();
+					}
+				}
+
 			public:
+				JQueue()
+				{
+					CountedNodePtr draf;
+					draf.mPtr = new Node;
+					draf.mExternalCount = 1;
+					mHead.store(draf);
+					mTail.store(draf);
+				}
+
 				void push(T newVal)
 				{
 					auto newData = std::make_unique<T>(newVal);
@@ -303,13 +324,48 @@ namespace tvp
 						T* oldData = nullptr;
 						if (oldTail.mPtr->mData.compare_exchange_strong(oldData, newData.get()))
 						{
-							oldTail.mPtr->mNext = newNext;
-							oldTail = mTail.exchange(newNext);
-							freeExternalCounter(oldTail);
+							CountedNodePtr oldNext;
+							if (!oldTail.mPtr->mNext.compare_exchange_strong(oldNext, newNext))
+							{
+								delete newNext.mPtr;
+								newNext = oldNext;
+							}
+							setNewTail(oldTail, newNext);
 							newData.release();
 							break;
 						}
-						oldTail.mPtr->releaseRef();
+						else
+						{
+							CountedNodePtr oldNext;
+							if (oldTail.mPtr->mNext.compare_exchange_strong(oldNext, newNext))
+							{
+								oldNext = newNext;
+								newNext.mPtr = new Node;
+							}
+							setNewTail(oldTail, oldNext);
+						}	
+					}
+				}
+
+				std::unique_ptr<T> pop()
+				{
+					CountedNodePtr oldHead = mHead.load(std::memory_order_relaxed);
+					for (;;)
+					{
+						increaseExternalCount(mHead, oldHead);
+						Node* const ptr = oldHead.mPtr;
+						if (ptr == mTail.load().mPtr)
+						{
+							return std::unique_ptr<T>();
+						}
+						CountedNodePtr next = ptr->mNext.load();
+						if (mHead.compare_exchange_strong(oldHead, next))
+						{
+							T* const res = ptr->mData.exchange(nullptr);
+							freeExternalCounter(oldHead);
+							return std::unique_ptr<T>(res);
+						}
+						ptr->releaseRef();
 					}
 				}
 			};

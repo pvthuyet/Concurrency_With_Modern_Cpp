@@ -3,14 +3,15 @@
 #include <fstream>
 #include <iostream>
 #include <atomic>
+#include <mutex>
 #include "../utils/utils.h"
 #include "../SpinMutex/SpinMutex.h"
 
 namespace tvp
 {
-	static const std::string DEBUG_LEVEL	= "debug";
-	static const std::string INFO_LEVEL		= "info";
-	static const std::string ERROR_LEVEL	= "error";
+	static constexpr const char* DEBUG_LEVEL = "debug";
+	static constexpr const char* INFO_LEVEL	 = "info";
+	static constexpr const char* ERROR_LEVEL = "error";
 
 	// Logger with singleton pattern
 	class Logger
@@ -21,8 +22,8 @@ namespace tvp
 		std::ofstream mFile;
 
 		// Singleton class
-		static tvp::SpinMutex mInitSpin;
-		static std::atomic< tvp::Logger* > mInst;
+		inline static tvp::SpinMutex mInitSpin; // C++17: inline
+		inline static std::atomic< tvp::Logger* > mInst = nullptr ; // C++17: inline
 
 		explicit Logger(std::string const& fileName)
 		{
@@ -71,6 +72,6 @@ namespace tvp
 		}
 	};
 
-	tvp::SpinMutex tvp::Logger::mInitSpin;
-	std::atomic<tvp::Logger*> tvp::Logger::mInst(nullptr);
+	//tvp::SpinMutex tvp::Logger::mInitSpin;
+	//std::atomic<tvp::Logger*> tvp::Logger::mInst(nullptr);
 }

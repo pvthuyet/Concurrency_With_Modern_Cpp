@@ -47,7 +47,11 @@ namespace tvp
 	};
 	
 	// Create interrupted flag
-	thread_local InterruptFlagLockFree gInterruptedFlag;
+	// before C++17: Linked ERROR if declare a variable in header file and included in multiple cpp file
+	// thread_local InterruptFlagLockFree gInterruptedFlag;
+
+	// C++17 Fixed: inline 
+	inline thread_local InterruptFlagLockFree gInterruptedFlag;
 
 	struct FlagGuard
 	{
@@ -57,7 +61,7 @@ namespace tvp
 		}
 	};
 
-	void interruptionPoint()
+	inline void interruptionPoint()
 	{
 		if (gInterruptedFlag.isSet())
 		{

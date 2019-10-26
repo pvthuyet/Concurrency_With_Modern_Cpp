@@ -97,7 +97,93 @@ void testQueue()
 
 void testFreelockQueue()
 {
-	tvp::lookfree::referencecount::JQueue<int> que;
+	tvp::lookfree::referencecount::JQueue<int> que;	
+	auto pushF = [&que](int s) {
+		tvp::Logger* gLogger = tvp::Logger::getInstance();
+		int i = s;
+		while (true)
+		{
+			// Only quit loop by this function.
+			tvp::interruptionPoint();
+			try
+			{
+				que.push(i);
+				gLogger->debug(tvp::Utils::getThreadId()
+					+ " push "
+					+ std::to_string(i)
+					+ " into queue\n");
+					//+ std::to_string(que.size()) + ")\n");
+				i++;
+			}
+			catch (const tvp::JException& e)
+			{
+				// Throw exeption but must not stop thread.
+				// Becuase of only stop when call interrupt
+				gLogger->debug(e.what());
+			}
+
+			std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		}
+	};
+
+	auto popF = [&que]() {
+		tvp::Logger* gLogger = tvp::Logger::getInstance();
+		while (true)
+		{
+			tvp::interruptionPoint();
+			try
+			{
+				
+				//que.waitAndPop(v);
+				auto v = que.pop();
+				if (v)
+				{
+					gLogger->debug(tvp::Utils::getThreadId()
+						+ " pop "
+						+ std::to_string(*v)
+						+ " out queue\n");
+					//+ std::to_string(que.size()) + ")\n");
+				}
+			}
+			catch (const tvp::JException& e)
+			{
+				gLogger->debug(e.what());
+			}
+			std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		}
+	};
+
+	// All threads must destroy befor queue
+	{
+		constexpr int N = 2;
+		constexpr int div = 2;
+		std::vector<std::unique_ptr<tvp::JThread> > threads;
+		for (int i = 0; i < N; ++i)
+		{
+			int r = tvp::Utils::randomNum(0, 10);
+			if (r % div == 0)
+				int xx = 0;
+				//threads.emplace_back(std::make_unique<tvp::JThread>(popF));
+			else
+				threads.emplace_back(std::make_unique<tvp::JThread>(pushF, i * 1000));
+		}
+
+		auto fstop = [&threads, &que]() {
+			tvp::Logger* gLogger = tvp::Logger::getInstance();
+			std::this_thread::sleep_for(std::chrono::milliseconds(30000));
+			//que.shutdown();
+			for (int i = 0; i < threads.size(); ++i)
+			{
+				std::this_thread::sleep_for(std::chrono::milliseconds(100));
+				gLogger->debug(tvp::Utils::getThreadId() + " STOP THREAD " + std::to_string(i) + "\n");
+				threads[i]->interrupt();
+			}
+			// Queue must be shutdown after all thread join			
+		};
+
+		tvp::JThread t(fstop);
+		t.join();
+	}
 }
 
 int main()

@@ -73,8 +73,8 @@ namespace tvp
 		std::atomic_bool mShutdown;
 		tvp::JQueue<Callable> mPoolWorkQueue;
 		std::vector<std::unique_ptr<JWorkStealingQueue> > mQueues;
-		static thread_local JWorkStealingQueue* mLocalWorkQueue;
-		static thread_local unsigned mIndex;
+		inline static thread_local JWorkStealingQueue* mLocalWorkQueue{ nullptr }; // C++17: inline
+		inline static thread_local std::size_t mIndex{ 0 }; // C++17: inline
 
 		// mThreads
 		std::vector<UniqueThread> mThreads;
@@ -94,7 +94,7 @@ namespace tvp
 		{
 			for (std::size_t i = 0; i < mQueues.size(); ++i)
 			{
-				const int idx = (mIndex + i + 1) % mQueues.size();
+				const std::size_t idx = (mIndex + i + 1) % mQueues.size();
 				if (mQueues[idx]->trySteal(task))
 				{
 					return true;
@@ -104,7 +104,7 @@ namespace tvp
 		}
 
 		// private method.
-		void workerThread(unsigned idx) 
+		void workerThread(std::size_t idx)
 		{
 			tvp::Logger* gLogger = tvp::Logger::getInstance();
 			gLogger->debug(Utils::getThreadId() + " initialized\n");
@@ -187,8 +187,7 @@ namespace tvp
 
 		// Throw ShutdownThreadPoolException
 		template<class Fn, class... Args>
-		auto submit(Fn&& f, Args&&... args)
-			-> std::future<std::result_of_t<Fn(Args...)> >
+		decltype(auto) submit(Fn&& f, Args&&... args)
 		{
 			if (isShutdown())
 			{
@@ -196,11 +195,11 @@ namespace tvp
 					tvp::Utils::getThreadId() + " submit() threadPool was shutdown!\n");
 			}
 
-			using return_type = std::result_of_t<Fn(Args...)>;
+			using return_type = std::invoke_result_t<Fn, Args...>;
 			auto task = std::make_shared<std::packaged_task<return_type()> >
 				(std::bind(std::forward<Fn>(f), std::forward<Args>(args)...)
 					);
-			std::future<return_type> res = task->get_future();
+			auto res = task->get_future();
 			if (mLocalWorkQueue) 
 			{
 				tvp::Logger* gLogger = tvp::Logger::getInstance();
@@ -220,6 +219,6 @@ namespace tvp
 		}
 	};
 	// Must initialize for thread_local variable.
-	thread_local JWorkStealingQueue* JThreadPool::mLocalWorkQueue = nullptr;
-	thread_local unsigned JThreadPool::mIndex = 0;
+	//thread_local JWorkStealingQueue* JThreadPool::mLocalWorkQueue = nullptr;
+	//thread_local std::size_t JThreadPool::mIndex = 0;
 }
