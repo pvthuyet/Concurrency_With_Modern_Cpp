@@ -1,17 +1,51 @@
-## I. C++11 Features
-##### 1. Smart Pointers
+## IX. C++17 Features
+#### 1. Structured Bindings
+```
+	struct MyStruct {
+		int i = 0;
+		std::string s;
+	};
+	MyStruct ms;
+	auto [u,v] = ms;  // as copy
+	auto& [k,l] = ms; // as reference
+	...
+	std::unordered_map myMap;
+	for(const auto& [key, val] : myMap) {
+		std::cout << key ": " << val << '\n';
+	}
+```
+#### 2. `If` adn `switch` with initialization
+#### 3. `inline` variables
+#### 4. Aggregate extensions
+#### 5. Mandatory copy elision or passing unmaterialized objects
+#### 6. Lambda extensions
+#### 7. New attributes and attribute features
+## VIII. C++11 Features
+#### 1. Smart Pointers
 - `std::unique_ptr`, `std::make_unique`
 - `std::shared_ptr`, `std::make_shared`
 - `std::weak_ptr`
-##### 2. Rvalue references, Move Semantics, and Perfect Forwarding
+#### 2. Rvalue references, Move Semantics, and Perfect Forwarding
 - `lvalue`: correspond to objects you can refer to, either by name or by following a pointer or lvalue reference.
 - `rvalue`: correspond to temporary objects returned from functions.
 - `std::move`: performs an unconditionally casts its input into an rvalue reference. It doesn't move anything.
 - `std::forward`: casts its argument to an rvalue only if that argument is bound to an rvalue. It doesn't forward anything.  
 [The Nightmare of Move Semantics for Trivial Classes](https://www.youtube.com/watch?v=PNRju6_yn3o&list=PLKtBMOPB5ra9DeN_N6jEDg0eY07_sgTtk&index=7&t=10s)  
 [Code example](https://github.com/pvthuyet/Concurrency_With_Modern_Cpp/blob/master/universalreference/Customer.h)
-##### 3. Lambda Expressions
-##### 4. Concurrency API
+#### 3. Lambda Expressions
+* Caputure local variable only, no member variables, no static variables.
+* Avoid default capture modes  
+There are two default capture modes in C++11: by-reference `[&]`, and by-value `[=]`  
+Default by-reference capture can lead to dangling reference  
+Default by-value capture is susceptible to dangling pointers(especially this), and it misleadingly suggests that lambdas are self-contained.  
+* C++14 supported caputure by moving the object (C++11 can use std::bind but a litle complicated)
+```
+	std::vector<double> data;
+	auto func = [data = std::move(data)]{
+		// do something
+	};
+```
+#### 4. Concurrency API
 - `std::thread`
 - `std::async`
 - `std::future`
@@ -19,8 +53,8 @@
 - `std::atomic`
 - `std::mutex`
 - `std::condition_variable`
-##### 5. Variadic templates
-##### 6. New containers
+#### 5. Variadic templates
+#### 6. New containers
 - [`std::tuple`](https://en.cppreference.com/w/cpp/utility/tuple)
 - [`std::array`](https://en.cppreference.com/w/cpp/container/array)
 - [`std::forward_list`](https://en.cppreference.com/w/cpp/container/forward_list)
@@ -28,14 +62,14 @@
 - [`std::unordered_map`](https://en.cppreference.com/w/cpp/container/unordered_map)
 - [`std::unordered_multiset`](https://en.cppreference.com/w/cpp/container/unordered_multiset)
 - [`std::unordered_multimap`](https://en.cppreference.com/w/cpp/container/unordered_multimap)
-##### 7. [Utilities library](https://en.cppreference.com/w/cpp/utility)
+#### 7. [Utilities library](https://en.cppreference.com/w/cpp/utility)
 - [`std::move_if_noexcept`](https://en.cppreference.com/w/cpp/utility/move_if_noexcept)
 - [`std:: initializer_list`](https://en.cppreference.com/w/cpp/utility/initializer_list)
 - [`std::hash`](https://en.cppreference.com/w/cpp/utility/hash)
 - [`std::regex`](https://en.cppreference.com/w/cpp/regex)
 - [`std::declval`](https://en.cppreference.com/w/cpp/utility/declval)
   
-##### 8. New Keywords
+#### 8. New Keywords
 | New Keyword     | Explain                     | 
 | :-------------- | --------------------------- |
 | `delete`        | to prevent users call a particular function |
@@ -50,11 +84,39 @@
 | `using` alias   |                             |
 | `decltype`      |                             |
 | `enum class`    |                             |
-
   
-![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/timeline.png)
+![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/timeline.png)  
+## VII. Moving to Modern C++ [by Scott Meyers](http://shop.oreilly.com/product/0636920033707.do?cmp=af-code-books-video-product_cj_0636920033707_7708709)
+#### 1. Distinguish between `()` and `{}` when creating objects
+* Braced `{}` initialization is the most widely usable initialization syntax, it prevents narrowing conversions, and it’s immune to C++’s most vexing parse.
+* During constructor overload resolution, braced initializers are matched to `std::initializer_list` parameters if at all possible, even if other constructors offer seemingly better matches.
+* An example of where the choice between parentheses and braces can make a significant difference is creating a `std::vector<numeric type>` with two arguments.
+* Choosing between parentheses and braces for object creation inside templates can be challenging.
+#### 2. Prefer `nullptr` to `0` and `NULL`.
+#### 3. Prefer `alias declarations` to `typedefs`.
+#### 4. Prefer `scoped enums` to `unscoped enums`.
+#### 5. Prefer `deleted` functions to `private` undefined ones
+#### 6. Declare `overriding` functions `override`.
+#### 7. Prefer `const_iterators` to `iterators`.
+#### 8. Declare functions `noexcept` if they won’t emit exceptions
+#### 9. Use `constexpr` whenever possible.
+#### 10. Make `const` member functions thread safe.
+#### 11. Understand special member function generation
+* Default constructor
+* Destructor
+* Copy constructor
+* Copy assignment operator
+* Move constructor and move assignment operator
+#### 12. Prefer `task-based` programming to `thread-based`
+#### 13. Specify `std::launch::async` if asynchronicity is essential
+#### 14. Make `std::threads` unjoinable on all paths
+#### 15. Be aware of varying thread handle destructor behavior
+#### 16. Consider void `futures` for one-shot event communication
+#### 17. Use `std::atomic` for concurrency, `volatile` for special memory.
+#### 18. Consider pass by value for copyable parameters that are cheap to move and always copied
+#### 19. Consider `emplacement` instead of `insertion`
 
-## II. Smart Pointer
+## VI. Smart Pointer
 Refer to [C++ Smart Pointers - Usage and Secrets - Nicolai Josuttis](https://www.youtube.com/watch?v=XH4xIyS9B2I&t=1336s)
 ### 1. std::unique_ptr
 * Use std::unique_ptr for exclusive-ownership resource management
@@ -212,7 +274,7 @@ Thank to `std::weak_ptr`
 			p->callMember()
 ```
 * But be aware that `std::weak_ptr` might hold memory if use with `std::make_shared<R>` to create `td::shared_ptr`
-## III. Atomic
+## V. Atomic
 Refer [Fedor Pikus talked](https://www.youtube.com/watch?v=ZQFzMfHIxng&list=PLKtBMOPB5ra9DeN_N6jEDg0eY07_sgTtk&index=6&t=3143s)
 * std::atomic is neither copyable nor movable.
 * The primary std::atomic template may be instantiated with any `TriviallyCopyable` type T satisfying both `CopyConstructible` and `CopyAssignable`.  
@@ -380,7 +442,7 @@ A `promise` can send its notification only once.
 	}
 ```
   
-## V. Challenges
+## II. Challenges
 ### 1. ABA Problem
 ABA means you read a value twice and each time it returns the same value A.  
 Therefore you conclude that nothing changed in between.  
@@ -473,8 +535,9 @@ t2.join();
 ....
   
   
-## VI. C++11 Books:
+## I. C++11 Books:
 [ModernesCpp by Rainer Grimm](http://www.modernescpp.com/index.php)  
+![1](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/cpp17.png)  
 ![1](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/ConcurrencyCoverFrame.png)  
   
 ![2](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/effectivec%2B%2B.jpg)  
