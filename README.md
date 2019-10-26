@@ -16,6 +16,19 @@
 ```
 #### 2. `If` adn `switch` with initialization
 #### 3. `inline` variables
+```
+class MyClass {
+	static inline std::string name = ""; // OK since C++17
+};
+inline MyClass myGlobalObj; // OK even if included/defined by multiple CPP files
+```
+* `constexpr` now implies `inline` for `static` data member
+```
+struct D {
+	static constexpr int n = 5;
+	//inline static constexpr int n = 5; // the same as above
+}
+```
 #### 4. Aggregate extensions
 #### 5. Mandatory copy elision or passing unmaterialized objects
 #### 6. Lambda extensions
