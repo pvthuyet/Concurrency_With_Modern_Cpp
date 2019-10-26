@@ -16,6 +16,7 @@
 ```
 #### 2. `If` adn `switch` with initialization
 #### 3. `inline` variables
+Since C++17 you can define a variable/object in a header file as `inline` and if this definition is used by multiple translation units, they all refer to `the same unique object`
 ```
 class MyClass {
 	static inline std::string name = ""; // OK since C++17
