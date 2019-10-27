@@ -123,17 +123,18 @@ std::byte b2{0b1111’0000};
 std::byte b3[4] {b1, b2, std::byte{1}}; // 4 bytes (last is 0)
 ```
 #### 5. `String Views`
+`The class template basic_string_view describes an object that can refer to a constant contiguous sequence of char-like objects`  
+A string_view doesn't manage the storage that it refer to. Lifetime management is up to the user.
+* When would you use a `string_view` instead of `string`
+Pass as a parameter to a `pure` function(parameters `const string&`)  
+Returning from a function  
+A reference to part of long-lived data structure.
+* Drawbacks of string_view
+Lifetime management  
+not `null-terminated`
+
 **Don’t use `std::string_view` at all unless you know what you do.**
 * Don’t use string views in API’s that pass the argument to a string
-Don’t initialize string members from string view parameters  
-No string at the end of a string view chain.
-* Don’t return a string view
-Unless it is just a forwarded input argument or you signal the danger by, for example, naming the function accordingly
-* Function templates should never return the type T of a passed generic argument
-Return auto instead.
-* Never use a returned value to initialize a string view
-* don’t assign the return value of a function template returning a generic type to auto
-This means, the AAA (Almost Always Auto) pattern is broken with string view
 #### 6. The Filesystem Library
 ...  
 
