@@ -133,8 +133,7 @@ A reference to part of long-lived data structure.
 Lifetime management  
 not `null-terminated`
 
-**Don’t use `std::string_view` at all unless you know what you do.**
-* Don’t use string views in API’s that pass the argument to a string
+**(note) Don’t use `std::string_view` at all unless you know what you do.**
 #### 6. The Filesystem Library
 ...  
 
