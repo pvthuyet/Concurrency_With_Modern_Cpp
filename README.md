@@ -124,12 +124,12 @@ std::byte b3[4] {b1, b2, std::byte{1}}; // 4 bytes (last is 0)
 ```
 #### 5. `String Views`
 `The class template basic_string_view describes an object that can refer to a constant contiguous sequence of char-like objects`  
-A string_view doesn't manage the storage that it refer to. Lifetime management is up to the user.
-* When would you use a `string_view` instead of `string`
+A string_view doesn't manage the storage that it refer to. Lifetime management is up to the user.  
+* When would you use a `string_view` instead of `string`  
 Pass as a parameter to a `pure` function(parameters `const string&`)  
 Returning from a function  
 A reference to part of long-lived data structure.
-* Drawbacks of string_view
+* Drawbacks of string_view  
 Lifetime management  
 not `null-terminated`
 
