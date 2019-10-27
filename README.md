@@ -15,7 +15,7 @@
 		std::cout << key ": " << val << '\n';
 	}
 ```
-#### 2. `If` adn `switch` with initialization
+#### 2. `If` and `switch` with initialization
 #### 3. `inline` variables
 Since C++17 you can define a variable/object in a header file as `inline` and if this definition is used by multiple translation units, they all refer to `the same unique object`
 ```
@@ -180,6 +180,7 @@ Default by-value capture is susceptible to dangling pointers(especially this), a
 - [`std::unordered_multiset`](https://en.cppreference.com/w/cpp/container/unordered_multiset)
 - [`std::unordered_multimap`](https://en.cppreference.com/w/cpp/container/unordered_multimap)
 #### 7. [Utilities library](https://en.cppreference.com/w/cpp/utility)
+- [`bitset`](https://en.cppreference.com/w/cpp/utility/bitset)
 - [`std::move_if_noexcept`](https://en.cppreference.com/w/cpp/utility/move_if_noexcept)
 - [`std:: initializer_list`](https://en.cppreference.com/w/cpp/utility/initializer_list)
 - [`std::hash`](https://en.cppreference.com/w/cpp/utility/hash)
