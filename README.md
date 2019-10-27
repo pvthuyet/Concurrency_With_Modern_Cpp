@@ -1,4 +1,5 @@
 ## IX. C++17 Features
+### Part I: Basic Language Features
 #### 1. Structured Bindings
 ```
 	struct MyStruct {
@@ -34,6 +35,108 @@ struct D {
 #### 5. Mandatory copy elision or passing unmaterialized objects
 #### 6. Lambda extensions
 #### 7. New attributes and attribute features
+...  
+### Part III: New Library Components
+#### 1. `std::optional<>`
+`std::optional<>` model a nullable instance of an arbitrary type.  
+The instance might be a member, an argument, or a return value.  
+You could also argue that a `std::optional<>` is a container for zero or one element.
+* Optional Return Values
+```
+// convert string to int if possible:
+std::optional<int> asInt(const std::string& s) {
+	std::optional<int> ret; // initially no value
+	try {
+		ret = std::stoi(s);
+	}
+	catch (...) {
+	}
+	return ret;
+}
+```
+* Optional Arguments and Data Members
+```
+class Name {
+	std::string mFirst;
+	std::optional<std::string> mMid;
+	std::string mLast;
+}
+```
+#### 2. `std::variant<>`
+With std::variant<> the C++ standard library provides a new `union class`, which among other benefits supports a new way of polymorphism and dealing with inhomogeneous collections.  
+* Using `std::variant<>`
+```
+std::variant<int, std::string> var{"hi"}; // initialized with string alternative
+std::cout << var.index(); // prints 1
+var = 42; // now holds int alternative
+std::cout << var.index(); // prints 0
+```
+* std::monostate
+To support variants, where the first type has no default constructor, a special helper type is provided: `std::monostate`.  
+```
+std::variant<std::monostate, NoDefConstr> v2; // OK
+```
+* Visitors
+```
+std::variant<int, std::string, double> var(42);
+auto printvariant = [](const auto& val) {
+	std::cout << val;
+	};
+std::visit(printvariant, var);
+```
+* Polymorphism and Inhomogeneous Collections with `std::variant`
+```
+// common type of all geometric object types:
+using GeoObj = std::variant<Line, Circle, Rectangle>;
+// create and initialize a collection of geometric objects:
+std::vector<GeoObj> createFigure(){
+	std::vector<GeoObj> f;
+	f.push_back(Line{Coord{1,2},Coord{3,4}});
+	f.push_back(Circle{Coord{5,5},2});
+	f.push_back(Rectangle{Coord{3,3},Coord{6,4}});
+	return f;
+}
+int main() {
+	std::vector<GeoObj> figure = createFigure();
+	for (const GeoObj& geoobj : figure) {
+		std::visit([] (const auto& obj) {
+			obj.draw(); // polymorphic call of draw()
+			}, geoobj);
+	}
+}
+```
+* In general, I would recommend now to program polymorphism with `std::variant<>` by default, because it is usually faster (no new and delete, no virtual functions for non-polymorphic use), a lot safer (no pointers), and usually all types are known at compile-time of all code.  
+
+#### 3. `std::any`
+* Using `std::any`
+```
+std::any a; // a is empty
+std::any b = 4.3; // b has value 4.3 of type double
+a = 42; // a has value 42 of type int
+b = std::string{"hi"}; // b has value "hi" of type std::string
+```
+#### 4. `std::byte`
+* Using std::byte
+```
+std::byte b1{0x3F};
+std::byte b2{0b1111’0000};
+std::byte b3[4] {b1, b2, std::byte{1}}; // 4 bytes (last is 0)
+```
+#### 5. `String Views`
+**Don’t use `std::string_view` at all unless you know what you do.**
+* Don’t use string views in API’s that pass the argument to a string
+Don’t initialize string members from string view parameters  
+No string at the end of a string view chain.
+* Don’t return a string view
+Unless it is just a forwarded input argument or you signal the danger by, for example, naming the function accordingly
+* Function templates should never return the type T of a passed generic argument
+Return auto instead.
+* Never use a returned value to initialize a string view
+* don’t assign the return value of a function template returning a generic type to auto
+This means, the AAA (Almost Always Auto) pattern is broken with string view
+#### 6. The Filesystem Library
+...  
+
 ## VIII. C++11 Features
 #### 1. Smart Pointers
 - `std::unique_ptr`, `std::make_unique`
