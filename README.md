@@ -145,7 +145,9 @@ string_view sv = "abc"s; // RISK
 ```
 #### 6. The Filesystem Library
 ...  
-
+### Part III: Expert Utilities
+* `std::from_chars`: converts a given character sequence to a numeric value  
+* `std::to_chars`: converts numeric values to a given character sequence
 ## VIII. C++11 Features
 #### 1. Smart Pointers
 - `std::unique_ptr`, `std::make_unique`
