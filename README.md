@@ -134,6 +134,15 @@ Lifetime management
 not `null-terminated`
 
 **Don’t use `std::string_view` at all unless you know what you do.**
+* Don't use `std::string_view` to initialize a `std::string` member
+* Don't use initialize a `string_view` as below  
+```
+std::string getStr() {
+	return std::string("long_string_help_to_detect_issues");
+}
+std::string_view sv1 = getStr(); // RISK
+string_view sv = "abc"s; // RISK
+```
 #### 6. The Filesystem Library
 ...  
 
