@@ -9,9 +9,9 @@
 
 namespace tvp
 {
-	static constexpr const char* DEBUG_LEVEL = "debug";
-	static constexpr const char* INFO_LEVEL	 = "info";
-	static constexpr const char* ERROR_LEVEL = "error";
+	inline static constexpr const char* DEBUG_LEVEL = u8"debug";
+	inline static constexpr const char* INFO_LEVEL	= u8"info";
+	inline static constexpr const char* ERROR_LEVEL = u8"error";
 
 	// Logger with singleton pattern
 	class Logger
@@ -23,7 +23,7 @@ namespace tvp
 
 		// Singleton class
 		inline static tvp::SpinMutex mInitSpin; // C++17: inline
-		inline static std::atomic< tvp::Logger* > mInst = nullptr ; // C++17: inline
+		inline static std::atomic< tvp::Logger* > mInst{ nullptr }; // C++17: inline
 
 		explicit Logger(std::string const& fileName)
 		{
@@ -69,6 +69,19 @@ namespace tvp
 					std::cout << str << std::flush;
 				}
 			}
+		}
+
+		template<typename T>
+		void print(T val)
+		{
+			std::cout << val;
+		}
+
+		template<typename T, typename... T2>
+		void print(T current, T2... next)
+		{			
+			std::cout << current << '\t';
+			debug2(next...);
 		}
 	};
 

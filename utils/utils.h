@@ -5,6 +5,8 @@
 #include <random>
 #include <list>
 #include <vld.h>
+#include <string_view>
+#include <optional>
 
 namespace tvp
 {
@@ -52,6 +54,72 @@ namespace tvp
 											 // a PRNG such as mt19937
 			}
 			return lst;
+		}
+
+	private:
+		// convert string to int if possible:
+		template<typename T>
+		static std::optional<T> fromChars(std::string_view sv)
+		{
+			T val;
+			// read character sequence into the int:
+			auto[ptr, ec] = std::from_chars(sv.data(), sv.data() + sv.size(), val);
+			// if we have an error code, return no value:
+			if (ec != std::errc{}) {
+				return std::nullopt;
+			}
+			return val;
+		}
+
+	public:
+		static auto s2i(std::string_view sv)
+		{
+			return fromChars<int>(sv);
+		}
+
+		static auto s2f(std::string_view sv)
+		{
+			return fromChars<float>(sv);
+		}
+
+		static auto s2d(std::string_view sv)
+		{
+			return fromChars<double>(sv);
+		}
+
+		static auto s2ld(std::string_view sv)
+		{
+			return fromChars<long double>(sv);
+		}
+
+	private:
+		template<typename T>
+		static bool toStr(char* str, int& size, T val)
+		{
+			if (auto[p, ec] = std::to_chars(str, str + size, val); ec == std::errc{})
+			{
+				*p = '\0'; // ensure a trailing null character is behind
+				size = static_cast<int>(p - str);
+				return true;
+			}
+			return false;
+		}
+	public:
+		static bool i2s(char* str, int& size, int val)
+		{
+			return toStr(str, size, val);
+		}
+		static bool f2s(char* str, int& size, float val)
+		{
+			return toStr(str, size, val);
+		}
+		static bool d2s(char* str, int& size, double val)
+		{
+			return toStr(str, size, val);
+		}
+		static bool ld2s(char* str, int& size, long double val)
+		{
+			return toStr(str, size, val);
 		}
 	};
 }
