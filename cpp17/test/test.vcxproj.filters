@@ -21,6 +21,12 @@
     <ClInclude Include="StringViewExam.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="AlignedData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TrackNew.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

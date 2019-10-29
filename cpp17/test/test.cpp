@@ -3,17 +3,48 @@
 
 #include "pch.h"
 #include <iostream>
-#include "StringViewExam.h"
+//#include "StringViewExam.h"
+#include "AlignedData.h"
+#include "TrackNew.h"
+#include <new>
+#include <cstdlib>
+#include <cassert>
+#include <vld.h>
 
 using namespace std;
 
+class alignas(32) Vec3dAVX {
+	double x, y, z;
+};
+
+void testTrackNew()
+{
+	TrackNew::trace(true);
+	auto p = new Vec3dAVX{};
+	TrackNew::status();
+	delete p;
+}
+
 int main()
 {
-	testFromChars();
-	testToChars();
-	riskStrView();
-	string_view sv = "abc"s;
-	cout << sv;
+	//testFromChars();
+	//testToChars();
+	//riskStrView();
+	//string_view sv = "abc"s;
+	//cout << sv;
+	
+	//std::cout << "__STDCPP_DEFAULT_NEW_ALIGNMENT__ is " << __STDCPP_DEFAULT_NEW_ALIGNMENT__ << std::endl;
+	//std::cout << "sizeof Vec3dAVX: " << sizeof(Vec3dAVX) << std::endl;
+	//std::cout << "aligof Vec3dAVX: " << alignof(Vec3dAVX) << std::endl;
+	
+	//auto pVec = new Vec3dAVX[10];
+	//assert(reinterpret_cast<uintptr_t>(pVec) % alignof(Vec3dAVX) == 0);
+	//delete[] pVec;
+
+	//auto p2 = new int[10];
+	//delete[] p2;
+
+	testTrackNew();
 	return 0;
 }
 

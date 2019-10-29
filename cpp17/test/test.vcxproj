@@ -155,8 +155,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AlignedData.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="StringViewExam.h" />
+    <ClInclude Include="TrackNew.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
