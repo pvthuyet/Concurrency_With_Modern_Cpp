@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <cassert>
 #include <vld.h>
+#include "../../utils/Utils.h"
 
 using namespace std;
 
@@ -23,6 +24,30 @@ void testTrackNew()
 	auto p = new Vec3dAVX{};
 	TrackNew::status();
 	delete p;
+}
+
+void testFileSize()
+{
+	std::string path{ "E:\\work" };
+	auto beg{ std::chrono::steady_clock::now() };
+	auto sz = tvp::Utils::calcSysSize(path);
+	std::chrono::duration<double, std::milli> diff{ std::chrono::steady_clock::now() - beg };
+	std::cout << "Time " << diff.count() << " milli seconds\n";
+	
+	constexpr uintmax_t b = 1;
+	constexpr uintmax_t Kb = 1024 * b;
+	constexpr uintmax_t Mb = 1024 * Kb;
+	constexpr uintmax_t Gb = 1024 * Mb;
+
+	std::cout << std::setprecision(4);
+	if (sz > Gb)
+		std::cout << "Total size of " << std::quoted(path) << ": " << static_cast<double>(sz) / Gb << " Gb\n";
+	else if (sz > Mb)
+		std::cout << "Total size of " << std::quoted(path) << ": " << static_cast<double>(sz) / Mb << " Mb\n";
+	else if (sz > Kb)
+		std::cout << "Total size of " << std::quoted(path) << ": " << static_cast<double>(sz) / Kb << " Kb\n";
+	else
+		std::cout << "Total size of " << std::quoted(path) << ": " << sz << " bytes\n";
 }
 
 int main()
@@ -44,7 +69,8 @@ int main()
 	//auto p2 = new int[10];
 	//delete[] p2;
 
-	testTrackNew();
+	//testTrackNew();
+	testFileSize();
 	return 0;
 }
 

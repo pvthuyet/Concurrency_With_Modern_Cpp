@@ -7,6 +7,11 @@
 #include <vld.h>
 #include <string_view>
 #include <optional>
+#include <filesystem>
+#include <iterator>
+#include <charconv>
+#include <numeric>
+#include <execution>
 
 namespace tvp
 {
@@ -120,6 +125,30 @@ namespace tvp
 		static bool ld2s(char* str, int& size, long double val)
 		{
 			return toStr(str, size, val);
+		}
+
+		static auto calcSysSize(std::string_view path)
+		{
+			std::filesystem::path root{ path };
+			std::vector<std::filesystem::path> paths;
+			try
+			{
+				std::filesystem::recursive_directory_iterator dirpos{ root };
+				std::copy(begin(dirpos), end(dirpos), std::back_inserter(paths));
+			}
+			catch (std::exception const& e)
+			{
+				std::cerr << e.what() << std::endl;
+				return 0ull;
+			}
+
+			return std::transform_reduce(std::execution::par, 
+				paths.cbegin(), paths.cend(),
+				std::uintmax_t{ 0 },
+				std::plus<>(),
+				[](const std::filesystem::path& p) {
+				return std::filesystem::is_regular_file(p) ? std::filesystem::file_size(p) : std::uintmax_t{ 0 };
+			});			
 		}
 	};
 }
