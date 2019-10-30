@@ -70,6 +70,7 @@ Foo getFoo(Foo fo) {
   const X c;
   void f(const X&); 	// accepts an expression of any value category
   void f(X&&); 		// accepts prvalues and xvalues only, but is a better match
+  
   f(v); 		// passes a modifiable lvalue to the first f()
   f(c); 		// passes a non-modifiable lvalue to the first f()
   f(X()); 		// passes a prvalue to the second f()
@@ -77,6 +78,11 @@ Foo getFoo(Foo fo) {
 ```
 **C++17 then introduces a new term, called `materialization` (of a temporary) for the moment a `prvalue` becomes a temporary object.  
 Thus, a `temporary materialization conversion` is a `prvalue` to `xvalue` conversion.**  
+```
+void f(const X& p);	// accepts an expression of any value category  but expects a glvalue
+
+f(X());			// passes a prvalue materialized as xvalue
+```
 
 
 #### 6. Lambda extensions
