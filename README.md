@@ -111,7 +111,40 @@ public:
 };
 ```
 #### 7. New attributes and attribute features
-...  
+* Attribute `[[nodiscard]]`
+* Attribute `[[maybe_unused]]`
+* Attribute `[[fallthrough]]`
+
+#### 8. Other Language Features
+##### a. Nested Namespaces
+```
+namespace A::B::C {}
+```
+#### b. Defined Expression Evaluation Order
+#### c. Relaxed Enum Initialization from Integral Values
+#### d. Fixed Direct List Initialization with `auto`  
+**The recommended way to initialize variables and objects should always be to use direct list initialization `(brace initialization without =)`.**
+```
+auto a{42}; 	// initializes an int now
+auto c = {42}; 	// still initializes a std::initializer_list<int>
+```  
+#### e. Hexadecimal Floating-Point Literals
+#### f. UTF-8 Character Literals
+#### g. Exception Specifications as Part of the Type
+```
+void f1();
+void f2() noexcept; // different type
+```
+* Using Conditional Exception Specifications
+* Consequences for Generic Libraries
+#### h. Single-Argument `static_assert`
+#### i. Preprocessor `Condition __has_include`
+```
+#if __has_include(<filesystem>)
+# include <filesystem>
+#endif
+```  
+
 ### Part III: New Library Components
 #### 1. `std::optional<>`
 `std::optional<>` model a nullable instance of an arbitrary type.  
