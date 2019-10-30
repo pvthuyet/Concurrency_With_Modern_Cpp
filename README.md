@@ -42,7 +42,7 @@ Foo getFoo() {
 }
 Foo getFoo() {
   Foo fo;
-  return fo; // **NRVO**
+  return fo; // **NRVO: move constructor**
 }
 Foo getFoo(const Foo& fo) {
   return fo; // **Copy constructor**
