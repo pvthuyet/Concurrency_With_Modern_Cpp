@@ -423,7 +423,7 @@ Thank to `std::weak_ptr`
 * But be aware that `std::weak_ptr` might hold memory if use with `std::make_shared<R>` to create `td::shared_ptr`
 ## V. Atomic
 Refer [Fedor Pikus talked](https://www.youtube.com/watch?v=ZQFzMfHIxng&list=PLKtBMOPB5ra9DeN_N6jEDg0eY07_sgTtk&index=6&t=3143s)
-* std::atomic is neither copyable nor movable.
+* std::atomic is neither copyable nor movable. (**Atomic variables are `not CopyConstructible`**)
 * The primary std::atomic template may be instantiated with any `TriviallyCopyable` type T satisfying both `CopyConstructible` and `CopyAssignable`.  
 What is trivially copyable?  
 ```
