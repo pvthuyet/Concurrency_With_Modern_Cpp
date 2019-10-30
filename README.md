@@ -32,7 +32,10 @@ struct D {
 }
 ```
 #### 4. Aggregate extensions
-#### 5. Mandatory copy elision or passing unmaterialized objects
+#### 5. Mandatory copy elision or passing unmaterialized objects  
+`copy elision` benefit:  
+* Improve performance
+* Apply for not `CopyConstructible` object.  
 ##### a. Think about below:  
 ```
 class Foo {
