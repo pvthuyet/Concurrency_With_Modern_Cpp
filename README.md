@@ -33,6 +33,24 @@ struct D {
 ```
 #### 4. Aggregate extensions
 #### 5. Mandatory copy elision or passing unmaterialized objects
+Think about below:  
+```
+class Foo {
+};
+Foo getFoo() {
+  return Foo();   // **copy Elision (Mandatory since C++17)**
+}
+Foo getFoo() {
+  Foo fo;
+  return fo; // **NRVO**
+}
+Foo getFoo(const Foo& fo) {
+  return fo; // **Copy constructor**
+}
+Foo getFoo(Foo fo) {
+  return fo; // **Move constructor**
+}
+```
 #### 6. Lambda extensions
 #### 7. New attributes and attribute features
 ...  
