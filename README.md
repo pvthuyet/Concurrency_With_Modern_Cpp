@@ -88,7 +88,7 @@ f(X());			// passes a prvalue materialized as xvalue
 ```
 
 
-#### 6. Lambda extensions
+#### 6. Lambda extensions  
 * **`constexpr` Lambdas**: only literal types, no `static variables`, no virtual`, no try/catch`, no new/delete`
 ```
 auto squared = [](auto val) { // implicitly constexpr since C++17
@@ -98,7 +98,7 @@ auto squared = [](auto val) constexpr { // explicitly constexpr since C++17
   return val*val;
 };
 ```  
-* **Passing Copies of `this` to Lambdas**
+* **Passing Copies of `this` to Lambdas**  
 If we’d have captured this with `[this], [=], or [&],` the thread runs into undefined behavior.  
 ```
 class C {
