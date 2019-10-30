@@ -33,7 +33,7 @@ struct D {
 ```
 #### 4. Aggregate extensions
 #### 5. Mandatory copy elision or passing unmaterialized objects
-Think about below:  
+##### a. Think about below:  
 ```
 class Foo {
 };
@@ -51,6 +51,34 @@ Foo getFoo(Foo fo) {
   return fo; // **Move constructor**
 }
 ```
+##### b. Value Categories  
+![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/value.png)  
+  
+**lvalue**  
+**prvalue**: pure rvalue  
+**xvalue**: expiring value  
+**glvalue**: generalized lvalue  
+* All names used as expressions are `lvalues`.
+* All string literals used as expression are `lvalues`.
+* All other literals (`4.2`, `true`, or `nullptr`) are `prvalues`.
+* All temporaries (especially objects returned by value) are `prvalues`.
+* The result of `std::move()` is an `xvalue`.  
+```
+  class X {
+  };
+  X v;
+  const X c;
+  void f(const X&); 	// accepts an expression of any value category
+  void f(X&&); 		// accepts prvalues and xvalues only, but is a better match
+  f(v); 		// passes a modifiable lvalue to the first f()
+  f(c); 		// passes a non-modifiable lvalue to the first f()
+  f(X()); 		// passes a prvalue to the second f()
+  f(std::move(v)); 	// passes an xvalue to the second f()
+```
+**C++17 then introduces a new term, called `materialization` (of a temporary) for the moment a `prvalue` becomes a temporary object.  
+Thus, a `temporary materialization conversion` is a `prvalue` to `xvalue` conversion.**  
+
+
 #### 6. Lambda extensions
 #### 7. New attributes and attribute features
 ...  
