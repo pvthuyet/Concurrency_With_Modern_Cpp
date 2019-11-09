@@ -322,6 +322,10 @@ Default by-value capture is susceptible to dangling pointers(especially this), a
 | `using` alias   |                             |
 | `decltype`      |                             |
 | `enum class`    |                             |
+| `static_cast`    | conversion between similar types such as pointer types or numeric types |
+| `const_cast`    | adds or removes const or volatile |
+| `reinterpret_cast` | converts between pointers or between integral types and pointers |
+| `dynamic_cast` | converts between polymorph pointers or references in the same class hierarchy |
   
 ![](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/timeline.png)  
 ## VII. Moving to Modern C++ [by Scott Meyers](http://shop.oreilly.com/product/0636920033707.do?cmp=af-code-books-video-product_cj_0636920033707_7708709)
