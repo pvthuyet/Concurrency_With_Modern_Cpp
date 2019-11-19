@@ -12,6 +12,7 @@
 #include <charconv>
 #include <numeric>
 #include <execution>
+#include <ostream>
 
 namespace tvp
 {
@@ -149,6 +150,17 @@ namespace tvp
 				[](const std::filesystem::path& p) {
 				return std::filesystem::is_regular_file(p) ? std::filesystem::file_size(p) : std::uintmax_t{ 0 };
 			});			
+		}
+
+		// print out
+		template<typename T>
+		static inline void printElements(const T& coll, std::string_view optStr = " ")
+		{
+			std::cout << optStr;
+			for (const auto& elem : coll)
+				std::cout << elem << ' ';
+			
+			std::cout << std::endl;
 		}
 	};
 }
