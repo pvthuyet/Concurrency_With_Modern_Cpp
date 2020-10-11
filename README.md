@@ -1,3 +1,5 @@
+## X. C++ notes
+* [The rule of three/five/zero](https://en.cppreference.com/w/cpp/language/rule_of_three)
 ## IX. C++17 Features
 ### Part I: Basic Language Features
 #### 1. Structured Bindings
