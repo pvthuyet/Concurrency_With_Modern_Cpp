@@ -20,7 +20,7 @@ struct Foo {
 };
 int main() {
     int x = 10;
-    auto lamb = [x]<typename ...Ts>(Ts&&... ts) mutable constexpr noexcept {
+    auto lamb = [x]<typename ...Ts>(Ts&&... ts) mutable constexpr noexcept -> auto {
         Foo(std::forward<Ts>(ts)...);
         return ++x;
     };
