@@ -5,6 +5,27 @@
 ```
 * `attr`: have not supported yet (test on MSVC 16.8 preview)
 * `requires`: have not supported yet (test on MSVC 16.8 preview)
+##### Example
+```
+struct Foo {
+    template<class ...Args> constexpr Foo(Args&& ...args) noexcept { print(std::forward<Args>(args)...); }
+    template<class T> constexpr void print(T&& t) const noexcept { std::cout << t; }
+    template<class T, class ...Args> constexpr void print(T&& t, Args&&... args) const noexcept { 
+        print(std::forward<T>(t));
+        if constexpr (sizeof...(Args) > 0) {
+            std::cout << ' ';
+            print(std::forward<Args>(args)...);
+        }
+    }
+};
+int main() {
+    int x = 10;
+    auto lamb = [x]<typename ...Ts>(Ts&&... ts) mutable constexpr noexcept {
+        Foo(std::forward<Ts>(ts)...);
+        return ++x;
+    };
+}
+```
 
 ## X. C++ notes
 * [The rule of three/five/zero](https://en.cppreference.com/w/cpp/language/rule_of_three)
