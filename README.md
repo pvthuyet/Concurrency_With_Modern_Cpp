@@ -9,13 +9,10 @@
 ```
 struct Foo {
     template<class ...Args> constexpr Foo(Args&& ...args) noexcept { print(std::forward<Args>(args)...); }
-    template<class T> constexpr void print(T&& t) const noexcept { std::cout << t; }
-    template<class T, class ...Args> constexpr void print(T&& t, Args&&... args) const noexcept { 
-        print(std::forward<T>(t));
-        if constexpr (sizeof...(Args) > 0) {
-            std::cout << ' ';
-            print(std::forward<Args>(args)...);
-        }
+    template<class T, class ...Args> constexpr void print(T&& t, Args&&... args) const noexcept {
+        std::cout << t;
+        auto coutSpaceAndArg = [](auto&& arg) { std::cout << ' ' << arg; };
+        (..., coutSpaceAndArg(std::forward<Args>(args))); // fold expression since C++17
     }
 };
 int main() {
