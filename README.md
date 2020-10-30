@@ -322,19 +322,19 @@ string_view sv = "abc"s; // RISK
 ### Part III: Expert Utilities
 * `std::from_chars`: converts a given character sequence to a numeric value  
 * `std::to_chars`: converts numeric values to a given character sequence
-## VIII. C++11 Features
-#### 1. Smart Pointers
+# C++11 Features
+### 1. Smart Pointers
 - `std::unique_ptr`, `std::make_unique`
 - `std::shared_ptr`, `std::make_shared`
 - `std::weak_ptr`
-#### 2. Rvalue references, Move Semantics, and Perfect Forwarding
+### 2. Rvalue references, Move Semantics, and Perfect Forwarding
 - `lvalue`: correspond to objects you can refer to, either by name or by following a pointer or lvalue reference.
 - `rvalue`: correspond to temporary objects returned from functions.
 - `std::move`: performs an unconditionally casts its input into an rvalue reference. It doesn't move anything.
 - `std::forward`: casts its argument to an rvalue only if that argument is bound to an rvalue. It doesn't forward anything.  
 [The Nightmare of Move Semantics for Trivial Classes](https://www.youtube.com/watch?v=PNRju6_yn3o&list=PLKtBMOPB5ra9DeN_N6jEDg0eY07_sgTtk&index=7&t=10s)  
 [Code example](https://github.com/pvthuyet/Concurrency_With_Modern_Cpp/blob/master/universalreference/Customer.h)
-#### 3. Lambda Expressions
+### 3. Lambda Expressions
 * Caputure local variable only, no member variables, no static variables.
 * Avoid default capture modes  
 There are two default capture modes in C++11: by-reference `[&]`, and by-value `[=]`  
@@ -347,7 +347,7 @@ Default by-value capture is susceptible to dangling pointers(especially this), a
 		// do something
 	};
 ```
-#### 4. Concurrency API
+### 4. Concurrency API
 - `std::thread`
 - `std::async`
 - `std::future`
@@ -355,8 +355,8 @@ Default by-value capture is susceptible to dangling pointers(especially this), a
 - `std::atomic`
 - `std::mutex`
 - `std::condition_variable`
-#### 5. Variadic templates
-#### 6. New containers
+### 5. Variadic templates
+### 6. New containers
 - [`std::tuple`](https://en.cppreference.com/w/cpp/utility/tuple)
 - [`std::array`](https://en.cppreference.com/w/cpp/container/array)
 - [`std::forward_list`](https://en.cppreference.com/w/cpp/container/forward_list)
@@ -364,7 +364,7 @@ Default by-value capture is susceptible to dangling pointers(especially this), a
 - [`std::unordered_map`](https://en.cppreference.com/w/cpp/container/unordered_map)
 - [`std::unordered_multiset`](https://en.cppreference.com/w/cpp/container/unordered_multiset)
 - [`std::unordered_multimap`](https://en.cppreference.com/w/cpp/container/unordered_multimap)
-#### 7. [Utilities library](https://en.cppreference.com/w/cpp/utility)
+### 7. [Utilities library](https://en.cppreference.com/w/cpp/utility)
 - [`bitset`](https://en.cppreference.com/w/cpp/utility/bitset)
 - [`std::move_if_noexcept`](https://en.cppreference.com/w/cpp/utility/move_if_noexcept)
 - [`std:: initializer_list`](https://en.cppreference.com/w/cpp/utility/initializer_list)
@@ -372,7 +372,7 @@ Default by-value capture is susceptible to dangling pointers(especially this), a
 - [`std::regex`](https://en.cppreference.com/w/cpp/regex)
 - [`std::declval`](https://en.cppreference.com/w/cpp/utility/declval)
   
-#### 8. New Keywords
+### 8. New Keywords
 | New Keyword     | Explain                     | 
 | :-------------- | --------------------------- |
 | `delete`        | to prevent users call a particular function |
