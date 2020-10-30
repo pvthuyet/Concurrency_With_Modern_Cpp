@@ -1,6 +1,14 @@
+# C++20 Features
+### [Lambda expression](https://en.cppreference.com/w/cpp/language/lambda)
+```
+[ captures ] <tparams> ( params ) specifiers exception attr -> ret requires { body }   
+```
+* `attr`: have not supported yet (test on MSVC 16.8 preview)
+* `requires`: have not supported yet (test on MSVC 16.8 preview)
+
 ## X. C++ notes
 * [The rule of three/five/zero](https://en.cppreference.com/w/cpp/language/rule_of_three)
-## IX. C++17 Features
+# C++17 Features
 ### Part I: Basic Language Features
 #### 1. Structured Bindings
 ```
@@ -779,7 +787,7 @@ t2.join();
 ....
   
   
-## I. C++11 Books:
+# C++11 Books:
 [ModernesCpp by Rainer Grimm](http://www.modernescpp.com/index.php)  
 ![1](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/cpp17.png)  
 ![1](https://github.com/pvthuyet/Modern-Cplusplus/blob/master/resources/ConcurrencyCoverFrame.png)  
