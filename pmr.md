@@ -4,3 +4,5 @@ Talks: [Pablo Halpern](https://www.youtube.com/watch?v=v3dz-AKOVL8) [David Sanke
 * https://quick-bench.com/q/Xlx0Z07414WIVQlEiTzwgJ1McGw
 * https://quick-bench.com/q/dC86LPj2bYMIFarp7IJMp1FCzKk
 #### 2. Solve issues
+#### 3. monotonic_buffer_resource vs (un)synchronized_pool_resource
+![](resources/pmr-1.png)
