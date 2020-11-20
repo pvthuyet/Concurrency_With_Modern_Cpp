@@ -6,4 +6,5 @@ Talks: [Pablo Halpern](https://www.youtube.com/watch?v=v3dz-AKOVL8) [David Sanke
 #### 2. Solve issues
 ...
 #### 3. monotonic_buffer_resource vs (un)synchronized_pool_resource
+[source](https://github.com/pvthuyet/cpp20-practise/blob/main/Cpp20Features/pmr.ixx)  
 ![](resources/pmr-1.png)
