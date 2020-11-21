@@ -61,8 +61,7 @@ int main() {
 ## X. C++ notes
 * [The rule of three/five/zero](https://en.cppreference.com/w/cpp/language/rule_of_three)
 # C++17 Features
-### [Polymorphic Memory Resource](https://en.cppreference.com/w/cpp/header/memory_resource)
-[detail](https://github.com/pvthuyet/Concurrency_With_Modern_Cpp/blob/master/pmr.md)
+### [Polymorphic Memory Resource](https://github.com/pvthuyet/Concurrency_With_Modern_Cpp/blob/master/pmr.md)
 
 ### Part I: Basic Language Features
 #### 1. Structured Bindings
