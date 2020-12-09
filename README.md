@@ -389,7 +389,7 @@ Default by-value capture is susceptible to dangling pointers(especially this), a
 | `auto`          |                             |  
 | `constexpr`     |                             |  
 | `nullptr`       |                             |
-| `thread_local`  |                             |
+| `thread_local`  | auto lb = [](int delta) { static thread_local int value = 0; value += delta;}; |
 | `using` alias   |                             |
 | `decltype`      |                             |
 | `enum class`    |                             |
