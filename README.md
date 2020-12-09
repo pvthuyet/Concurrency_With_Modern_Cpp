@@ -101,6 +101,13 @@ struct D {
 * Improve performance
 * Apply for not `CopyConstructible` object.  
 ##### a. Think about below:  
+below codes can't compile before C++17
+```
+std::atomic_int getValue() {
+    return std::atomic_int{1};  // **copy Elision (Mandatory since C++17)**
+}
+```
+  
 ```
 class Foo {
 };
