@@ -1,4 +1,4 @@
-# C++20 Features 
+# C++20 Features
 ### [Lambda expression](https://en.cppreference.com/w/cpp/language/lambda)
 ```
 [ captures ] <tparams> ( params ) specifiers exception attr -> ret requires { body }   
