@@ -57,7 +57,34 @@ int main() {
   __lambda_27_17 lamb = __lambda_27_17{x};
 }
 ```
+##### Recursive lambda
+```
+template <class F>
+struct y_combinator {
+	F f; // the lambda will be stored here
 
+	// a forwarding operator():
+	template <class... Args>
+	decltype(auto) operator()(Args&&... args) const {
+		// we pass ourselves to f, then the arguments.
+		// the lambda should take the first argument as `auto&& recurse` or similar.
+		return f(*this, std::forward<Args>(args)...);
+	}
+};
+// helper function that deduces the type of the lambda:
+template <class F>
+y_combinator<std::decay_t<F>> make_y_combinator(F&& f) {
+	return { std::forward<F>(f) };
+}
+
+void test() {
+	auto fac = make_y_combinator([](auto&& recurse, int n) -> int{
+		if (n <= 1) return 1;
+		return n * recurse(n - 1);
+		});
+	std::cout << fac(5) << std::endl;
+}
+```
 ## X. C++ notes
 * [The rule of three/five/zero](https://en.cppreference.com/w/cpp/language/rule_of_three)
 # C++17 Features
